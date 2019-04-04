@@ -1,4 +1,6 @@
 -- This file is loaded from "HealthstoneAutoMacro.toc"
+-- #showtooltip
+-- /castsequence reset=combat Healthstone, Coastal Healing Potion
 do
 
 local HSId = 5512;
@@ -56,16 +58,19 @@ HealPotMacroIcon:SetScript("OnEvent",function(self,event,...)
   if onCombat==false then
     local HSName, SilasPotName, NormalPotName, EmeraldName = getPotNames(); 
     local HealthstoneNbr, SilasNbr, NormalPotNbr, EmeraldPotNbr = getPotCount()
-    local macroStr = "#showtooltip \n/castsequence reset=combat ";
+    local macroStr = ""
 
-    if HealthstoneNbr > 0 and SilasNbr > 0 then 
-      macroStr = macroStr .. HSName .. ", " .. SilasPotName;
-    elseif HealthstoneNbr > 0 and EmeraldPotNbr > 0 then
-      macroStr = macroStr .. HSName .. ", " .. EmeraldName;
-    elseif HealthstoneNbr > 0 and NormalPotNbr > 0 then
-      macroStr = macroStr .. HSName .. ", " .. NormalPotName;
-    elseif HealthstoneNbr > 0 then
-      macroStr = "#showtooltip \n/use " .. HSName;
+    if HealthstoneNbr > 0 then
+      macroStr = "#showtooltip \n/castsequence reset=combat " .. HSName .. ", ";
+      if SilasNbr > 0 then
+        macroStr = macroStr .. SilasPotName;
+      elseif EmeraldPotNbr > 0 then
+        macroStr = macroStr .. EmeraldName;
+      elseif NormalPotNbr > 0 then
+        macroStr = macroStr .. NormalPotName;
+      else
+        macroStr = "#showtooltip \n/use " .. HSName;
+      end
     elseif SilasNbr > 0 then
       macroStr = "#showtooltip \n/use " .. SilasPotName;
     elseif EmeraldPotNbr > 0 then
