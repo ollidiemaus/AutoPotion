@@ -9,15 +9,11 @@ local NormalPotId = 152494;
 local EmeraldId = 166799; -- Emerald of Vigor
 
 function getPotNames()
-  HSName = GetItemInfo(HSId);
   SilasPotName = GetItemInfo(SilasPotId);
   NormalPotName = GetItemInfo(NormalPotId);
   EmeraldName = GetItemInfo(EmeraldId);
 
   -- fall back on connect sometimes GetItem fail
-  if HSName==nil then
-    HSName = "Healthstone"
-  end
   if SilasPotName==nil then
     SilasPotName = "Silas' Vial of Continuous Curing"
   end
@@ -27,14 +23,23 @@ function getPotNames()
   if EmeraldName==nil then
     EmeraldName = "Emerald of Vigor"
   end
-  return HSName, SilasPotName, NormalPotName, EmeraldName
+  return SilasPotName, NormalPotName, EmeraldName
 end
-function getPotCount()
-  HealthstoneNbr = GetItemCount(HSId);
-  SilasNbr = GetItemCount(SilasPotId);
-  NormalPotNbr = GetItemCount(NormalPotId);
-  EmeraldPotNbr = GetItemCount(EmeraldId);
-  return HealthstoneNbr, SilasNbr, NormalPotNbr, EmeraldPotNbr
+
+function getPots()
+  SilasPotName, NormalPotName, EmeraldName = getPotNames()
+  SilasNbr = GetItemCount(SilasPotId, false, false);
+  return {
+    {SilasPotName, SilasNbr},
+    {EmeraldName, GetItemCount(EmeraldId, false, false)},
+    {NormalPotName, GetItemCount(NormalPotId, false, false)}
+  }
+end
+function getHs()
+  if HSName==nil then
+    HSName = "Healthstone"
+  end
+  return HSName, GetItemCount(HSId, false, false);
 end
 
 local onCombat = true;
@@ -56,31 +61,30 @@ HealPotMacroIcon:SetScript("OnEvent",function(self,event,...)
   end
 
   if onCombat==false then
-    local HSName, SilasPotName, NormalPotName, EmeraldName = getPotNames(); 
-    local HealthstoneNbr, SilasNbr, NormalPotNbr, EmeraldPotNbr = getPotCount()
-    local macroStr = ""
+    local Pot = getPots()
+    local HsName, HsNbr = getHs()
+    local macroStr, potName, found;
 
-    if HealthstoneNbr > 0 then
-      macroStr = "#showtooltip \n/castsequence reset=combat " .. HSName .. ", ";
-      if SilasNbr > 0 then
-        macroStr = macroStr .. SilasPotName;
-      elseif EmeraldPotNbr > 0 then
-        macroStr = macroStr .. EmeraldName;
-      elseif NormalPotNbr > 0 then
-        macroStr = macroStr .. NormalPotName;
+    found = false;
+    for i,v in ipairs(Pot) do
+      if v[2] > 0 then
+        found = true;
+        potName = v[1]
+        break;
+      end
+    end
+
+    if HsNbr > 0 then
+      if found==true then
+        macroStr = "#showtooltip \n/castsequence reset=combat " .. HSName .. ", " .. potName;
       else
         macroStr = "#showtooltip \n/use " .. HSName;
       end
-    elseif SilasNbr > 0 then
-      macroStr = "#showtooltip \n/use " .. SilasPotName;
-    elseif EmeraldPotNbr > 0 then
-      macroStr = "#showtooltip \n/use " .. EmeraldName;
-    elseif NormalPotNbr > 0 then
-      macroStr = "#showtooltip \n/use " .. NormalPotName;
+    elseif found==true then
+      macroStr = "#showtooltip \n/use " .. potName;
     else
       macroStr = "#showtooltip"
     end
-
     EditMacro("HAMHealthPot", "HAMHealthPot", nil, macroStr, 1, nil)
   end
 end)
