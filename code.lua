@@ -36,6 +36,7 @@ function getPots()
   }
 end
 function getHs()
+  HSName = GetItemInfo(HSId);
   if HSName==nil then
     HSName = "Healthstone"
   end
