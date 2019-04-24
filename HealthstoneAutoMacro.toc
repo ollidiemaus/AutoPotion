@@ -1,5 +1,5 @@
 ## Interface: 80100
-## Version: 0.1.0-alpha
+## Version: 0.3.0-alpha
 ## Title: Healthstone Auto Macro
 ## Author: ollidiemaus
 ## Notes: Updates the Macro HAMHealthPot to use either Healthstone or Coastal Healing Potion
