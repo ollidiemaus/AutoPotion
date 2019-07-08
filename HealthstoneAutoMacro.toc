@@ -3,4 +3,3 @@
 ## Title: Healthstone Auto Macro
 ## Author: ollidiemaus
 ## Notes: Updates the Macro HAMHealthPot to use either Healthstone, Abyssal Healing Potion, Coastal Healing Potion, Silas' Vial of Continuous Curing or Emerald of Vigor
-code.lua
