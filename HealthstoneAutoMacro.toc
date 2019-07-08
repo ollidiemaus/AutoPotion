@@ -1,6 +1,6 @@
-## Interface: 80100
-## Version: 1.0
+## Interface: 80200
+## Version: 1.1
 ## Title: Healthstone Auto Macro
 ## Author: ollidiemaus
-## Notes: Updates the Macro HAMHealthPot to use either Healthstone, Coastal Healing Potion, Silas' Vial of Continuous Curing or Emerald of Vigor
+## Notes: Updates the Macro HAMHealthPot to use either Healthstone, Abyssal Healing Potion, Coastal Healing Potion, Silas' Vial of Continuous Curing or Emerald of Vigor
 code.lua
