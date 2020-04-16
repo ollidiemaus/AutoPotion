@@ -1,24 +1,17 @@
 -- This file is loaded from "HealthstoneAutoMacro.toc"
--- #showtooltip
--- /castsequence reset=combat Healthstone, Coastal Healing Potion
 do
 
 local HSId = 5512;
-local SilasPotId = 156634;
 local NormalPotId = 152494;
 local AbyssalPotId = 169451;
 local EmeraldId = 166799; -- Emerald of Vigor
 
 function getPotNames()
-  SilasPotName = GetItemInfo(SilasPotId);
   NormalPotName = GetItemInfo(NormalPotId);
   AbyssalPotName = GetItemInfo(AbyssalPotId);
   EmeraldName = GetItemInfo(EmeraldId);
 
   -- fall back on connect sometimes GetItem fail
-  if SilasPotName==nil then
-    SilasPotName = "Silas' Vial of Continuous Curing"
-  end
   if AbyssalPotName==nil then
     AbyssalPotName = "Abyssal Healing Potion"
   end
@@ -28,14 +21,12 @@ function getPotNames()
   if EmeraldName==nil then
     EmeraldName = "Emerald of Vigor"
   end
-  return SilasPotName, AbyssalPotName, NormalPotName, EmeraldName
+  return AbyssalPotName, NormalPotName, EmeraldName
 end
 
 function getPots()
-  SilasPotName, AbyssalPotName, NormalPotName, EmeraldName = getPotNames()
-  SilasNbr = GetItemCount(SilasPotId, false, false);
+  AbyssalPotName, NormalPotName, EmeraldName = getPotNames()
   return {
-    {SilasPotName, SilasNbr},
     {EmeraldName, GetItemCount(EmeraldId, false, false)},
 	{AbyssalPotName, GetItemCount(AbyssalPotId, false, false)},
     {NormalPotName, GetItemCount(NormalPotId, false, false)}
