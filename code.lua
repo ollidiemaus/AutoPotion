@@ -2,33 +2,27 @@
 do
 
 local HSId = 5512;
-local NormalPotId = 152494;
-local AbyssalPotId = 169451;
-local EmeraldId = 166799; -- Emerald of Vigor
+local NormalPotId = 171267;
+local PhialId = 177278; -- Phial of Serenity
 
 function getPotNames()
   NormalPotName = GetItemInfo(NormalPotId);
-  AbyssalPotName = GetItemInfo(AbyssalPotId);
-  EmeraldName = GetItemInfo(EmeraldId);
+  PhialName = GetItemInfo(PhialId);
 
   -- fall back on connect sometimes GetItem fail
-  if AbyssalPotName==nil then
-    AbyssalPotName = "Abyssal Healing Potion"
-  end
   if NormalPotName==nil then
-    NormalPotName = "Coastal Healing Potion"
+    NormalPotName = "Spiritual Healing Potion"
   end
-  if EmeraldName==nil then
-    EmeraldName = "Emerald of Vigor"
+  if PhialName==nil then
+    PhialName = "Phial of Serenity"
   end
-  return AbyssalPotName, NormalPotName, EmeraldName
+  return NormalPotName, PhialName
 end
 
 function getPots()
-  AbyssalPotName, NormalPotName, EmeraldName = getPotNames()
+  NormalPotName, PhialName = getPotNames()
   return {
-    {EmeraldName, GetItemCount(EmeraldId, false, false)},
-	{AbyssalPotName, GetItemCount(AbyssalPotId, false, false)},
+    {PhialName, GetItemCount(PhialId, false, false)},
     {NormalPotName, GetItemCount(NormalPotId, false, false)}
 
   }
