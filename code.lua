@@ -4,10 +4,13 @@ do
 local HSId = 5512;
 local NormalPotId = 171267;
 local PhialId = 177278; -- Phial of Serenity
+local SiphId = 176409; -- Rejuvenating Siphoned Essence
+
 
 function getPotNames()
   NormalPotName = GetItemInfo(NormalPotId);
   PhialName = GetItemInfo(PhialId);
+  SiphName = GetItemInfo(SiphId);
 
   -- fall back on connect sometimes GetItem fail
   if NormalPotName==nil then
@@ -16,13 +19,17 @@ function getPotNames()
   if PhialName==nil then
     PhialName = "Phial of Serenity"
   end
-  return NormalPotName, PhialName
+  if SiphName==nil then
+    SiphName = "Rejuvenating Siphoned Essence"
+  end
+  return SiphName, NormalPotName, PhialName
 end
 
 function getPots()
-  NormalPotName, PhialName = getPotNames()
+  SiphName, NormalPotName, PhialName = getPotNames()
   return {
     {PhialName, GetItemCount(PhialId, false, false)},
+    {SiphName, GetItemCount(SiphId, false, false)},
     {NormalPotName, GetItemCount(NormalPotId, false, false)}
 
   }
