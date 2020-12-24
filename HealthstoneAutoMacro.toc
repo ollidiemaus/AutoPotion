@@ -1,6 +1,6 @@
 ## Interface: 90002
-## Version: 1.2.1
+## Version: 1.2.2
 ## Title: Healthstone Auto Macro
 ## Author: ollidiemaus
-## Notes: Updates the Macro HAMHealthPot to use either Healthstone, Coastal Healing Potion, Silas' Vial of Continuous Curing or Emerald of Vigor
+## Notes: Updates the Macro HAMHealthPot to use either Healthstone, several current Healthpots or Phial of Serenity
 code.lua

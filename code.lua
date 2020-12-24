@@ -1,54 +1,58 @@
 -- This file is loaded from "HealthstoneAutoMacro.toc"
 do
 
-local HSId = 5512;
-local NormalPotId = 171267;
-local PhialId = 177278; -- Phial of Serenity
-local SiphId = 176409; -- Rejuvenating Siphoned Essence
+local healthstoneId = 5512;
+local phialId = 177278; -- Phial of Serenity
+local normalPotId = 171267; -- Spiritual Healing Potion
+local siphId = 176409; -- Rejuvenating Siphoned Essence
 
 
 function getPotNames()
-  NormalPotName = GetItemInfo(NormalPotId);
-  PhialName = GetItemInfo(PhialId);
-  SiphName = GetItemInfo(SiphId);
+  normalPotName = GetItemInfo(normalPotId);
+  siphName = GetItemInfo(siphId);
 
-  -- fall back on connect sometimes GetItem fail
-  if NormalPotName==nil then
-    NormalPotName = "Spiritual Healing Potion"
+  -- fall back because on connect sometimes GetItem fail
+  if normalPotName==nil then
+    normalPotName = "Spiritual Healing Potion"
   end
-  if PhialName==nil then
-    PhialName = "Phial of Serenity"
+  if siphName==nil then
+    siphName = "Rejuvenating Siphoned Essence"
   end
-  if SiphName==nil then
-    SiphName = "Rejuvenating Siphoned Essence"
-  end
-  return SiphName, NormalPotName, PhialName
+  return siphName, normalPotName
 end
 
 function getPots()
-  SiphName, NormalPotName, PhialName = getPotNames()
+  siphName, normalPotName, phialName = getPotNames()
   return {
-    {PhialName, GetItemCount(PhialId, false, false)},
-    {SiphName, GetItemCount(SiphId, false, false)},
-    {NormalPotName, GetItemCount(NormalPotId, false, false)}
+    {siphName, GetItemCount(siphId, false, false)},
+    {normalPotName, GetItemCount(normalPotId, false, false)}
 
   }
 end
-function getHs()
-  HSName = GetItemInfo(HSId);
-  if HSName==nil then
-    HSName = "Healthstone"
+
+function getHealthstone()
+  healthstoneName = GetItemInfo(healthstoneId);
+  if healthstoneName==nil then
+    healthstoneName = "Healthstone"
   end
-  return HSName, GetItemCount(HSId, false, false);
+  return healthstoneName, GetItemCount(healthstoneId, false, false);
+end
+
+function getPhial()
+  phialName = GetItemInfo(phialId);
+  if phialName==nil then
+    phialName = "Phial of Serenity"
+  end
+  return phialName, GetItemCount(phialId, false, false);
 end
 
 local onCombat = true;
-local HealPotMacroIcon = CreateFrame("Frame");
-HealPotMacroIcon:RegisterEvent("BAG_UPDATE");
-HealPotMacroIcon:RegisterEvent("PLAYER_LOGIN");
-HealPotMacroIcon:RegisterEvent("PLAYER_REGEN_ENABLED");
-HealPotMacroIcon:RegisterEvent("PLAYER_REGEN_DISABLED");
-HealPotMacroIcon:SetScript("OnEvent",function(self,event,...)
+local healPotMacroIcon = CreateFrame("Frame");
+healPotMacroIcon:RegisterEvent("BAG_UPDATE");
+healPotMacroIcon:RegisterEvent("PLAYER_LOGIN");
+healPotMacroIcon:RegisterEvent("PLAYER_REGEN_ENABLED");
+healPotMacroIcon:RegisterEvent("PLAYER_REGEN_DISABLED");
+healPotMacroIcon:SetScript("OnEvent",function(self,event,...)
   if event=="PLAYER_LOGIN" then
     onCombat = false;
   end
@@ -62,29 +66,47 @@ HealPotMacroIcon:SetScript("OnEvent",function(self,event,...)
 
   if onCombat==false then
     local Pot = getPots()
-    local HsName, HsNbr = getHs()
-    local macroStr, potName, found;
+    local healthstoneName, healthstoneCounter = getHealthstone()
+    local phialName, phialCounter = getPhial()
+    local macroStr, potName, foundPots;
 
-    found = false;
+    foundPots = false;
+    foundPhial = false;
+    foundHealthstone = false;
+
     for i,v in ipairs(Pot) do
       if v[2] > 0 then
-        found = true;
+        foundPots = true;
         potName = v[1]
         break;
       end
     end
 
-    if HsNbr > 0 then
-      if found==true then
-        macroStr = "#showtooltip \n/castsequence reset=combat " .. HSName .. ", " .. potName;
-      else
-        macroStr = "#showtooltip \n/use " .. HSName;
-      end
-    elseif found==true then
-      macroStr = "#showtooltip \n/use " .. potName;
-    else
-      macroStr = "#showtooltip"
+    if phialCounter > 0 then
+      foundPhial = true;
     end
+    if healthstoneCounter > 0 then
+      foundHealthstone = true;
+    end
+
+    -- Currently the Priority is: healthstone -> pot -> phial
+    -- after 50k+ health it needs to be: healtstone -> phial -> pot
+    potsString = ""
+    if foundHealthstone==true then
+      potsString = potsString .. healthstoneName;
+    end
+    if foundPhial==true then
+      potsString = potsString .. ", " .. phialName;
+    end
+    if foundPots==true then
+      potsString = potsString .. ", " .. potName;
+    end
+    if foundHealthstone==false and foundPhial==false and foundPots==false then
+      macroStr = "#showtooltip"
+    else
+      macroStr = "#showtooltip \n/castsequence reset=combat " .. potsString;
+    end
+
     EditMacro("HAMHealthPot", "HAMHealthPot", nil, macroStr, 1, nil)
   end
 end)
