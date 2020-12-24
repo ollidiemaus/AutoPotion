@@ -2,30 +2,30 @@
 do
 
 local healthstoneId = 5512;
-local phialId = 177278; -- Phial of Serenity
-local normalPotId = 171267; -- Spiritual Healing Potion
 local siphId = 176409; -- Rejuvenating Siphoned Essence
+local spiritualHealingId = 171267; -- Spiritual Healing Potion
+local phialId = 177278; -- Phial of Serenity
 
 
 function getPotNames()
-  normalPotName = GetItemInfo(normalPotId);
+  spiritualHealingName = GetItemInfo(spiritualHealingId);
   siphName = GetItemInfo(siphId);
 
-  -- fall back because on connect sometimes GetItem fail
-  if normalPotName==nil then
-    normalPotName = "Spiritual Healing Potion"
+  -- fall back on connect sometimes GetItem fail
+  if spiritualHealingName==nil then
+    spiritualHealingName = "Spiritual Healing Potion"
   end
   if siphName==nil then
     siphName = "Rejuvenating Siphoned Essence"
   end
-  return siphName, normalPotName
+  return siphName, spiritualHealingName
 end
 
 function getPots()
-  siphName, normalPotName, phialName = getPotNames()
+  siphName, spiritualHealingName = getPotNames()
   return {
     {siphName, GetItemCount(siphId, false, false)},
-    {normalPotName, GetItemCount(normalPotId, false, false)}
+    {spiritualHealingName, GetItemCount(spiritualHealingId, false, false)}
 
   }
 end
@@ -47,12 +47,12 @@ function getPhial()
 end
 
 local onCombat = true;
-local healPotMacroIcon = CreateFrame("Frame");
-healPotMacroIcon:RegisterEvent("BAG_UPDATE");
-healPotMacroIcon:RegisterEvent("PLAYER_LOGIN");
-healPotMacroIcon:RegisterEvent("PLAYER_REGEN_ENABLED");
-healPotMacroIcon:RegisterEvent("PLAYER_REGEN_DISABLED");
-healPotMacroIcon:SetScript("OnEvent",function(self,event,...)
+local HealPotMacroIcon = CreateFrame("Frame");
+HealPotMacroIcon:RegisterEvent("BAG_UPDATE");
+HealPotMacroIcon:RegisterEvent("PLAYER_LOGIN");
+HealPotMacroIcon:RegisterEvent("PLAYER_REGEN_ENABLED");
+HealPotMacroIcon:RegisterEvent("PLAYER_REGEN_DISABLED");
+HealPotMacroIcon:SetScript("OnEvent",function(self,event,...)
   if event=="PLAYER_LOGIN" then
     onCombat = false;
   end
@@ -68,11 +68,14 @@ healPotMacroIcon:SetScript("OnEvent",function(self,event,...)
     local Pot = getPots()
     local healthstoneName, healthstoneCounter = getHealthstone()
     local phialName, phialCounter = getPhial()
-    local macroStr, potName, foundPots;
+    local macroStr, potName, foundPots, foundPhial, foundHealthstone, potList, potListCounter, potsString;
 
     foundPots = false;
     foundPhial = false;
     foundHealthstone = false;
+    potList = {}
+    potListCounter = 0;
+    potsString = ""
 
     for i,v in ipairs(Pot) do
       if v[2] > 0 then
@@ -91,22 +94,31 @@ healPotMacroIcon:SetScript("OnEvent",function(self,event,...)
 
     -- Currently the Priority is: healthstone -> pot -> phial
     -- after 50k+ health it needs to be: healtstone -> phial -> pot
-    potsString = ""
     if foundHealthstone==true then
-      potsString = potsString .. healthstoneName;
-    end
-    if foundPhial==true then
-      potsString = potsString .. ", " .. phialName;
+      table.insert(potList,healthstoneName)
+      potListCounter=potListCounter+1;
     end
     if foundPots==true then
-      potsString = potsString .. ", " .. potName;
+      table.insert(potList,potName)
+      potListCounter=potListCounter+1;
     end
-    if foundHealthstone==false and foundPhial==false and foundPots==false then
-      macroStr = "#showtooltip"
-    else
-      macroStr = "#showtooltip \n/castsequence reset=combat " .. potsString;
+    if foundPhial==true then
+      table.insert(potList,phialName)
+      potListCounter=potListCounter+1;
     end
 
+    if potListCounter==0 then
+      macroStr = "#showtooltip"
+    else
+      for i, v in ipairs(potList) do
+        if i==1 then
+          potsString = potsString .. v;
+        else
+          potsString = potsString .. ", " .. v;
+        end
+      end
+    end
+    macroStr = "#showtooltip \n/castsequence reset=combat " .. potsString;
     EditMacro("HAMHealthPot", "HAMHealthPot", nil, macroStr, 1, nil)
   end
 end)
