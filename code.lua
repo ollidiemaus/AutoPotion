@@ -3,34 +3,28 @@ do
 
 local healthstoneId = 5512;
 local siphId = 176409; -- Rejuvenating Siphoned Essence - Torghast Potion
-local spiritualRejuvenationId = 171269; -- Spiritual Rejuvenation Potion
 local spiritualHealingId = 171267; -- Spiritual Healing Potion
 local phialId = 177278; -- Phial of Serenity
 
 
 function getPotNames()
   siphName = GetItemInfo(siphId);
-  spiritualRejuvenationName = GetItemInfo(spiritualRejuvenationId);
   spiritualHealingName = GetItemInfo(spiritualHealingId);
 
   -- fall back on connect sometimes GetItem fail
   if siphName==nil then
     siphName = "Rejuvenating Siphoned Essence"
   end
-  if spiritualRejuvenationName==nil then
-    spiritualRejuvenationName = "Spiritual Rejuvenation Potion"
-  end
   if spiritualHealingName==nil then
     spiritualHealingName = "Spiritual Healing Potion"
   end
-  return siphName, spiritualRejuvenationName, spiritualHealingName
+  return siphName, spiritualHealingName
 end
 
 function getPots()
-  siphName, spiritualRejuvenationName, spiritualHealingName = getPotNames()
+  siphName‚‚, spiritualHealingName = getPotNames()
   return {
     {siphName, GetItemCount(siphId, false, false)},
-    {spiritualRejuvenationName, GetItemCount(spiritualRejuvenationId, false, false)},
     {spiritualHealingName, GetItemCount(spiritualHealingId, false, false)}
 
   }
