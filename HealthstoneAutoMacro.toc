@@ -1,5 +1,5 @@
 ## Interface: 90002
-## Version: 1.2.2
+## Version: 1.2.3
 ## Title: Healthstone Auto Macro
 ## Author: ollidiemaus
 ## Notes: Updates the Macro HAMHealthPot to use either Healthstone, several current Healthpots or Phial of Serenity
