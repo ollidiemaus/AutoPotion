@@ -68,6 +68,8 @@ do
       local Pot = getPots()
       local healthstoneName, healthstoneCounter = getHealthstone()
       local phialName, phialCounter = getPhial()
+      local playerClass, englishClass, classIndex = UnitClass("player");
+      local resetType = "combat"
       local macroStr, potName, foundPots, foundPhial, foundHealthstone, potList, potListCounter, potsString;
   
       foundPots = false;
@@ -88,12 +90,19 @@ do
       if phialCounter > 0 then
         foundPhial = true;
       end
+
       if healthstoneCounter > 0 then
         foundHealthstone = true;
       end
   
-      -- Currently the Priority is: healthstone -> pot -> phial
+      -- Currently the Priority is: vial -> healthstone -> pot -> phial
       -- after 50k+ health it needs to be: healtstone -> phial -> pot
+      
+      if englishClass=="ROGUE" then
+        resetType = "30"
+        table.insert(potList, "Crimson Vial")
+        potListCounter=potListCounter+1;
+      end
       if foundHealthstone==true then
         table.insert(potList,healthstoneName)
         potListCounter=potListCounter+1;
@@ -118,7 +127,7 @@ do
           end
         end
       end
-      macroStr = "#showtooltip \n/castsequence reset=combat " .. potsString;
+      macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " " .. potsString;
       EditMacro("HAMHealthPot", "HAMHealthPot", nil, macroStr, 1, nil)
     end
   end)
