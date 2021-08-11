@@ -95,8 +95,9 @@ do
         foundHealthstone = true;
       end
   
-      -- Currently the Priority is: vial -> healthstone -> pot -> phial
+      -- Currently the Priority is: vial -> healthstone -> phial -> pot
       -- after 50k+ health it needs to be: healtstone -> phial -> pot
+      -- Thought process is to use "free" or inherent consumable before purchasable consumables
       
       if englishClass=="ROGUE" then
         resetType = "30"
@@ -107,12 +108,12 @@ do
         table.insert(potList,healthstoneName)
         potListCounter=potListCounter+1;
       end
-      if foundPots==true then
-        table.insert(potList,potName)
-        potListCounter=potListCounter+1;
-      end
       if foundPhial==true then
         table.insert(potList,phialName)
+        potListCounter=potListCounter+1;
+      end
+      if foundPots==true then
+        table.insert(potList,potName)
         potListCounter=potListCounter+1;
       end
   
