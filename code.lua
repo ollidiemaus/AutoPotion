@@ -4,12 +4,14 @@ do
   local healthstoneId = 5512;
   local siphId = 176409; -- Rejuvenating Siphoned Essence - Torghast Potion
   local cosmicHealingId = 187802; -- Cosmic Healing Potion
+  local spiritualHealingId = 171267; -- Spiritual Healing Potion
   local phialId = 177278; -- Phial of Serenity
   
   
   function getPotNames()
     siphName = GetItemInfo(siphId);
     cosmicHealingName = GetItemInfo(cosmicHealingId);
+	  spiritualHealingName = GetItemInfo(spiritualHealingId);
   
     -- fall back on connect sometimes GetItem fail
     if siphName==nil then
@@ -18,14 +20,18 @@ do
     if cosmicHealingName==nil then
       cosmicHealingName = "Cosmic Healing Potion"
     end
-    return siphName, cosmicHealingName
+	if spiritualHealingName==nil then
+      spiritualHealingName = "Spiritual Healing Potion"
+    end
+    return siphName, cosmicHealingName, spiritualHealingName
   end
   
   function getPots()
-    siphName, cosmicHealingName = getPotNames()
+    siphName, cosmicHealingName, spiritualHealingName  = getPotNames()
     return {
       {siphName, GetItemCount(siphId, false, false)},
-      {cosmicHealingName, GetItemCount(cosmicHealingId, false, false)}
+      {cosmicHealingName, GetItemCount(cosmicHealingId, false, false)},
+	    {spiritualHealingName, GetItemCount(spiritualHealingId, false, false)}
   
     }
   end
