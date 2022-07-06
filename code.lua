@@ -104,11 +104,12 @@ do
       -- Currently the Priority is: vial -> healthstone -> pot -> phial
       -- after 50k+ health it needs to be: healtstone -> phial -> pot
       
-      if englishClass=="ROGUE" then
+      ---uncomment this block if you really want cirmson vial to be in this roation.
+      --[[if englishClass=="ROGUE" then
         resetType = "30"
         table.insert(potList, "Crimson Vial")
         potListCounter=potListCounter+1;
-      end
+      end--]]
       if foundHealthstone==true then
         table.insert(potList,healthstoneName)
         potListCounter=potListCounter+1;
