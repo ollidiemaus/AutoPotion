@@ -133,7 +133,7 @@ do
             potsString = potsString .. ", " .. v;
           end
         end
-	macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " " .. potsString;
+        macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " " .. potsString;
       end
       EditMacro("HAMHealthPot", "HAMHealthPot", nil, macroStr, 1, nil)
     end
