@@ -2,36 +2,35 @@
 do
 
   local healthstoneId = 5512;
-  local siphId = 176409; -- Rejuvenating Siphoned Essence - Torghast Potion
-  local cosmicHealingId = 187802; -- Cosmic Healing Potion
-  local spiritualHealingId = 171267; -- Spiritual Healing Potion
-  local phialId = 177278; -- Phial of Serenity
+  local refreshing1Id = 191378; -- Refreshing Healing Potion - Rank 1
+  local refreshing2Id = 191379; -- Refreshing Healing Potion - Rank 2
+  local refreshing3Id = 191380; -- Refreshing Healing Potion - Rank 3
   
   
   function getPotNames()
-    siphName = GetItemInfo(siphId);
-    cosmicHealingName = GetItemInfo(cosmicHealingId);
-	  spiritualHealingName = GetItemInfo(spiritualHealingId);
+    refreshing1Name = GetItemInfo(refreshing1Id);
+    refreshing2Name = GetItemInfo(refreshing2Id);
+	  refreshing3Name = GetItemInfo(refreshing3Id);
   
     -- fall back on connect sometimes GetItem fail
-    if siphName==nil then
-      siphName = "Rejuvenating Siphoned Essence"
+    if refreshing1Name==nil then
+      refreshing1Name = "Refreshing Healing Potion"
     end
-    if cosmicHealingName==nil then
-      cosmicHealingName = "Cosmic Healing Potion"
+    if refreshing2Name==nil then
+      refreshing2Name = "Refreshing Healing Potion"
     end
-	if spiritualHealingName==nil then
-      spiritualHealingName = "Spiritual Healing Potion"
+    if refreshing3Name==nil then
+      refreshing3Name = "Refreshing Healing Potion"
     end
-    return siphName, cosmicHealingName, spiritualHealingName
+    return refreshing3Name, refreshing2Name, refreshing1Name
   end
   
   function getPots()
-    siphName, cosmicHealingName, spiritualHealingName  = getPotNames()
+    refreshing3Name, refreshing2Name, refreshing1Name  = getPotNames()
     return {
-      {siphName, GetItemCount(siphId, false, false)},
-      {cosmicHealingName, GetItemCount(cosmicHealingId, false, false)},
-	    {spiritualHealingName, GetItemCount(spiritualHealingId, false, false)}
+      {refreshing3Name, GetItemCount(refreshing3Id, false, false)},
+      {refreshing2Name, GetItemCount(refreshing2Id, false, false)},
+	    {refreshing1Name, GetItemCount(refreshing1Id, false, false)}
   
     }
   end
@@ -43,15 +42,7 @@ do
     end
     return healthstoneName, GetItemCount(healthstoneId, false, false);
   end
-  
-  function getPhial()
-    phialName = GetItemInfo(phialId);
-    if phialName==nil then
-      phialName = "Phial of Serenity"
-    end
-    return phialName, GetItemCount(phialId, false, false);
-  end
-  
+    
   local onCombat = true;
   local HealPotMacroIcon = CreateFrame("Frame");
   HealPotMacroIcon:RegisterEvent("BAG_UPDATE");
@@ -73,13 +64,11 @@ do
     if onCombat==false then
       local Pot = getPots()
       local healthstoneName, healthstoneCounter = getHealthstone()
-      local phialName, phialCounter = getPhial()
       local playerClass, englishClass, classIndex = UnitClass("player");
       local resetType = "combat"
-      local macroStr, potName, foundPots, foundPhial, foundHealthstone, potList, potListCounter, potsString;
+      local macroStr, potName, foundPots, foundHealthstone, potList, potListCounter, potsString;
   
       foundPots = false;
-      foundPhial = false;
       foundHealthstone = false;
       potList = {}
       potListCounter = 0;
@@ -91,10 +80,6 @@ do
           potName = v[1]
           break;
         end
-      end
-  
-      if phialCounter > 0 then
-        foundPhial = true;
       end
 
       if healthstoneCounter > 0 then
@@ -116,10 +101,6 @@ do
       end
       if foundPots==true then
         table.insert(potList,potName)
-        potListCounter=potListCounter+1;
-      end
-      if foundPhial==true then
-        table.insert(potList,phialName)
         potListCounter=potListCounter+1;
       end
   

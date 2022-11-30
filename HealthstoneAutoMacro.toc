@@ -1,6 +1,6 @@
-## Interface: 90205
-## Version: 1.2.9
+## Interface: 100002
+## Version: 1.3
 ## Title: Healthstone Auto Macro
 ## Author: ollidiemaus
-## Notes: Updates the Macro HAMHealthPot to use either Healthstone, several current Healthpots or Phial of Serenity
+## Notes: Updates the Macro HAMHealthPot to use either Healthstone and several current Healthpots 
 code.lua
