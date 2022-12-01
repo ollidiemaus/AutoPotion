@@ -12,8 +12,11 @@ jobs:
       GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Clone project
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Package and release
+
+      - name: Create Package
         uses: BigWigsMods/packager@v2
+        env:
+          WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}

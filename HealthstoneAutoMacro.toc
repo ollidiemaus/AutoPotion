@@ -2,5 +2,6 @@
 ## Version: 1.3
 ## Title: Healthstone Auto Macro
 ## Author: ollidiemaus
+## X-Wago-ID: yQKybBG7
 ## Notes: Updates the Macro HAMHealthPot to use either Healthstone and several current Healthpots 
 code.lua
