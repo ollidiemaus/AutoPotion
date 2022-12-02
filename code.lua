@@ -38,14 +38,55 @@ do
   local refreshingR3 = Item.new(191380,"Refreshing Healing Potion")
   local refreshingR2 = Item.new(191379,"Refreshing Healing Potion")
   local refreshingR1 = Item.new(191378,"Refreshing Healing Potion")
+  local cosmic = Item.new(187802,"Cosmic Healing Potion")
   local spiritual = Item.new(171267,"Spiritual Healing Potion")
+  local soulful = Item.new(180317,"Soulful Healing Potion")
+  local ashran = Item.new(115498,"Ashran Healing Tonic")
+  local abyssal = Item.new(169451,"Abyssal Healing Potion")
+  local astral = Item.new(152615,"Astral Healing Potion")
+  local coastal = Item.new(152494,"Coastal Healing Potion")
+  local ancient = Item.new(127834,"Ancient Healing Potion")
+  local aged = Item.new(136569,"Aged Health Potion")
+  local tonic = Item.new(109223,"Healing Tonic")
+  local master = Item.new(76097,"Master Healing Potion")
+  local mythical = Item.new(57191,"Mythical Healing Potion")
+  local runic = Item.new(33447,"Runic Healing Potion")
+  local resurgent = Item.new(39671,"Resurgent Healing Potion")
+  local super = Item.new(22829,"Super Healing Potion")
+  local major = Item.new(13446,"Major Healing Potion")
+  local lesser = Item.new(858,"Lesser Healing Potion")
+  ---superior has probably wrong scaling
+  local superior = Item.new(3928,"Superior Healing Potion")
+  local minor = Item.new(118,"Minor Healing Potion")
+  local greater = Item.new(1710,"Greater Healing Potion")
+  local healingPotion = Item.new(929,"Healing Potion")
   
   function getPots()
     return {
       refreshingR3,
       refreshingR2,
       refreshingR1,
-      spiritual
+      cosmic,
+      spiritual,
+      soulful,
+      ashran,
+      abyssal,
+      astral,
+      coastal,
+      ancient,
+      aged,
+      tonic,
+      master,
+      mythical,
+      runic,
+      resurgent,
+      super,
+      major,
+      lesser,
+      superior,
+      minor,
+      greater,
+      healingPotion
     }
   end
       
