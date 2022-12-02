@@ -121,6 +121,7 @@ do
       potsString = ""
 
       for iterator,value in ipairs(Pot) do
+        --this is because the getCount onCombat works differently
         if value.getCount() > 0 then
           foundPots = true;
           potName = value.getName()
