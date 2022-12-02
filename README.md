@@ -1,4 +1,5 @@
-This Addon will maintain a Macro for you which uses Healthstone, Spiritual Healing Potion or Rejuventating Siphoned Essence, whichever is available but it will prefer Healthstone over Spiritual Healing Potion.
+This Addon will maintain a Macro for you which uses Healthstone and whichever Healing Potion is in your Bag. 
+But it will prefer Healthstone over all Healing Potions.
 
 How it works:
 
@@ -6,8 +7,8 @@ It's actually a very basic addon which will update the given macro every time yo
 
 How to use:
 
-Install Addon
-Create a empty Macro called "HAMHealthPot"
-Move Macro to Button
-reload
-Profit!
+1. Install Addon
+2. Create a empty Macro called "HAMHealthPot"
+3. Move Macro to Button
+4. reload
+5. Profit!
