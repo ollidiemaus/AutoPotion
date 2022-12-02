@@ -42,10 +42,10 @@ do
   
   function getPots()
     return {
-      {refreshingR3.getName(), refreshingR3.getCount()},
-      {refreshingR2.getName(), refreshingR2.getCount()},
-      {refreshingR1.getName(), refreshingR1.getCount()},
-      {spiritual.getName(), spiritual.getCount()}  
+      refreshingR3,
+      refreshingR2,
+      refreshingR1,
+      spiritual
     }
   end
       
@@ -78,11 +78,11 @@ do
       potList = {}
       potListCounter = 0
       potsString = ""
-  
-      for i,v in ipairs(Pot) do
-        if v[2] > 0 then
+
+      for iterator,value in ipairs(Pot) do
+        if value.getCount() > 0 then
           foundPots = true;
-          potName = v[1]
+          potName = value.getName()
           break;
         end
       end
