@@ -18,10 +18,15 @@ Item.new = function(id,name)
       end
   end
 
+  --this is never called and can be removed as we use ids in the macros now
   function self.getName()
     --it's probably not necessary to do this every time we get the name but thats how it worked in previous version this would need further testing
     setName()
     return self.name
+  end
+
+  function self.getId()
+    return self.id
   end
 
   function self.getCount ()
@@ -112,11 +117,11 @@ do
       local Pot = getPots()
       local playerClass, englishClass, classIndex = UnitClass("player")
       local resetType = "combat"
-      local macroStr, potName, foundPots, foundHealthstone, potList, potListCounter, potsString
+      local macroStr, foundPots, foundHealthstone, potListCounter, potsString, potId, potIdList
   
       foundPots = false
       foundHealthstone = false
-      potList = {}
+      potIdList = {}
       potListCounter = 0
       potsString = ""
 
@@ -124,7 +129,7 @@ do
         --this is because the getCount onCombat works differently
         if value.getCount() > 0 then
           foundPots = true;
-          potName = value.getName()
+          potId = value.getId()
           break;
         end
       end
@@ -141,22 +146,22 @@ do
       end--]]
 
       if foundHealthstone==true then
-        table.insert(potList,healthstone.getName())
+        table.insert(potIdList,healthstone.getId())
         potListCounter=potListCounter+1
       end
       if foundPots==true then
-        table.insert(potList,potName)
+        table.insert(potIdList,potId)
         potListCounter=potListCounter+1
       end
   
       if potListCounter==0 then
         macroStr = "#showtooltip"
       else
-        for i, v in ipairs(potList) do
+        for i, v in ipairs(potIdList) do
           if i==1 then
-            potsString = potsString .. v;
+            potsString = "item:" .. v;
           else
-            potsString = potsString .. ", " .. v;
+            potsString = potsString .. ", " .. "item:" .. v;
           end
         end
         macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " " .. potsString
