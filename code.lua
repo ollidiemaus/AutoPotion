@@ -60,6 +60,22 @@ Player.new = function()
           return "90", name
         end
       end
+      if self.englishClass=="HUNTER" then
+        --NOTE: on GCD
+        local exhilaration = 109304
+        if IsSpellKnown(exhilaration) then
+          name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(exhilaration)
+          return "120", name
+        end
+      end
+      if self.englishClass=="WARRIOR" then
+        local bitterImmunity = 383762
+        if IsSpellKnown(bitterImmunity) then
+          name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(bitterImmunity)
+          return "180", name
+        end
+      end
+
     return
   end
 
