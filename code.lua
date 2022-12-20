@@ -39,7 +39,6 @@ Player.new = function()
   local self = {}
 
   self.localizedClass, self.englishClass, self.classIndex = UnitClass("player");
-
   
   function self.getSpellPotions()
       ---uncomment this block if you really want cirmson vial to be in this roation.
@@ -52,9 +51,8 @@ Player.new = function()
     return
   end
   
-  --return resetType, spellId
+  --returns resetType, spellId
   function self.getHealingSpells()
-
       if self.englishClass=="DRUID" then
         local renewal = 108238
         if IsSpellKnown(renewal) then
