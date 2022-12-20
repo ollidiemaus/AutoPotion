@@ -37,6 +37,45 @@ Item.new = function(id,name)
 end
 ---------------------------------
 
+---------------------------------
+-------Custom Player Class-------
+---------------------------------
+local Player = {}
+
+Player.new = function()
+  local self = {}
+
+  self.localizedClass, self.englishClass, self.classIndex = UnitClass("player");
+
+  
+  function self.getSpellPotions()
+      ---uncomment this block if you really want cirmson vial to be in this roation.
+      --[[if self.englishClass=="ROGUE" then
+        local crimsonVialSpellId = 185311
+        if IsSpellKnown(crimsonVialSpellId) then
+          return "30", 137222
+        end
+      end--]]
+    return
+  end
+  
+  --return resetType, spellId
+  function self.getHealingSpells()
+
+      if self.englishClass=="DRUID" then
+        local renewal = 108238
+        if IsSpellKnown(renewal) then
+          name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(renewal)
+          return "90", name
+        end
+      end
+    return
+  end
+
+  return self
+end
+---------------------------------
+
 do
   --local leywine = Item.new(194684,"Azure Leywine")
   local healthstone = Item.new(5512,"Healthstone")
@@ -115,7 +154,7 @@ do
   
     if onCombat==false then
       local Pot = getPots()
-      local playerClass, englishClass, classIndex = UnitClass("player")
+      --local playerClass, englishClass, classIndex = UnitClass("player")
       local resetType = "combat"
       local macroStr, foundPots, foundHealthstone, potListCounter, potsString, potId, potIdList
   
@@ -124,6 +163,17 @@ do
       potIdList = {}
       potListCounter = 0
       potsString = ""
+
+      spellNameList = {}
+      spellListCounter = 0
+
+      local myPlayer=Player.new()
+      local playerResetType, playerSpellName = myPlayer.getHealingSpells()
+
+      if playerSpellName ~= nil then
+        table.insert(spellNameList, playerSpellName)
+        spellListCounter=spellListCounter+1
+      end
 
       for iterator,value in ipairs(Pot) do
         --this is because the getCount onCombat works differently
@@ -138,13 +188,6 @@ do
         foundHealthstone = true
       end
 
-      ---uncomment this block if you really want cirmson vial to be in this roation.
-      --[[if englishClass=="ROGUE" then
-        resetType = "30"
-        table.insert(potList, "Crimson Vial")
-        potListCounter=potListCounter+1
-      end--]]
-
       if foundHealthstone==true then
         table.insert(potIdList,healthstone.getId())
         potListCounter=potListCounter+1
@@ -153,8 +196,8 @@ do
         table.insert(potIdList,potId)
         potListCounter=potListCounter+1
       end
-  
-      if potListCounter==0 then
+
+      if potListCounter==0 and spellListCounter==0 then
         macroStr = "#showtooltip"
       else
         for i, v in ipairs(potIdList) do
@@ -164,7 +207,14 @@ do
             potsString = potsString .. ", " .. "item:" .. v;
           end
         end
-        macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " " .. potsString
+        for i, v in ipairs(spellNameList) do
+          if i==1 then
+            spellsString = v;
+          else
+            spellsString = spellsString .. ", "  .. v;
+          end
+        end
+        macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " " .. spellsString .. ", " .. potsString
       end
       EditMacro("HAMHealthPot", "HAMHealthPot", nil, macroStr, 1, nil)
     end
