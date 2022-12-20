@@ -18,13 +18,6 @@ Item.new = function(id,name)
       end
   end
 
-  --this is never called and can be removed as we use ids in the macros now
-  function self.getName()
-    --it's probably not necessary to do this every time we get the name but thats how it worked in previous version this would need further testing
-    setName()
-    return self.name
-  end
-
   function self.getId()
     return self.id
   end
