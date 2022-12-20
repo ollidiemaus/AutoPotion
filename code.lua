@@ -50,12 +50,12 @@ Player.new = function()
   
   function self.getSpellPotions()
       ---uncomment this block if you really want cirmson vial to be in this roation.
-      --[[if self.englishClass=="ROGUE" then
+      if self.englishClass=="ROGUE" then
         local crimsonVialSpellId = 185311
         if IsSpellKnown(crimsonVialSpellId) then
           return "30", 137222
         end
-      end--]]
+      end
     return
   end
   
@@ -138,6 +138,7 @@ do
   local HealPotMacroIcon = CreateFrame("Frame")
   HealPotMacroIcon:RegisterEvent("BAG_UPDATE")
   HealPotMacroIcon:RegisterEvent("PLAYER_LOGIN")
+  HealPotMacroIcon:RegisterEvent("TRAIT_CONFIG_UPDATED")
   HealPotMacroIcon:RegisterEvent("PLAYER_REGEN_ENABLED")
   HealPotMacroIcon:RegisterEvent("PLAYER_REGEN_DISABLED")
   HealPotMacroIcon:SetScript("OnEvent",function(self,event,...)
@@ -153,22 +154,20 @@ do
     end
   
     if onCombat==false then
-      local Pot = getPots()
-      --local playerClass, englishClass, classIndex = UnitClass("player")
-      local resetType = "combat"
-      local macroStr, foundPots, foundHealthstone, potListCounter, potsString, potId, potIdList
+      Pot = getPots()
+      resetType = "combat"
   
       foundPots = false
-      foundHealthstone = false
       potIdList = {}
       potListCounter = 0
       potsString = ""
 
       spellNameList = {}
       spellListCounter = 0
+      spellsString = ""
 
-      local myPlayer=Player.new()
-      local playerResetType, playerSpellName = myPlayer.getHealingSpells()
+      myPlayer=Player.new()
+      playerResetType, playerSpellName = myPlayer.getHealingSpells()
 
       if playerSpellName ~= nil then
         table.insert(spellNameList, playerSpellName)
@@ -185,10 +184,6 @@ do
       end
 
       if healthstone.getCount() > 0 then
-        foundHealthstone = true
-      end
-
-      if foundHealthstone==true then
         table.insert(potIdList,healthstone.getId())
         potListCounter=potListCounter+1
       end
@@ -196,25 +191,38 @@ do
         table.insert(potIdList,potId)
         potListCounter=potListCounter+1
       end
-
+------------------Macro Building------------------
       if potListCounter==0 and spellListCounter==0 then
-        macroStr = "#showtooltip"
+        macroStr = "#showtooltip \n/"
       else
-        for i, v in ipairs(potIdList) do
-          if i==1 then
-            potsString = "item:" .. v;
-          else
-            potsString = potsString .. ", " .. "item:" .. v;
+        if next(spellNameList) ~= nil then
+          for i, v in ipairs(spellNameList) do
+            if i==1 then
+              spellsString = v;
+            else
+              spellsString = spellsString .. ", "  .. v;
+            end
           end
         end
-        for i, v in ipairs(spellNameList) do
-          if i==1 then
-            spellsString = v;
-          else
-            spellsString = spellsString .. ", "  .. v;
+        if next(potIdList) ~= nil then
+          for i, v in ipairs(potIdList) do
+            if i==1 then
+              potsString = "item:" .. v;
+            else
+              potsString = potsString .. ", " .. "item:" .. v;
+            end
           end
         end
-        macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " " .. spellsString .. ", " .. potsString
+        macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " "
+        if spellsString ~= "" then
+          macroStr = macroStr .. spellsString
+        end
+        if spellsString ~= "" and potsString ~= "" then
+          macroStr = macroStr .. ", " 
+        end
+        if potsString ~= "" then
+          macroStr = macroStr .. potsString
+        end
       end
       EditMacro("HAMHealthPot", "HAMHealthPot", nil, macroStr, 1, nil)
     end
