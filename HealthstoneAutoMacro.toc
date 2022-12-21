@@ -5,3 +5,4 @@
 ## X-Wago-ID: yQKybBG7
 ## Notes: Updates the Macro HAMHealthPot to use either Healthstone or the highest Potion found in Bags 
 code.lua
+Bindings.lua
