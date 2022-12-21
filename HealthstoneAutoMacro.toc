@@ -2,8 +2,9 @@
 ## Version: 2.3
 ## Title: Healthstone Auto Macro
 ## Author: ollidiemaus
-## X-Wago-ID: yQKybBG7
 ## Notes: Updates the Macro HAMHealthPot to use either Healthstone or the highest Potion found in Bags 
+## X-Curse-Project-ID: 312940
+## X-Wago-ID: yQKybBG7
 ## SavedVariables: HAMDB
 code.lua
 Bindings.lua
