@@ -43,9 +43,11 @@ Player.new = function()
   function self.getSpellPotions()
       ---uncomment this block if you really want cirmson vial to be in this roation.
       if self.englishClass=="ROGUE" then
-        local crimsonVialSpellId = 185311
-        if IsSpellKnown(crimsonVialSpellId) then
-          return "30", 137222
+        if HAMDB.crimsonVial then
+          local crimsonVialSpellId = 185311
+          if IsSpellKnown(crimsonVialSpellId) then
+            return "30", 137222
+          end
         end
       end
     return
@@ -54,25 +56,31 @@ Player.new = function()
   --returns resetType, spellId
   function self.getHealingSpells()
       if self.englishClass=="DRUID" then
-        local renewal = 108238
-        if IsSpellKnown(renewal) then
-          name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(renewal)
-          return "90", name
+        if HAMDB.renewal then
+          local renewal = 108238
+          if IsSpellKnown(renewal) then
+            name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(renewal)
+            return "90", name
+          end
         end
       end
       if self.englishClass=="HUNTER" then
         --NOTE: on GCD
-        local exhilaration = 109304
-        if IsSpellKnown(exhilaration) then
-          name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(exhilaration)
-          return "120", name
+        if HAMDB.exhilaration then
+          local exhilaration = 109304
+          if IsSpellKnown(exhilaration) then
+            name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(exhilaration)
+            return "120", name
+          end
         end
       end
       if self.englishClass=="WARRIOR" then
-        local bitterImmunity = 383762
-        if IsSpellKnown(bitterImmunity) then
-          name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(bitterImmunity)
-          return "180", name
+        if HAMDB.bitterImmunity then
+          local bitterImmunity = 383762
+          if IsSpellKnown(bitterImmunity) then
+            name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(bitterImmunity)
+            return "180", name
+          end
         end
       end
 
@@ -140,6 +148,7 @@ function getPots()
   }
 end
     
+--local db
 local onCombat = true
 local HealPotMacroIcon = CreateFrame("Frame")
 HealPotMacroIcon:RegisterEvent("BAG_UPDATE")
@@ -158,6 +167,10 @@ HealPotMacroIcon:SetScript("OnEvent",function(self,event,...)
   if event=="PLAYER_REGEN_ENABLED" then
     onCombat = false
   end
+  
+  --db = HAMDB
+  print(HAMDB.renewal)
+
 
   if onCombat==false then
     Pot = getPots()
