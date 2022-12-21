@@ -148,7 +148,6 @@ function getPots()
   }
 end
     
---local db
 local onCombat = true
 local HealPotMacroIcon = CreateFrame("Frame")
 HealPotMacroIcon:RegisterEvent("BAG_UPDATE")
@@ -168,10 +167,6 @@ HealPotMacroIcon:SetScript("OnEvent",function(self,event,...)
     onCombat = false
   end
   
-  --db = HAMDB
-  print(HAMDB.renewal)
-
-
   if onCombat==false then
     Pot = getPots()
     resetType = "combat"

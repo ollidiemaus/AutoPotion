@@ -8,7 +8,6 @@ local defaults = {
 local panel = CreateFrame("Frame")
 
 function panel:OnEvent(event, addOnName)
-	print("Addon LOADED")
 	if addOnName == "HealthstoneAutoMacro" then
 		HAMDB = HAMDB or CopyTable(defaults)
 		self.db = HAMDB
