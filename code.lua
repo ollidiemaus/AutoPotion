@@ -17,7 +17,23 @@ function addPlayerHealingSpellsIfAvailable()
       end
     end
   end
+end
 
+function addPlayerHealingItemIfAvailable()
+  local myPlayer=Player.new()
+  local playerResetType, item = myPlayer.getHealingItems()
+
+  if item ~= nil then
+    if item.getCount() > 0 then
+      table.insert(itemIdList, item.getId())
+    end
+  end
+end
+
+function addHealthstoneIfAvailable()
+  if healthstone.getCount() > 0 then
+    table.insert(itemIdList,healthstone.getId())
+  end
 end
 
 function addPotIfAvailable()
@@ -30,16 +46,12 @@ function addPotIfAvailable()
   end
 end
 
-function addHealthstoneIfAvailable()
-  if healthstone.getCount() > 0 then
-    table.insert(itemIdList,healthstone.getId())
-  end
-end
 
 function updateAvailableHeals()
   itemIdList = {}
 
   addPlayerHealingSpellsIfAvailable()
+  addPlayerHealingItemIfAvailable()
   addHealthstoneIfAvailable()
   addPotIfAvailable()
 end

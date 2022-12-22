@@ -5,12 +5,12 @@ Player.new = function()
 
   self.localizedClass, self.englishClass, self.classIndex = UnitClass("player");
   
-  function self.getSpellPotions()
+  function self.getHealingItems()
       if self.englishClass=="ROGUE" then
         if HAMDB.crimsonVial then
           local crimsonVialSpellId = 185311
           if IsSpellKnown(crimsonVialSpellId) then
-            return "30", 137222
+            return "30", Item.new(137222,"Crimson Vial")
           end
         end
       end
