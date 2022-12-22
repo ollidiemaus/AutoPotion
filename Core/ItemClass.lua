@@ -1,6 +1,6 @@
-Item = {}
+ItemClass = {}
 
-Item.new = function(id,name)
+ItemClass.new = function(id,name)
   local self = {}
 
   self.id = id
