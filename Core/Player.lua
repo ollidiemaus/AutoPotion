@@ -1,6 +1,8 @@
-Player = {}
+local addonName, addon = ...
 
-Player.new = function()
+addon.Player = {}
+
+addon.Player.new = function()
   local self = {}
 
   self.localizedClass, self.englishClass, self.classIndex = UnitClass("player");
@@ -10,7 +12,7 @@ Player.new = function()
         if HAMDB.crimsonVial then
           local crimsonVialSpellId = 185311
           if IsSpellKnown(crimsonVialSpellId) then
-            return "30", Item.new(137222,"Crimson Vial")
+            return "30", addon.Item.new(137222,"Crimson Vial")
           end
         end
       end

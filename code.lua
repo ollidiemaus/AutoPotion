@@ -1,5 +1,7 @@
+local addonName, addon = ...
+
 function addPlayerHealingSpellsIfAvailable()
-  local myPlayer=Player.new()
+  local myPlayer=addon.Player.new()
   local playerResetType, playerSpellName = myPlayer.getHealingSpells()
   spellNameList = {}
   spellsMacroString = ""
@@ -20,7 +22,7 @@ function addPlayerHealingSpellsIfAvailable()
 end
 
 function addPlayerHealingItemIfAvailable()
-  local myPlayer=Player.new()
+  local myPlayer=addon.Player.new()
   local playerResetType, item = myPlayer.getHealingItems()
 
   if item ~= nil then

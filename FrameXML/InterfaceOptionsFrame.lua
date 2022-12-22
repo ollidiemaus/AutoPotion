@@ -1,3 +1,4 @@
+local addonName, addon = ...
 local defaults = {
 	renewal = true,
 	exhilaration = true,

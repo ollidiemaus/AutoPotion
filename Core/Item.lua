@@ -1,6 +1,8 @@
-ItemClass = {}
+local addonName, addon = ...
 
-ItemClass.new = function(id,name)
+addon.Item = {}
+
+addon.Item.new = function(id,name)
   local self = {}
 
   self.id = id

@@ -7,7 +7,7 @@
 ## X-Wago-ID: yQKybBG7
 ## SavedVariables: HAMDB
 code.lua
-Core/ItemClass.lua
+Core/Item.lua
 Core/Player.lua
 Core/Potions.lua
 Bindings.lua
