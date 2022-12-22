@@ -1,5 +1,11 @@
-This Addon will maintain a Macro for you which uses Healthstone and whichever Healing Potion is in your Bag. 
+This Addon will maintain a Macro for you which uses several self healing Spells, Healthstone and Healing Potions in you Bag.
+The Priority is: Player Healing Spells like (Renewal) -> Crimson Vial (disabled by default) -> Healthstone -> Highest Healing Potion in Bag
 But it will prefer Healthstone over all Healing Potions.
+
+You can also directly Keybind the Addon you find it in the Keybind Settings but you also can Move the Macro to Keybinded Button.
+
+Which Player Healing Spells are used is configured in the Addon Settings (/ham).
+I will maintain a best practise as Default but you can change the behaviour if you really want to.
 
 How it works:
 
@@ -9,6 +15,6 @@ How to use:
 
 1. Install Addon
 2. Create a empty Macro called "HAMHealthPot"
-3. Move Macro to Button
+3. Move Macro to Button or Keybind it
 4. reload
 5. Profit!
