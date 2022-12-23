@@ -1,5 +1,5 @@
 ## Interface: 100002
-## Version: 2.5
+## Version: 2.5.1
 ## Title: Healthstone Auto Macro
 ## Author: ollidiemaus
 ## Notes: Updates the Macro HAMHealthPot to use either Healthstone or the highest Potion found in Bags 
@@ -10,5 +10,6 @@ code.lua
 Core/Item.lua
 Core/Player.lua
 Core/Potions.lua
+Core/Spells.lua
 Bindings.lua
 FrameXML/InterfaceOptionsFrame.lua
