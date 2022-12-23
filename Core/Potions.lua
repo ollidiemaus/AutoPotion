@@ -28,7 +28,7 @@ ham.minor = ham.Item.new(118,"Minor Healing Potion")
 ham.greater = ham.Item.new(1710,"Greater Healing Potion")
 ham.healingPotion = ham.Item.new(929,"Healing Potion")
 
-function getPots()
+function ham.getPots()
   return {
     ham.refreshingR3,
     ham.refreshingR2,

@@ -1,6 +1,6 @@
 local addonName, ham = ...
 
-function addPlayerHealingSpellsIfAvailable()
+local function addPlayerHealingSpellsIfAvailable()
   local myPlayer=ham.Player.new()
   local playerResetType, playerSpellName = myPlayer.getHealingSpells()
   ham.spellNameList = {}
@@ -21,7 +21,7 @@ function addPlayerHealingSpellsIfAvailable()
   end
 end
 
-function addPlayerHealingItemIfAvailable()
+local function addPlayerHealingItemIfAvailable()
   local myPlayer=ham.Player.new()
   local playerResetType, item = myPlayer.getHealingItems()
 
@@ -32,14 +32,14 @@ function addPlayerHealingItemIfAvailable()
   end
 end
 
-function addHealthstoneIfAvailable()
+local function addHealthstoneIfAvailable()
   if ham.healthstone.getCount() > 0 then
     table.insert(ham.itemIdList,ham.healthstone.getId())
   end
 end
 
-function addPotIfAvailable()
-  for iterator,value in ipairs(getPots()) do
+local function addPotIfAvailable()
+  for iterator,value in ipairs(ham.getPots()) do
     if value.getCount() > 0 then
       table.insert(ham.itemIdList,value.getId())
       --we break because all Pots share a cd so we only want the highest healing one
@@ -49,7 +49,7 @@ function addPotIfAvailable()
 end
 
 
-function updateAvailableHeals()
+local function updateAvailableHeals()
   ham.itemIdList = {}
 
   addPlayerHealingSpellsIfAvailable()
@@ -58,7 +58,7 @@ function updateAvailableHeals()
   addPotIfAvailable()
 end
 
-function updateMacro()
+local function updateMacro()
   local resetType = "combat"
   local itemsString = ""
   if next(ham.itemIdList) == nil and next(ham.spellNameList) ==nil then
