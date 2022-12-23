@@ -1,15 +1,15 @@
-local addonName, addon = ...
+local addonName, ham = ...
 
-addon.Item = {}
+ham.Item = {}
 
-addon.Item.new = function(id,name)
+ham.Item.new = function(id,name)
   local self = {}
 
   self.id = id
   self.name = name
 
   local function setName()
-    itemInfoName = GetItemInfo(self.id)
+    local itemInfoName = GetItemInfo(self.id)
       if itemInfoName~=nil then
         self.name = itemInfoName
       end

@@ -1,4 +1,4 @@
-local addonName, addon = ...
+local addonName, ham = ...
 local defaults = {
 	renewal = true,
 	exhilaration = true,
@@ -31,11 +31,20 @@ function panel:InitializeOptions()
 	subtitle:SetPoint("TOPLEFT", 20, -30)
 	subtitle:SetText("Here you can configure the behaviour of the Addon eg. if you want to include class spells")
 
+
 	local renewalButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
 	renewalButton:SetPoint("TOPLEFT", subtitle, 20, -30)
 	renewalButton.Text:SetText("Use Renewal")
 	renewalButton:HookScript("OnClick", function(_, btn, down)
 		self.db.renewal = renewalButton:GetChecked()
+	end)
+	renewalButton:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(renewalButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetSpellByID(ham.renewal);
+		GameTooltip:Show()
+	end)
+	renewalButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
 	end)
 	renewalButton:SetChecked(self.db.renewal)
 
@@ -45,6 +54,14 @@ function panel:InitializeOptions()
 	exhilarationButton:HookScript("OnClick", function(_, btn, down)
 		self.db.exhilaration = exhilarationButton:GetChecked()
 	end)
+	exhilarationButton:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(exhilarationButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetSpellByID(ham.exhilaration);
+		GameTooltip:Show()
+	end)
+	exhilarationButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
 	exhilarationButton:SetChecked(self.db.exhilaration)
 
 	local bitterImmunityButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
@@ -53,6 +70,14 @@ function panel:InitializeOptions()
 	bitterImmunityButton:HookScript("OnClick", function(_, btn, down)
 		self.db.bitterImmunity = bitterImmunityButton:GetChecked()
 	end)
+	bitterImmunityButton:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(bitterImmunityButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetSpellByID(ham.bitterImmunity);
+		GameTooltip:Show()
+	end)
+	bitterImmunityButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
 	bitterImmunityButton:SetChecked(self.db.bitterImmunity)
 
 	local crimsonVialButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
@@ -60,6 +85,14 @@ function panel:InitializeOptions()
 	crimsonVialButton.Text:SetText("Use Crimson Vial")
 	crimsonVialButton:HookScript("OnClick", function(_, btn, down)
 		self.db.crimsonVial = crimsonVialButton:GetChecked()
+	end)
+	crimsonVialButton:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(crimsonVialButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetSpellByID(ham.crimsonVialSpell);
+		GameTooltip:Show()
+	end)
+	crimsonVialButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
 	end)
 	crimsonVialButton:SetChecked(self.db.crimsonVial)
 

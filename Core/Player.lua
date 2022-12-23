@@ -1,8 +1,8 @@
-local addonName, addon = ...
+local addonName, ham = ...
 
-addon.Player = {}
+ham.Player = {}
 
-addon.Player.new = function()
+ham.Player.new = function()
   local self = {}
 
   self.localizedClass, self.englishClass, self.classIndex = UnitClass("player");
@@ -10,9 +10,8 @@ addon.Player.new = function()
   function self.getHealingItems()
       if self.englishClass=="ROGUE" then
         if HAMDB.crimsonVial then
-          local crimsonVialSpellId = 185311
-          if IsSpellKnown(crimsonVialSpellId) then
-            return "30", addon.Item.new(137222,"Crimson Vial")
+          if IsSpellKnown(ham.crimsonVialSpell) then
+            return "30", ham.Item.new(137222,"Crimson Vial")
           end
         end
       end
@@ -23,9 +22,8 @@ addon.Player.new = function()
   function self.getHealingSpells()
       if self.englishClass=="DRUID" then
         if HAMDB.renewal then
-          local renewal = 108238
-          if IsSpellKnown(renewal) then
-            name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(renewal)
+          if IsSpellKnown(ham.renewal) then
+            name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.renewal)
             return "90", name
           end
         end
@@ -33,18 +31,16 @@ addon.Player.new = function()
       if self.englishClass=="HUNTER" then
         --NOTE: on GCD
         if HAMDB.exhilaration then
-          local exhilaration = 109304
-          if IsSpellKnown(exhilaration) then
-            name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(exhilaration)
+          if IsSpellKnown(ham.exhilaration) then
+            name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.exhilaration)
             return "120", name
           end
         end
       end
       if self.englishClass=="WARRIOR" then
         if HAMDB.bitterImmunity then
-          local bitterImmunity = 383762
-          if IsSpellKnown(bitterImmunity) then
-            name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(bitterImmunity)
+          if IsSpellKnown(ham.bitterImmunity) then
+            name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.bitterImmunity)
             return "180", name
           end
         end

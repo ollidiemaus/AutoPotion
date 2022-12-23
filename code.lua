@@ -1,47 +1,47 @@
-local addonName, addon = ...
+local addonName, ham = ...
 
 function addPlayerHealingSpellsIfAvailable()
-  local myPlayer=addon.Player.new()
+  local myPlayer=ham.Player.new()
   local playerResetType, playerSpellName = myPlayer.getHealingSpells()
-  spellNameList = {}
-  spellsMacroString = ""
+  ham.spellNameList = {}
+  ham.spellsMacroString = ""
 
   if playerSpellName ~= nil then
-    table.insert(spellNameList, playerSpellName)
+    table.insert(ham.spellNameList, playerSpellName)
   end
 
-  if next(spellNameList) ~= nil then
-    for i, v in ipairs(spellNameList) do
+  if next(ham.spellNameList) ~= nil then
+    for i, v in ipairs(ham.spellNameList) do
       if i==1 then
-        spellsMacroString = v;
+        ham.spellsMacroString = v;
       else
-        spellsMacroString = spellsMacroString .. ", "  .. v;
+        ham.spellsMacroString = ham.spellsMacroString .. ", "  .. v;
       end
     end
   end
 end
 
 function addPlayerHealingItemIfAvailable()
-  local myPlayer=addon.Player.new()
+  local myPlayer=ham.Player.new()
   local playerResetType, item = myPlayer.getHealingItems()
 
   if item ~= nil then
     if item.getCount() > 0 then
-      table.insert(itemIdList, item.getId())
+      table.insert(ham.itemIdList, item.getId())
     end
   end
 end
 
 function addHealthstoneIfAvailable()
-  if healthstone.getCount() > 0 then
-    table.insert(itemIdList,healthstone.getId())
+  if ham.healthstone.getCount() > 0 then
+    table.insert(ham.itemIdList,ham.healthstone.getId())
   end
 end
 
 function addPotIfAvailable()
   for iterator,value in ipairs(getPots()) do
     if value.getCount() > 0 then
-      table.insert(itemIdList,value.getId())
+      table.insert(ham.itemIdList,value.getId())
       --we break because all Pots share a cd so we only want the highest healing one
       break;
     end
@@ -50,7 +50,7 @@ end
 
 
 function updateAvailableHeals()
-  itemIdList = {}
+  ham.itemIdList = {}
 
   addPlayerHealingSpellsIfAvailable()
   addPlayerHealingItemIfAvailable()
@@ -61,11 +61,11 @@ end
 function updateMacro()
   local resetType = "combat"
   local itemsString = ""
-  if next(itemIdList) == nil and next(spellNameList) ==nil then
-    macroStr = "#showtooltip"
+  if next(ham.itemIdList) == nil and next(ham.spellNameList) ==nil then
+    ham.macroStr = "#showtooltip"
   else
-    if next(itemIdList) ~= nil then
-      for i, v in ipairs(itemIdList) do
+    if next(ham.itemIdList) ~= nil then
+      for i, v in ipairs(ham.itemIdList) do
         if i==1 then
           itemsString = "item:" .. v;
         else
@@ -73,18 +73,18 @@ function updateMacro()
         end
       end
     end
-    macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " "
-    if spellsMacroString ~= "" then
-      macroStr = macroStr .. spellsMacroString
+    ham.macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " "
+    if ham.spellsMacroString ~= "" then
+      ham.macroStr = ham.macroStr .. ham.spellsMacroString
     end
-    if spellsMacroString ~= "" and itemsString ~= "" then
-      macroStr = macroStr .. ", " 
+    if ham.spellsMacroString ~= "" and itemsString ~= "" then
+      ham.macroStr = ham.macroStr .. ", " 
     end
     if itemsString ~= "" then
-      macroStr = macroStr .. itemsString
+      ham.macroStr = ham.macroStr .. itemsString
     end
   end
-  EditMacro("HAMHealthPot", "HAMHealthPot", nil, macroStr, 1, nil)
+  EditMacro("HAMHealthPot", "HAMHealthPot", nil, ham.macroStr, 1, nil)
 end
     
 local onCombat = true
