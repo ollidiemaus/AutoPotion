@@ -1,4 +1,5 @@
 local addonName, ham = ...
+local macroName = "HAMHealthPot"
 
 local function addPlayerHealingSpellsIfAvailable()
   local myPlayer=ham.Player.new()
@@ -58,6 +59,13 @@ local function updateAvailableHeals()
   addPotIfAvailable()
 end
 
+local function createMacroIfMissing()
+  local name = GetMacroInfo(macroName)
+  if name==nil then
+    CreateMacro(macroName,"INV_Misc_QuestionMark")
+  end
+end
+
 local function updateMacro()
   local resetType = "combat"
   local itemsString = ""
@@ -84,9 +92,10 @@ local function updateMacro()
       ham.macroStr = ham.macroStr .. itemsString
     end
   end
-  EditMacro("HAMHealthPot", "HAMHealthPot", nil, ham.macroStr)
+  createMacroIfMissing()
+  EditMacro(macroName, macroName, nil, ham.macroStr)
 end
-    
+
 local onCombat = true
 local HealPotMacroIcon = CreateFrame("Frame")
 HealPotMacroIcon:RegisterEvent("BAG_UPDATE")
@@ -105,7 +114,7 @@ HealPotMacroIcon:SetScript("OnEvent",function(self,event,...)
   if event=="PLAYER_REGEN_ENABLED" then
     onCombat = false
   end
-  
+
   if onCombat==false then
     updateAvailableHeals()
     updateMacro()
