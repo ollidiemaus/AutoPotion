@@ -23,7 +23,7 @@ ham.Player.new = function()
       if self.englishClass=="DRUID" then
         if HAMDB.renewal then
           if IsSpellKnown(ham.renewal) then
-            name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.renewal)
+            local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.renewal)
             return "90", name
           end
         end
@@ -32,7 +32,7 @@ ham.Player.new = function()
         --NOTE: on GCD
         if HAMDB.exhilaration then
           if IsSpellKnown(ham.exhilaration) then
-            name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.exhilaration)
+            local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.exhilaration)
             return "120", name
           end
         end
@@ -40,7 +40,7 @@ ham.Player.new = function()
       if self.englishClass=="WARRIOR" then
         if HAMDB.bitterImmunity then
           if IsSpellKnown(ham.bitterImmunity) then
-            name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.bitterImmunity)
+            local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.bitterImmunity)
             return "180", name
           end
         end
