@@ -84,7 +84,7 @@ local function updateMacro()
       ham.macroStr = ham.macroStr .. itemsString
     end
   end
-  EditMacro("HAMHealthPot", "HAMHealthPot", nil, ham.macroStr, 1, nil)
+  EditMacro("HAMHealthPot", "HAMHealthPot", nil, ham.macroStr)
 end
     
 local onCombat = true
