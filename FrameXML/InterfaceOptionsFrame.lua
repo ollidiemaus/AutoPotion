@@ -124,6 +124,7 @@ function panel:InitializeOptions()
 		exhilarationButton:SetChecked(self.db.exhilaration)
 		bitterImmunityButton:SetChecked(self.db.bitterImmunity)
 		crimsonVialButton:SetChecked(self.db.crimsonVial)
+		desperatePrayerButton:SetChecked(self.db.desperatePrayer)
 		print("Reset successful!")
 	end)
 
