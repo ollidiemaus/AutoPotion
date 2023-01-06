@@ -6,7 +6,7 @@ ham.Player.new = function()
   local self = {}
 
   self.localizedClass, self.englishClass, self.classIndex = UnitClass("player");
-  
+
   function self.getHealingItems()
       if self.englishClass=="ROGUE" then
         if HAMDB.crimsonVial then
@@ -17,7 +17,7 @@ ham.Player.new = function()
       end
     return
   end
-  
+
   --returns resetType, spellId
   function self.getHealingSpells()
       if self.englishClass=="DRUID" then
@@ -42,6 +42,14 @@ ham.Player.new = function()
           if IsSpellKnown(ham.bitterImmunity) then
             local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.bitterImmunity)
             return "180", name
+          end
+        end
+      end
+      if self.englishClass=="PRIEST" then
+        if HAMDB.desperatePrayer then
+          if IsSpellKnown(ham.desperatePrayer) then
+            local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.desperatePrayer)
+            return "90", name
           end
         end
       end

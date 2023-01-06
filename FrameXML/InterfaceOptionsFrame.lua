@@ -4,6 +4,7 @@ local defaults = {
 	exhilaration = true,
 	bitterImmunity = true,
 	crimsonVial = false,
+	desperatePrayer = true,
 }
 
 local panel = CreateFrame("Frame")
@@ -96,8 +97,24 @@ function panel:InitializeOptions()
 	end)
 	crimsonVialButton:SetChecked(self.db.crimsonVial)
 
+	local desperatePrayerButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+	desperatePrayerButton:SetPoint("TOPLEFT", crimsonVialButton, 0, -30)
+	desperatePrayerButton.Text:SetText("Use Desperate Prayer")
+	desperatePrayerButton:HookScript("OnClick", function(_, btn, down)
+		self.db.desperatePrayer = desperatePrayerButton:GetChecked()
+	end)
+	desperatePrayerButton:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(desperatePrayerButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetSpellByID(ham.desperatePrayer);
+		GameTooltip:Show()
+	end)
+	desperatePrayerButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	desperatePrayerButton:SetChecked(self.db.desperatePrayer)
+
 	local btn = CreateFrame("Button", nil, self.panel, "UIPanelButtonTemplate")
-	btn:SetPoint("TOPLEFT", crimsonVialButton, 0, -40)
+	btn:SetPoint("TOPLEFT", desperatePrayerButton, 0, -40)
 	btn:SetText("Reset to Default")
 	btn:SetWidth(120)
 	btn:SetScript("OnClick", function()
@@ -107,6 +124,7 @@ function panel:InitializeOptions()
 		exhilarationButton:SetChecked(self.db.exhilaration)
 		bitterImmunityButton:SetChecked(self.db.bitterImmunity)
 		crimsonVialButton:SetChecked(self.db.crimsonVial)
+		desperatePrayerButton:SetChecked(self.db.desperatePrayer)
 		print("Reset successful!")
 	end)
 
