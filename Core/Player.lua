@@ -22,12 +22,21 @@ ham.Player.new = function()
   function self.getHealingSpells()
       if self.englishClass=="DRUID" then
         if HAMDB.renewal then
+          if IsSpellKnown(ham.crimsonVialSpell) then
+            local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.crimsonVialSpell)
+            return "30", name
+          end
+        end
+      end
+      if self.englishClass=="DRUID" then
+        if HAMDB.renewal then
           if IsSpellKnown(ham.renewal) then
             local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.renewal)
             return "90", name
           end
         end
       end
+    
       if self.englishClass=="HUNTER" then
         --NOTE: on GCD
         if HAMDB.exhilaration then
