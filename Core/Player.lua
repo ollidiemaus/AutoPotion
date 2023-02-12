@@ -20,7 +20,7 @@ ham.Player.new = function()
 
   --returns resetType, spellId
   function self.getHealingSpells()
-      if self.englishClass=="DRUID" then
+      if self.englishClass=="ROGUE" then
         if HAMDB.renewal then
           if IsSpellKnown(ham.crimsonVialSpell) then
             local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.crimsonVialSpell)
