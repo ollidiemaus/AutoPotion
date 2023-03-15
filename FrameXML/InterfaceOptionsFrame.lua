@@ -6,6 +6,7 @@ local defaults = {
 	bitterImmunity = true,
 	crimsonVial = false,
 	desperatePrayer = true,
+	expelHarm = true,
 	healingElixir = true,
 }
 
@@ -69,7 +70,7 @@ function panel:InitializeOptions()
 
 
 	local fortitudeOfTheBearButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
-	fortitudeOfTheBearButton:SetPoint("TOPLEFT", exhilarationButton, 0, -30)
+	fortitudeOfTheBearButton:SetPoint("TOPLEFT", exhilarationButton, 200, 0)
 	fortitudeOfTheBearButton.Text:SetText("Use Fortitude of the Bear")
 	fortitudeOfTheBearButton:HookScript("OnClick", function(_, btn, down)
 		self.db.fortitudeOfTheBear = fortitudeOfTheBearButton:GetChecked()
@@ -85,7 +86,7 @@ function panel:InitializeOptions()
 	fortitudeOfTheBearButton:SetChecked(self.db.fortitudeOfTheBear)
 
 	local bitterImmunityButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
-	bitterImmunityButton:SetPoint("TOPLEFT", fortitudeOfTheBearButton, 0, -30)
+	bitterImmunityButton:SetPoint("TOPLEFT", fortitudeOfTheBearButton, -200, -30)
 	bitterImmunityButton.Text:SetText("Use Bitter Immunity")
 	bitterImmunityButton:HookScript("OnClick", function(_, btn, down)
 		self.db.bitterImmunity = bitterImmunityButton:GetChecked()
@@ -132,8 +133,24 @@ function panel:InitializeOptions()
 	end)
 	desperatePrayerButton:SetChecked(self.db.desperatePrayer)
 
+	local expelHarmButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+	expelHarmButton:SetPoint("TOPLEFT", desperatePrayerButton, 0, -30)
+	expelHarmButton.Text:SetText("Use Expel Harm")
+	expelHarmButton:HookScript("OnClick", function(_, btn, down)
+		self.db.expelHarm = expelHarmButton:GetChecked()
+	end)
+	expelHarmButton:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(expelHarmButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetSpellByID(ham.expelHarm);
+		GameTooltip:Show()
+	end)
+	expelHarmButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	expelHarmButton:SetChecked(self.db.expelHarm)
+
 	local healingElixirButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
-	healingElixirButton:SetPoint("TOPLEFT", desperatePrayerButton, 0, -30)
+	healingElixirButton:SetPoint("TOPLEFT", expelHarmButton, 200, 0)
 	healingElixirButton.Text:SetText("Use Healing Elixir")
 	healingElixirButton:HookScript("OnClick", function(_, btn, down)
 		self.db.healingElixir = healingElixirButton:GetChecked()
@@ -149,7 +166,7 @@ function panel:InitializeOptions()
 	healingElixirButton:SetChecked(self.db.healingElixir)
 
 	local btn = CreateFrame("Button", nil, self.panel, "UIPanelButtonTemplate")
-	btn:SetPoint("TOPLEFT", healingElixirButton, 0, -40)
+	btn:SetPoint("TOPLEFT", healingElixirButton, -200, -30)
 	btn:SetText("Reset to Default")
 	btn:SetWidth(120)
 	btn:SetScript("OnClick", function()
@@ -161,6 +178,7 @@ function panel:InitializeOptions()
 		bitterImmunityButton:SetChecked(self.db.bitterImmunity)
 		crimsonVialButton:SetChecked(self.db.crimsonVial)
 		desperatePrayerButton:SetChecked(self.db.desperatePrayer)
+		expelHarmButton:SetChecked(self.db.expelHarm)
 		healingElixirButton:SetChecked(self.db.healingElixir)
 		print("Reset successful!")
 	end)

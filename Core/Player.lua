@@ -67,6 +67,12 @@ ham.Player.new = function()
       end
 
       if self.englishClass=="MONK" then
+        if HAMDB.expelHarm then
+          if IsSpellKnown(ham.expelHarm) then
+            local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.expelHarm)
+            table.insert(spells, name)
+          end
+        end
         if HAMDB.healingElixir then
           if IsSpellKnown(ham.healingElixir) then
             local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(ham.healingElixir)
