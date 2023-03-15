@@ -3,13 +3,8 @@ local macroName = "HAMHealthPot"
 
 local function addPlayerHealingSpellsIfAvailable()
   local myPlayer=ham.Player.new()
-  local playerResetType, playerSpellName = myPlayer.getHealingSpells()
-  ham.spellNameList = {}
+  ham.spellNameList = myPlayer.getHealingSpells()
   ham.spellsMacroString = ""
-
-  if playerSpellName ~= nil then
-    table.insert(ham.spellNameList, playerSpellName)
-  end
 
   if next(ham.spellNameList) ~= nil then
     for i, v in ipairs(ham.spellNameList) do

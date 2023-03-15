@@ -2,9 +2,11 @@ local addonName, ham = ...
 local defaults = {
 	renewal = true,
 	exhilaration = true,
+	fortitudeOfTheBear = true,
 	bitterImmunity = true,
 	crimsonVial = false,
 	desperatePrayer = true,
+	healingElixir = true,
 }
 
 local panel = CreateFrame("Frame")
@@ -65,8 +67,25 @@ function panel:InitializeOptions()
 	end)
 	exhilarationButton:SetChecked(self.db.exhilaration)
 
+
+	local fortitudeOfTheBearButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+	fortitudeOfTheBearButton:SetPoint("TOPLEFT", exhilarationButton, 0, -30)
+	fortitudeOfTheBearButton.Text:SetText("Use Fortitude of the Bear")
+	fortitudeOfTheBearButton:HookScript("OnClick", function(_, btn, down)
+		self.db.fortitudeOfTheBear = fortitudeOfTheBearButton:GetChecked()
+	end)
+	fortitudeOfTheBearButton:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(fortitudeOfTheBearButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetSpellByID(ham.fortitudeOfTheBear);
+		GameTooltip:Show()
+	end)
+	fortitudeOfTheBearButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	fortitudeOfTheBearButton:SetChecked(self.db.fortitudeOfTheBear)
+
 	local bitterImmunityButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
-	bitterImmunityButton:SetPoint("TOPLEFT", exhilarationButton, 0, -30)
+	bitterImmunityButton:SetPoint("TOPLEFT", fortitudeOfTheBearButton, 0, -30)
 	bitterImmunityButton.Text:SetText("Use Bitter Immunity")
 	bitterImmunityButton:HookScript("OnClick", function(_, btn, down)
 		self.db.bitterImmunity = bitterImmunityButton:GetChecked()
@@ -113,8 +132,24 @@ function panel:InitializeOptions()
 	end)
 	desperatePrayerButton:SetChecked(self.db.desperatePrayer)
 
+	local healingElixirButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+	healingElixirButton:SetPoint("TOPLEFT", desperatePrayerButton, 0, -30)
+	healingElixirButton.Text:SetText("Use Healing Elixir")
+	healingElixirButton:HookScript("OnClick", function(_, btn, down)
+		self.db.healingElixir = healingElixirButton:GetChecked()
+	end)
+	healingElixirButton:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(healingElixirButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetSpellByID(ham.healingElixir);
+		GameTooltip:Show()
+	end)
+	healingElixirButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	healingElixirButton:SetChecked(self.db.healingElixir)
+
 	local btn = CreateFrame("Button", nil, self.panel, "UIPanelButtonTemplate")
-	btn:SetPoint("TOPLEFT", desperatePrayerButton, 0, -40)
+	btn:SetPoint("TOPLEFT", healingElixirButton, 0, -40)
 	btn:SetText("Reset to Default")
 	btn:SetWidth(120)
 	btn:SetScript("OnClick", function()
@@ -122,9 +157,11 @@ function panel:InitializeOptions()
 		self.db = HAMDB
 		renewalButton:SetChecked(self.db.renewal)
 		exhilarationButton:SetChecked(self.db.exhilaration)
+		fortitudeOfTheBearButton:SetChecked(self.db.fortitudeOfTheBear)
 		bitterImmunityButton:SetChecked(self.db.bitterImmunity)
 		crimsonVialButton:SetChecked(self.db.crimsonVial)
 		desperatePrayerButton:SetChecked(self.db.desperatePrayer)
+		healingElixirButton:SetChecked(self.db.healingElixir)
 		print("Reset successful!")
 	end)
 
