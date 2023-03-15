@@ -6,7 +6,7 @@ local defaults = {
 	bitterImmunity = true,
 	crimsonVial = false,
 	desperatePrayer = true,
-	expelHarm = true,
+	expelHarm = false,
 	healingElixir = true,
 }
 
