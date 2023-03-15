@@ -2,23 +2,23 @@ local addonName, ham = ...
 local macroName = "HAMHealthPot"
 
 local function addPlayerHealingSpellsIfAvailable()
-  local myPlayer=ham.Player.new()
+  local myPlayer = ham.Player.new()
   ham.spellNameList = myPlayer.getHealingSpells()
   ham.spellsMacroString = ""
 
   if next(ham.spellNameList) ~= nil then
     for i, v in ipairs(ham.spellNameList) do
-      if i==1 then
+      if i == 1 then
         ham.spellsMacroString = v;
       else
-        ham.spellsMacroString = ham.spellsMacroString .. ", "  .. v;
+        ham.spellsMacroString = ham.spellsMacroString .. ", " .. v;
       end
     end
   end
 end
 
 local function addPlayerHealingItemIfAvailable()
-  local myPlayer=ham.Player.new()
+  local myPlayer = ham.Player.new()
   local playerResetType, item = myPlayer.getHealingItems()
 
   if item ~= nil then
@@ -30,14 +30,14 @@ end
 
 local function addHealthstoneIfAvailable()
   if ham.healthstone.getCount() > 0 then
-    table.insert(ham.itemIdList,ham.healthstone.getId())
+    table.insert(ham.itemIdList, ham.healthstone.getId())
   end
 end
 
 local function addPotIfAvailable()
-  for iterator,value in ipairs(ham.getPots()) do
+  for iterator, value in ipairs(ham.getPots()) do
     if value.getCount() > 0 then
-      table.insert(ham.itemIdList,value.getId())
+      table.insert(ham.itemIdList, value.getId())
       --we break because all Pots share a cd so we only want the highest healing one
       break;
     end
@@ -56,20 +56,20 @@ end
 
 local function createMacroIfMissing()
   local name = GetMacroInfo(macroName)
-  if name==nil then
-    CreateMacro(macroName,"INV_Misc_QuestionMark")
+  if name == nil then
+    CreateMacro(macroName, "INV_Misc_QuestionMark")
   end
 end
 
 local function updateMacro()
   local resetType = "combat"
   local itemsString = ""
-  if next(ham.itemIdList) == nil and next(ham.spellNameList) ==nil then
+  if next(ham.itemIdList) == nil and next(ham.spellNameList) == nil then
     ham.macroStr = "#showtooltip"
   else
     if next(ham.itemIdList) ~= nil then
       for i, v in ipairs(ham.itemIdList) do
-        if i==1 then
+        if i == 1 then
           itemsString = "item:" .. v;
         else
           itemsString = itemsString .. ", " .. "item:" .. v;
@@ -81,7 +81,7 @@ local function updateMacro()
       ham.macroStr = ham.macroStr .. ham.spellsMacroString
     end
     if ham.spellsMacroString ~= "" and itemsString ~= "" then
-      ham.macroStr = ham.macroStr .. ", " 
+      ham.macroStr = ham.macroStr .. ", "
     end
     if itemsString ~= "" then
       ham.macroStr = ham.macroStr .. itemsString
@@ -98,19 +98,19 @@ HealPotMacroIcon:RegisterEvent("PLAYER_LOGIN")
 HealPotMacroIcon:RegisterEvent("TRAIT_CONFIG_UPDATED")
 HealPotMacroIcon:RegisterEvent("PLAYER_REGEN_ENABLED")
 HealPotMacroIcon:RegisterEvent("PLAYER_REGEN_DISABLED")
-HealPotMacroIcon:SetScript("OnEvent",function(self,event,...)
-  if event=="PLAYER_LOGIN" then
+HealPotMacroIcon:SetScript("OnEvent", function(self, event, ...)
+  if event == "PLAYER_LOGIN" then
     onCombat = false
   end
-  if event=="PLAYER_REGEN_DISABLED" then
+  if event == "PLAYER_REGEN_DISABLED" then
     onCombat = true
     return
   end
-  if event=="PLAYER_REGEN_ENABLED" then
+  if event == "PLAYER_REGEN_ENABLED" then
     onCombat = false
   end
 
-  if onCombat==false then
+  if onCombat == false then
     updateAvailableHeals()
     updateMacro()
   end
