@@ -4,7 +4,7 @@ But it will prefer Healthstone over all Healing Potions.
 
 You can also directly Keybind the Addon you find it in the Keybind Settings but you also can Move the Macro to Keybinded Button.
 
-Which Player Healing Spells are used is configured in the Addon Settings (/ham).
+Which Player Healing Spells are used is configured in the Addon Settings (/ap).
 I will maintain a best practise as Default but you can change the behaviour if you really want to.
 
 How it works:
