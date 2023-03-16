@@ -1,5 +1,6 @@
 local addonName, ham = ...
 local macroName = "HAMHealthPot"
+local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 
 local function addPlayerHealingSpellsIfAvailable()
   local myPlayer = ham.Player.new()
@@ -29,8 +30,18 @@ local function addPlayerHealingItemIfAvailable()
 end
 
 local function addHealthstoneIfAvailable()
-  if ham.healthstone.getCount() > 0 then
-    table.insert(ham.itemIdList, ham.healthstone.getId())
+  if isClassic == false then
+    if ham.healthstone.getCount() > 0 then
+      table.insert(ham.itemIdList, ham.healthstone.getId())
+    end
+  else
+    for iterator, value in ipairs(ham.getHealthstonesClassic()) do
+      if value.getCount() > 0 then
+        table.insert(ham.itemIdList, value.getId())
+        --we break because all Healthstones share a cd so we only want the highest healing one
+        break;
+      end
+    end
   end
 end
 
@@ -95,7 +106,9 @@ local onCombat = true
 local HealPotMacroIcon = CreateFrame("Frame")
 HealPotMacroIcon:RegisterEvent("BAG_UPDATE")
 HealPotMacroIcon:RegisterEvent("PLAYER_LOGIN")
-HealPotMacroIcon:RegisterEvent("TRAIT_CONFIG_UPDATED")
+if isClassic == false then
+  HealPotMacroIcon:RegisterEvent("TRAIT_CONFIG_UPDATED")
+end
 HealPotMacroIcon:RegisterEvent("PLAYER_REGEN_ENABLED")
 HealPotMacroIcon:RegisterEvent("PLAYER_REGEN_DISABLED")
 HealPotMacroIcon:SetScript("OnEvent", function(self, event, ...)

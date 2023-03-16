@@ -1,5 +1,6 @@
 ## Interface: 100005
-## Version: 2.5.6
+## Interface-Classic: 11403
+## Version: 3.0.0
 ## Title: Healthstone Auto Macro
 ## Author: ollidiemaus
 ## Notes: Updates the Macro HAMHealthPot to use either Healthstone or the highest Potion found in Bags 
