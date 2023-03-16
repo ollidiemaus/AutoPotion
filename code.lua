@@ -1,6 +1,8 @@
 local addonName, ham = ...
 local macroName = "AutoPotion"
 local macroNameOld = "HAMHealthPot"
+---Disable Legacy Addon
+DisableAddOn("HealthstoneAutoMacro")
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 
 local function addPlayerHealingSpellsIfAvailable()
