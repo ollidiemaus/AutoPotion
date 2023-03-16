@@ -1,5 +1,8 @@
 <Bindings>
- <Binding name="MACRO HAMHealthPot" category="Healthstone Auto Macro">
+ <Binding name="HAMHealthPot Macro" category="Auto Potion">
     -- HAMHealthPot
+  </Binding>
+  <Binding name="AutoPotion Macro" category="Auto Potion">
+    -- AutoPotion
   </Binding>
 </Bindings>

@@ -14,6 +14,12 @@ local panel = CreateFrame("Frame")
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 
 function panel:OnEvent(event, addOnName)
+	if addOnName == "AutoPotion" then
+		HAMDB = HAMDB or CopyTable(defaults)
+		self.db = HAMDB
+		self:InitializeOptions()
+	end
+	---LEGACY
 	if addOnName == "HealthstoneAutoMacro" then
 		HAMDB = HAMDB or CopyTable(defaults)
 		self.db = HAMDB
@@ -26,11 +32,11 @@ panel:SetScript("OnEvent", panel.OnEvent)
 
 function panel:InitializeOptions()
 	self.panel = CreateFrame("Frame")
-	self.panel.name = "Healthstone Auto Macro"
+	self.panel.name = "Auto Potion"
 
 	local title = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalLarge")
 	title:SetPoint("TOP")
-	title:SetText("Healthstone Auto Marco Settings")
+	title:SetText("Auto Potion Settings")
 
 	local subtitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
 	subtitle:SetPoint("TOPLEFT", 20, -30)
@@ -235,6 +241,8 @@ end
 
 SLASH_HAM1 = "/ham"
 SLASH_HAM2 = "/healtsthoneautomacro"
+SLASH_HAM3 = "/ap"
+SLASH_HAM4 = "/autopotion"
 
 SlashCmdList.HAM = function(msg, editBox)
 	InterfaceOptionsFrame_OpenToCategory(panel.panel)

@@ -1,5 +1,6 @@
 local addonName, ham = ...
-local macroName = "HAMHealthPot"
+local macroName = "AutoPotion"
+local macroNameOld = "HAMHealthPot"
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 
 local function addPlayerHealingSpellsIfAvailable()
@@ -70,6 +71,11 @@ local function createMacroIfMissing()
   if name == nil then
     CreateMacro(macroName, "INV_Misc_QuestionMark")
   end
+
+  local nameOld = GetMacroInfo(macroNameOld)
+  if nameOld == nil then
+    CreateMacro(macroNameOld, "INV_Misc_QuestionMark")
+  end
 end
 
 local function updateMacro()
@@ -100,6 +106,7 @@ local function updateMacro()
   end
   createMacroIfMissing()
   EditMacro(macroName, macroName, nil, ham.macroStr)
+  EditMacro(macroNameOld, macroNameOld, nil, ham.macroStr)
 end
 
 local onCombat = true

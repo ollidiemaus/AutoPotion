@@ -14,7 +14,7 @@ It's actually a very basic addon which will update the given macro every time yo
 How to use:
 
 1. Install Addon
-2. Create a empty Macro called "HAMHealthPot"
+2. Create a empty Macro called "AutoPotion"
 3. Move Macro to Button or Keybind it
 4. reload
 5. Profit!
