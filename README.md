@@ -1,3 +1,4 @@
+Auto Potion was previously known as Healthstone Auto Macro.
 This Addon will maintain a Macro for you which uses several self healing Spells, Healthstone and Healing Potions in you Bag.
 The Priority is: Player Healing Spells like (Renewal) -> Crimson Vial (disabled by default) -> Healthstone -> Highest Healing Potion in Bag
 But it will prefer Healthstone over all Healing Potions.
