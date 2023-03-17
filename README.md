@@ -4,7 +4,7 @@ But it will prefer Healthstone over all Healing Potions.
 
 You can also directly Keybind the Addon you find it in the Keybind Settings but you also can Move the Macro to Keybinded Button.
 
-Which Player Healing Spells are used is configured in the Addon Settings (/ham).
+Which Player Healing Spells are used is configured in the Addon Settings (/ap).
 I will maintain a best practise as Default but you can change the behaviour if you really want to.
 
 How it works:
@@ -14,7 +14,7 @@ It's actually a very basic addon which will update the given macro every time yo
 How to use:
 
 1. Install Addon
-2. Create a empty Macro called "HAMHealthPot"
+2. Create a empty Macro called "AutoPotion"
 3. Move Macro to Button or Keybind it
 4. reload
 5. Profit!
