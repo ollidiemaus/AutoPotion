@@ -1,6 +1,6 @@
-## Interface: 100007
+## Interface: 100100
 ## Interface-Classic: 11403
-## Version: 3.0.2
+## Version: 3.0.3
 ## Title: Auto Potion
 ## Author: ollidiemaus
 ## Notes: Updates the Macro AutoPotion to use either Healthstone or the highest Potion found in Bags 
