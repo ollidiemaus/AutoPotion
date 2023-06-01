@@ -8,6 +8,7 @@ local defaults = {
 	desperatePrayer = true,
 	expelHarm = false,
 	healingElixir = true,
+	toxicPotion = false,
 }
 
 local panel = CreateFrame("Frame")
@@ -40,7 +41,7 @@ function panel:InitializeOptions()
 
 	local subtitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
 	subtitle:SetPoint("TOPLEFT", 20, -30)
-	subtitle:SetText("Here you can configure the behaviour of the Addon eg. if you want to include class spells")
+	subtitle:SetText("Here you can configure the behaviour of the Addon eg. if you want to include class spells or toxic potions")
 
 	if isClassic == false then
 		--[[local dkTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
@@ -218,8 +219,28 @@ function panel:InitializeOptions()
 		end)
 		bitterImmunityButton:SetChecked(self.db.bitterImmunity)
 
+		local toxicPotTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
+		toxicPotTitle:SetPoint("TOPLEFT", bitterImmunityButton, 0, -50)
+		toxicPotTitle:SetText("Toxic Potions")
+
+		local toxicPotionButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+		toxicPotionButton:SetPoint("TOPLEFT", toxicPotTitle, 0, -15)
+		toxicPotionButton.Text:SetText("Use Potion of Withering Vitality")
+		toxicPotionButton:HookScript("OnClick", function(_, btn, down)
+			self.db.toxicPotion = toxicPotionButton:GetChecked()
+		end)
+		toxicPotionButton:HookScript("OnEnter", function(_, btn, down)
+			GameTooltip:SetOwner(toxicPotionButton, "ANCHOR_TOPRIGHT")
+			GameTooltip:SetItemByID(ham.toxicPotionR3);
+			GameTooltip:Show()
+		end)
+		toxicPotionButton:HookScript("OnLeave", function(_, btn, down)
+			GameTooltip:Hide()
+		end)
+		toxicPotionButton:SetChecked(self.db.toxicPotion)
+
 		local btn = CreateFrame("Button", nil, self.panel, "UIPanelButtonTemplate")
-		btn:SetPoint("TOPLEFT", bitterImmunityButton, 0, -50)
+		btn:SetPoint("TOPLEFT", toxicPotionButton, 0, -50)
 		btn:SetText("Reset to Default")
 		btn:SetWidth(120)
 		btn:SetScript("OnClick", function()
@@ -233,6 +254,7 @@ function panel:InitializeOptions()
 			desperatePrayerButton:SetChecked(self.db.desperatePrayer)
 			expelHarmButton:SetChecked(self.db.expelHarm)
 			healingElixirButton:SetChecked(self.db.healingElixir)
+			toxicPotionButton:SetChecked(self.db.toxicPotion)
 			print("Reset successful!")
 		end)
 	end
