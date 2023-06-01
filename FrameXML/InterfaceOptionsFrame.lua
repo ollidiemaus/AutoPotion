@@ -41,7 +41,7 @@ function panel:InitializeOptions()
 
 	local subtitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
 	subtitle:SetPoint("TOPLEFT", 20, -30)
-	subtitle:SetText("Here you can configure the behaviour of the Addon eg. if you want to include class spells or toxic potions")
+	subtitle:SetText("Select class spells or toxic potions to include")
 
 	if isClassic == false then
 		--[[local dkTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
