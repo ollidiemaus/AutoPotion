@@ -1,12 +1,10 @@
 local addonName, ham = ...
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 
-ham.toxicPotionR3 = 191371
-
 --ham.leywine = ham.Item.new(194684,"Azure Leywine")
 --ham.healthstone = ham.Item.new(117, "Healthstone")
 ham.healthstone = ham.Item.new(5512, "Healthstone")
-ham.witheringR3 = ham.Item.new(ham.toxicPotionR3, "Potion of Withering Vitality")
+ham.witheringR3 = ham.Item.new(191371, "Potion of Withering Vitality")
 ham.witheringR2 = ham.Item.new(191370, "Potion of Withering Vitality")
 ham.witheringR1 = ham.Item.new(191369, "Potion of Withering Vitality")
 ham.refreshingR3 = ham.Item.new(191380, "Refreshing Healing Potion")
@@ -54,7 +52,7 @@ ham.major2 = ham.Item.new(19013, "Major Healthstone")
 
 function ham.getPots()
   if isClassic == false then
-    pots = {
+    local pots = {
       ham.refreshingR3,
       ham.refreshingR2,
       ham.refreshingR1,
@@ -81,10 +79,10 @@ function ham.getPots()
       ham.healingPotion
     }
 
-    if HAMDB.toxicPotion then
-      table.insert(pots, 1, ham.witheringR3)
-      table.insert(pots, 1, ham.witheringR2)
+    if HAMDB.witheringPotion then
       table.insert(pots, 1, ham.witheringR1)
+      table.insert(pots, 1, ham.witheringR2)
+      table.insert(pots, 1, ham.witheringR3)
     end
 
     return pots
