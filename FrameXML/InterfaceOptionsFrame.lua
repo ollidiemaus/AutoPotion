@@ -8,6 +8,7 @@ local defaults = {
 	desperatePrayer = true,
 	expelHarm = false,
 	healingElixir = true,
+	witheringPotion = false,
 }
 
 local panel = CreateFrame("Frame")
@@ -218,8 +219,28 @@ function panel:InitializeOptions()
 		end)
 		bitterImmunityButton:SetChecked(self.db.bitterImmunity)
 
+		local witheringPotTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
+		witheringPotTitle:SetPoint("TOPLEFT", bitterImmunityButton, 0, -50)
+		witheringPotTitle:SetText("Withering Potions")
+
+		local witheringPotionButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+		witheringPotionButton:SetPoint("TOPLEFT", witheringPotTitle, 0, -15)
+		witheringPotionButton.Text:SetText("Use Potion of Withering Vitality")
+		witheringPotionButton:HookScript("OnClick", function(_, btn, down)
+			self.db.witheringPotion = witheringPotionButton:GetChecked()
+		end)
+		witheringPotionButton:HookScript("OnEnter", function(_, btn, down)
+			GameTooltip:SetOwner(witheringPotionButton, "ANCHOR_TOPRIGHT")
+			GameTooltip:SetItemByID(ham.witheringPotionR3);
+			GameTooltip:Show()
+		end)
+		witheringPotionButton:HookScript("OnLeave", function(_, btn, down)
+			GameTooltip:Hide()
+		end)
+		witheringPotionButton:SetChecked(self.db.witheringPotion)
+
 		local btn = CreateFrame("Button", nil, self.panel, "UIPanelButtonTemplate")
-		btn:SetPoint("TOPLEFT", bitterImmunityButton, 0, -50)
+		btn:SetPoint("TOPLEFT", witheringPotionButton, 0, -50)
 		btn:SetText("Reset to Default")
 		btn:SetWidth(120)
 		btn:SetScript("OnClick", function()
@@ -233,6 +254,7 @@ function panel:InitializeOptions()
 			desperatePrayerButton:SetChecked(self.db.desperatePrayer)
 			expelHarmButton:SetChecked(self.db.expelHarm)
 			healingElixirButton:SetChecked(self.db.healingElixir)
+			witheringPotionButton:SetChecked(self.db.witheringPotion)
 			print("Reset successful!")
 		end)
 	end
