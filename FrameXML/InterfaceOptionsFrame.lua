@@ -231,7 +231,7 @@ function panel:InitializeOptions()
 		end)
 		witheringPotionButton:HookScript("OnEnter", function(_, btn, down)
 			GameTooltip:SetOwner(witheringPotionButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetItemByID(ham.witheringPotionR3);
+			GameTooltip:SetItemByID(ham.witheringR3.getId())
 			GameTooltip:Show()
 		end)
 		witheringPotionButton:HookScript("OnLeave", function(_, btn, down)
