@@ -1,8 +1,5 @@
 local addonName, ham = ...
 local macroName = "AutoPotion"
-local macroNameOld = "HAMHealthPot"
----Disable Legacy Addon
-DisableAddOn("HealthstoneAutoMacro")
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 
@@ -74,11 +71,6 @@ local function createMacroIfMissing()
   if name == nil then
     CreateMacro(macroName, "INV_Misc_QuestionMark")
   end
-
-  local nameOld = GetMacroInfo(macroNameOld)
-  if nameOld == nil then
-    CreateMacro(macroNameOld, "INV_Misc_QuestionMark")
-  end
 end
 
 local function updateMacro()
@@ -109,7 +101,6 @@ local function updateMacro()
   end
   createMacroIfMissing()
   EditMacro(macroName, macroName, nil, ham.macroStr)
-  EditMacro(macroNameOld, macroNameOld, nil, ham.macroStr)
 end
 
 local onCombat = true
