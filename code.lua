@@ -4,6 +4,7 @@ local macroNameOld = "HAMHealthPot"
 ---Disable Legacy Addon
 DisableAddOn("HealthstoneAutoMacro")
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 
 local function addPlayerHealingSpellsIfAvailable()
   local myPlayer = ham.Player.new()
@@ -33,17 +34,17 @@ local function addPlayerHealingItemIfAvailable()
 end
 
 local function addHealthstoneIfAvailable()
-  if isClassic == false then
-    if ham.healthstone.getCount() > 0 then
-      table.insert(ham.itemIdList, ham.healthstone.getId())
-    end
-  else
+  if isClassic == true or isWrath == true then
     for iterator, value in ipairs(ham.getHealthstonesClassic()) do
       if value.getCount() > 0 then
         table.insert(ham.itemIdList, value.getId())
         --we break because all Healthstones share a cd so we only want the highest healing one
         break;
       end
+    end
+  else
+    if ham.healthstone.getCount() > 0 then
+      table.insert(ham.itemIdList, ham.healthstone.getId())
     end
   end
 end

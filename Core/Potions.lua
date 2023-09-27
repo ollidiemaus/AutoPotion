@@ -1,5 +1,6 @@
 local addonName, ham = ...
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 
 --ham.leywine = ham.Item.new(194684,"Azure Leywine")
 --ham.healthstone = ham.Item.new(117, "Healthstone")
@@ -23,7 +24,12 @@ ham.tonic = ham.Item.new(109223, "Healing Tonic")
 ham.master = ham.Item.new(76097, "Master Healing Potion")
 ham.mythical = ham.Item.new(57191, "Mythical Healing Potion")
 ham.runic = ham.Item.new(33447, "Runic Healing Potion")
+ham.superreju = ham.Item.new(22850, "Super Rejuvenation Potion")
+ham.endless = ham.Item.new(43569, "Endless Healing Potion")
+ham.injector = ham.Item.new(33092, "Healing Potion Injector")
 ham.resurgent = ham.Item.new(39671, "Resurgent Healing Potion")
+ham.argent = ham.Item.new(43531, "Argent Healing Potion")
+ham.auchenai = ham.Item.new(32947, "Auchenai Healing Potion")
 ham.super = ham.Item.new(22829, "Super Healing Potion")
 ham.major = ham.Item.new(13446, "Major Healing Potion")
 ham.lesser = ham.Item.new(858, "Lesser Healing Potion")
@@ -49,9 +55,19 @@ ham.greater2 = ham.Item.new(19011, "Greater Healthstone")
 ham.major0 = ham.Item.new(9421, "Major Healthstone")
 ham.major1 = ham.Item.new(19012, "Major Healthstone")
 ham.major2 = ham.Item.new(19013, "Major Healthstone")
+------Healthstones for WotLK------
+ham.master0 = ham.Item.new(22103, "Master Healthstone")
+ham.master1 = ham.Item.new(22104, "Master Healthstone")
+ham.master2 = ham.Item.new(22105, "Master Healthstone")
+ham.demonic0 = ham.Item.new(36889, "Demonic Healthstone")
+ham.demonic1 = ham.Item.new(36890, "Demonic Healthstone")
+ham.demonic2 = ham.Item.new(36891, "Demonic Healthstone")
+ham.fel0 = ham.Item.new(36892, "Fel Healthstone")
+ham.fel1 = ham.Item.new(36893, "Fel Healthstone")
+ham.fel2 = ham.Item.new(36894, "Fel Healthstone")
 
 function ham.getPots()
-  if isClassic == false then
+  if isClassic == false and isWrath == false then
     local pots = {
       ham.refreshingR3,
       ham.refreshingR2,
@@ -86,8 +102,28 @@ function ham.getPots()
     end
 
     return pots
-  else
+  end
+  if isClassic == true then
     return {
+      ham.major,
+      ham.superior,
+      ham.greater,
+      ham.healingPotion,
+      ham.lesser,
+      ham.minor
+    }
+  end
+
+  if isWrath == true then
+    return {
+      ham.runic,
+      ham.superreju,
+      ham.endless,
+      ham.injector,
+      ham.resurgent,
+      ham.super,
+      ham.argent,
+      ham.auchenai,
       ham.major,
       ham.superior,
       ham.greater,
@@ -99,21 +135,52 @@ function ham.getPots()
 end
 
 function ham.getHealthstonesClassic()
-  return {
-    ham.major2,
-    ham.major1,
-    ham.major0,
-    ham.greater2,
-    ham.greater1,
-    ham.greater0,
-    ham.healtsthone2,
-    ham.healtsthone1,
-    ham.healtsthone0,
-    ham.lesser2,
-    ham.lesser1,
-    ham.lesser0,
-    ham.minor2,
-    ham.minor1,
-    ham.minor0
-  }
+  if isClassic == true then
+    return {
+      ham.major2,
+      ham.major1,
+      ham.major0,
+      ham.greater2,
+      ham.greater1,
+      ham.greater0,
+      ham.healtsthone2,
+      ham.healtsthone1,
+      ham.healtsthone0,
+      ham.lesser2,
+      ham.lesser1,
+      ham.lesser0,
+      ham.minor2,
+      ham.minor1,
+      ham.minor0
+    }
+  end
+
+  if isWrath == true then
+    return {
+      ham.fel2,
+      ham.fel1,
+      ham.fel0,
+      ham.demonic2,
+      ham.demonic1,
+      ham.demonic0,
+      ham.master2,
+      ham.master1,
+      ham.master0,
+      ham.major2,
+      ham.major1,
+      ham.major0,
+      ham.greater2,
+      ham.greater1,
+      ham.greater0,
+      ham.healtsthone2,
+      ham.healtsthone1,
+      ham.healtsthone0,
+      ham.lesser2,
+      ham.lesser1,
+      ham.lesser0,
+      ham.minor2,
+      ham.minor1,
+      ham.minor0
+    }
+  end
 end
