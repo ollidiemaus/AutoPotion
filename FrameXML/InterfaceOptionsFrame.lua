@@ -15,6 +15,10 @@ local currentPrioTitle = nil
 function panel:OnEvent(event, addOnName)
 	if addOnName == "AutoPotion" then
 		HAMDB = HAMDB or CopyTable(ham.defaults)
+		if HAMDB.activatedSpells == nil then
+			print("The Settings of AutoPotion were reset due to breaking changes.")
+			HAMDB = CopyTable(ham.defaults)
+		end
 		self:InitializeOptions()
 	end
 end
