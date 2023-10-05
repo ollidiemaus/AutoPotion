@@ -6,7 +6,11 @@ local ICON_SIZE = 50
 local PADDING_CATERGORY = 60
 local PADDING = 30
 local PADDING_HORIZONTAL = 200
+local PADDING_PRIO_CATEGORY = 130
 local classButtons = {}
+local prioFrames = {}
+local firstIcon = nil
+local currentPrioTitle = nil
 
 function panel:OnEvent(event, addOnName)
 	if addOnName == "AutoPotion" then
@@ -17,6 +21,66 @@ end
 
 panel:RegisterEvent("ADDON_LOADED")
 panel:SetScript("OnEvent", panel.OnEvent)
+
+local function createPrioFrame(parentPanel, id, iconTexture, positionx, isSpell)
+	local icon = CreateFrame("Frame", nil, parentPanel, UIParent)
+	icon:SetFrameStrata("MEDIUM")
+	icon:SetWidth(ICON_SIZE)
+	icon:SetHeight(ICON_SIZE)
+	icon:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(icon, "ANCHOR_TOPRIGHT")
+		if isSpell == true then
+			GameTooltip:SetSpellByID(id)
+		else
+			GameTooltip:SetItemByID(id)
+		end
+		GameTooltip:Show()
+	end)
+	icon:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	local texture = icon:CreateTexture(nil, "BACKGROUND")
+	texture:SetTexture(iconTexture)
+	texture:SetAllPoints(icon)
+	icon.texture = texture
+
+	if firstIcon == nil then
+		icon:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY - PADDING * 2)
+		firstIcon = icon
+	else
+		icon:SetPoint("TOPLEFT", firstIcon, positionx, 0)
+	end
+	icon:Show()
+	return icon
+end
+
+local function updatePrio(parentPanel)
+	if next(prioFrames) ~= nil then
+		--remove drawn frames
+		for i, frame in pairs(prioFrames) do
+			frame:Hide()
+		end
+	end
+	ham.updateHeals()
+	local positionx = 0
+	if next(ham.spellIDs) ~= nil then
+		for i, id in ipairs(ham.spellIDs) do
+			local name, rank, iconTexture, castTime, minRange, maxRange = GetSpellInfo(id)
+			local icon = createPrioFrame(parentPanel, id, iconTexture, positionx, true)
+			table.insert(prioFrames, icon)
+			positionx = positionx + (ICON_SIZE + (ICON_SIZE / 2))
+		end
+	end
+	if next(ham.itemIdList) ~= nil then
+		for i, id in ipairs(ham.itemIdList) do
+			local itemID, itemType, itemSubType, itemEquipLoc, iconTexture, classID, subclassID = GetItemInfoInstant(
+				id)
+			local icon = createPrioFrame(parentPanel, id, iconTexture, positionx, false)
+			table.insert(prioFrames, icon)
+			positionx = positionx + (ICON_SIZE + (ICON_SIZE / 2))
+		end
+	end
+end
 
 function panel:InitializeOptions()
 	self.panel = CreateFrame("Frame", "Auto Potion", InterfaceOptionsFramePanelContainer)
@@ -43,8 +107,10 @@ function panel:InitializeOptions()
 	cdResetButton.Text:SetText("Include Spell Cooldown in Macro")
 	cdResetButton:HookScript("OnClick", function(_, btn, down)
 		HAMDB.cdReset = cdResetButton:GetChecked()
+		updatePrio(self.panel)
 	end)
 	cdResetButton:SetChecked(HAMDB.cdReset)
+
 
 
 
@@ -79,6 +145,7 @@ function panel:InitializeOptions()
 					else
 						ham.removeFromDB(spell)
 					end
+					updatePrio(self.panel)
 				end)
 				button:HookScript("OnEnter", function(_, btn, down)
 					GameTooltip:SetOwner(button, "ANCHOR_TOPRIGHT")
@@ -112,6 +179,7 @@ function panel:InitializeOptions()
 	witheringPotionButton.Text:SetText("Use Potion of Withering Vitality")
 	witheringPotionButton:HookScript("OnClick", function(_, btn, down)
 		HAMDB.witheringPotion = witheringPotionButton:GetChecked()
+		updatePrio(self.panel)
 	end)
 	witheringPotionButton:HookScript("OnEnter", function(_, btn, down)
 		GameTooltip:SetOwner(witheringPotionButton, "ANCHOR_TOPRIGHT")
@@ -124,79 +192,11 @@ function panel:InitializeOptions()
 	witheringPotionButton:SetChecked(HAMDB.witheringPotion)
 
 
-
 	-------------  CURRENT PRIORITY  -------------
-	local currentPrioTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-	currentPrioTitle:SetPoint("TOPLEFT", subtitle, 0, -420)
+	currentPrioTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+	currentPrioTitle:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY)
 	currentPrioTitle:SetText("Current Priority")
-
-	ham.updateHeals()
-	local positionx = 0
-	local firstIcon = nil
-
-	if next(ham.spellIDs) ~= nil then
-		for i, spell in ipairs(ham.spellIDs) do
-			print("Position x:" .. positionx)
-			local name, rank, iconTexture, castTime, minRange, maxRange = GetSpellInfo(spell)
-			local icon = CreateFrame("Frame", nil, self.panel, UIParent)
-			icon:SetFrameStrata("MEDIUM")
-			icon:SetWidth(ICON_SIZE)
-			icon:SetHeight(ICON_SIZE)
-			icon:HookScript("OnEnter", function(_, btn, down)
-				GameTooltip:SetOwner(icon, "ANCHOR_TOPRIGHT")
-				GameTooltip:SetSpellByID(spell)
-				GameTooltip:Show()
-			end)
-			icon:HookScript("OnLeave", function(_, btn, down)
-				GameTooltip:Hide()
-			end)
-			local texture = icon:CreateTexture(nil, "BACKGROUND")
-			texture:SetTexture(iconTexture)
-			texture:SetAllPoints(icon)
-			icon.texture = texture
-
-			if firstIcon == nil then
-				icon:SetPoint("TOPLEFT", subtitle, 0, -420 - PADDING)
-				firstIcon = icon
-			else
-				icon:SetPoint("TOPLEFT", firstIcon, positionx, 0)
-			end
-			icon:Show()
-			positionx = positionx + (ICON_SIZE + (ICON_SIZE / 2))
-		end
-	end
-	if next(ham.itemIdList) ~= nil then
-		for i, item in ipairs(ham.itemIdList) do
-			print("Position x:" .. positionx)
-			local itemID, itemType, itemSubType, itemEquipLoc, itemTexture, classID, subclassID = GetItemInfoInstant(
-				item)
-			local icon = CreateFrame("Frame", nil, self.panel, UIParent)
-			icon:SetFrameStrata("MEDIUM")
-			icon:SetWidth(ICON_SIZE)
-			icon:SetHeight(ICON_SIZE)
-			icon:HookScript("OnEnter", function(_, btn, down)
-				GameTooltip:SetOwner(icon, "ANCHOR_TOPRIGHT")
-				GameTooltip:SetItemByID(item)
-				GameTooltip:Show()
-			end)
-			icon:HookScript("OnLeave", function(_, btn, down)
-				GameTooltip:Hide()
-			end)
-			local texture = icon:CreateTexture(nil, "BACKGROUND")
-			texture:SetTexture(itemTexture)
-			texture:SetAllPoints(icon)
-			icon.texture = texture
-
-			if firstIcon == nil then
-				icon:SetPoint("TOPLEFT", subtitle, 0, -420 - PADDING)
-				firstIcon = icon
-			else
-				icon:SetPoint("TOPLEFT", firstIcon, positionx, 0)
-			end
-			icon:Show()
-			positionx = positionx + (ICON_SIZE + (ICON_SIZE / 2))
-		end
-	end
+	updatePrio(self.panel)
 
 
 
@@ -217,6 +217,7 @@ function panel:InitializeOptions()
 		end
 		cdResetButton:SetChecked(HAMDB.cdReset)
 		witheringPotionButton:SetChecked(HAMDB.witheringPotion)
+		updatePrio(self.panel)
 		print("Reset successful!")
 	end)
 	InterfaceOptions_AddCategory(self.panel)
