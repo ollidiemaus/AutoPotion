@@ -1,5 +1,6 @@
 local addonName, ham = ...
 local defaults = {
+	--cdReset = false,
 	renewal = true,
 	exhilaration = true,
 	fortitudeOfTheBear = true,
@@ -13,15 +14,10 @@ local defaults = {
 
 local panel = CreateFrame("Frame")
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 
 function panel:OnEvent(event, addOnName)
 	if addOnName == "AutoPotion" then
-		HAMDB = HAMDB or CopyTable(defaults)
-		self.db = HAMDB
-		self:InitializeOptions()
-	end
-	---LEGACY
-	if addOnName == "HealthstoneAutoMacro" then
 		HAMDB = HAMDB or CopyTable(defaults)
 		self.db = HAMDB
 		self:InitializeOptions()
@@ -44,6 +40,18 @@ function panel:InitializeOptions()
 	subtitle:SetText("Here you can configure the behaviour of the Addon eg. if you want to include class spells")
 
 	if isClassic == false then
+		local behaviourTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
+		behaviourTitle:SetPoint("TOPLEFT", subtitle, 0, -30)
+		behaviourTitle:SetText("Addon Behaviour")
+
+		local cdResetButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+		cdResetButton:SetPoint("TOPLEFT", behaviourTitle, 0, -15)
+		cdResetButton.Text:SetText("Include Spell Cooldown in Macro")
+		cdResetButton:HookScript("OnClick", function(_, btn, down)
+			self.db.renewal = cdResetButton:GetChecked()
+		end)
+		cdResetButton:SetChecked(self.db.cdReset)
+
 		--[[local dkTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
 	dkTitle:SetPoint("TOPLEFT", subtitle, 0, -50)
 	dkTitle:SetText("Death Knight")

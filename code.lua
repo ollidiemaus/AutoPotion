@@ -75,6 +75,7 @@ end
 
 local function updateMacro()
   local resetType = "combat"
+  --add if ham.cdReset == true then combat/spelltime
   local itemsString = ""
   if next(ham.itemIdList) == nil and next(ham.spellNameList) == nil then
     ham.macroStr = "#showtooltip"
