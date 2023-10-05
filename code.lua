@@ -3,25 +3,15 @@ local macroName = "AutoPotion"
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 
-local function addPlayerHealingSpellsIfAvailable()
-  local myPlayer = ham.Player.new()
-  ham.spellNameList = myPlayer.getHealingSpells()
-  ham.spellsMacroString = ""
+ham.myPlayer = ham.Player.new()
 
-  if next(ham.spellNameList) ~= nil then
-    for i, v in ipairs(ham.spellNameList) do
-      if i == 1 then
-        ham.spellsMacroString = v;
-      else
-        ham.spellsMacroString = ham.spellsMacroString .. ", " .. v;
-      end
-    end
-  end
-end
+local spellsMacroString = ''
+local itemsMacroString = ''
+local macroStr = ''
+local resetType = "combat"
 
 local function addPlayerHealingItemIfAvailable()
-  local myPlayer = ham.Player.new()
-  local playerResetType, item = myPlayer.getHealingItems()
+  local playerResetType, item = ham.myPlayer.getHealingItems()
 
   if item ~= nil then
     if item.getCount() > 0 then
@@ -32,7 +22,7 @@ end
 
 local function addHealthstoneIfAvailable()
   if isClassic == true or isWrath == true then
-    for iterator, value in ipairs(ham.getHealthstonesClassic()) do
+    for i, value in ipairs(ham.getHealthstonesClassic()) do
       if value.getCount() > 0 then
         table.insert(ham.itemIdList, value.getId())
         --we break because all Healthstones share a cd so we only want the highest healing one
@@ -47,7 +37,7 @@ local function addHealthstoneIfAvailable()
 end
 
 local function addPotIfAvailable()
-  for iterator, value in ipairs(ham.getPots()) do
+  for i, value in ipairs(ham.getPots()) do
     if value.getCount() > 0 then
       table.insert(ham.itemIdList, value.getId())
       --we break because all Pots share a cd so we only want the highest healing one
@@ -57,10 +47,11 @@ local function addPotIfAvailable()
 end
 
 
-local function updateAvailableHeals()
+function ham.updateHeals()
   ham.itemIdList = {}
 
-  addPlayerHealingSpellsIfAvailable()
+  ham.spellIDs = ham.myPlayer.getHealingSpells()
+
   addPlayerHealingItemIfAvailable()
   addHealthstoneIfAvailable()
   addPotIfAvailable()
@@ -73,34 +64,73 @@ local function createMacroIfMissing()
   end
 end
 
-local function updateMacro()
-  local resetType = "combat"
-  local itemsString = ""
-  if next(ham.itemIdList) == nil and next(ham.spellNameList) == nil then
-    ham.macroStr = "#showtooltip"
-  else
-    if next(ham.itemIdList) ~= nil then
-      for i, v in ipairs(ham.itemIdList) do
-        if i == 1 then
-          itemsString = "item:" .. v;
-        else
-          itemsString = itemsString .. ", " .. "item:" .. v;
+local function buildSpellMacroString()
+  spellsMacroString = ''
+
+  if next(ham.spellIDs) ~= nil then
+    local shortestCD = nil
+    for i, spell in ipairs(ham.spellIDs) do
+      local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(spell)
+
+      if HAMDB.cdReset then
+        local cooldownMS, gcdMS = GetSpellBaseCooldown(spell)
+        local cd = cooldownMS / 1000
+        if shortestCD == nil then
+          shortestCD = cd
+        end
+        if cd < shortestCD then
+          shortestCD = cd
         end
       end
+      --TODO HEALING Elixir Twice because it has two charges ?! kinda janky but will work for now
+      if spell == ham.healingElixir then
+        name = name .. ", " .. name
+      end
+      if i == 1 then
+        spellsMacroString = name;
+      else
+        spellsMacroString = spellsMacroString .. ", " .. name;
+      end
     end
-    ham.macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " "
-    if ham.spellsMacroString ~= "" then
-      ham.macroStr = ham.macroStr .. ham.spellsMacroString
+    --add if ham.cdReset == true then combat/spelltime
+    if HAMDB.cdReset then
+      resetType = "combat/" .. shortestCD
     end
-    if ham.spellsMacroString ~= "" and itemsString ~= "" then
-      ham.macroStr = ham.macroStr .. ", "
+  end
+end
+
+local function buildItemMacroString()
+  if next(ham.itemIdList) ~= nil then
+    for i, v in ipairs(ham.itemIdList) do
+      if i == 1 then
+        itemsMacroString = "item:" .. v;
+      else
+        itemsMacroString = itemsMacroString .. ", " .. "item:" .. v;
+      end
     end
-    if itemsString ~= "" then
-      ham.macroStr = ham.macroStr .. itemsString
+  end
+end
+
+local function updateMacro()
+  if next(ham.itemIdList) == nil and next(ham.spellIDs) == nil then
+    macroStr = "#showtooltip"
+  else
+    resetType = "combat"
+    buildItemMacroString()
+    buildSpellMacroString()
+    macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " "
+    if spellsMacroString ~= "" then
+      macroStr = macroStr .. spellsMacroString
+    end
+    if spellsMacroString ~= "" and itemsMacroString ~= "" then
+      macroStr = macroStr .. ", "
+    end
+    if itemsMacroString ~= "" then
+      macroStr = macroStr .. itemsMacroString
     end
   end
   createMacroIfMissing()
-  EditMacro(macroName, macroName, nil, ham.macroStr)
+  EditMacro(macroName, macroName, nil, macroStr)
 end
 
 local onCombat = true
@@ -125,7 +155,7 @@ HealPotMacroIcon:SetScript("OnEvent", function(self, event, ...)
   end
 
   if onCombat == false then
-    updateAvailableHeals()
+    ham.updateHeals()
     updateMacro()
   end
 end)

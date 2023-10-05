@@ -1,29 +1,24 @@
 local addonName, ham = ...
-local defaults = {
-	renewal = true,
-	exhilaration = true,
-	fortitudeOfTheBear = true,
-	bitterImmunity = true,
-	crimsonVial = false,
-	desperatePrayer = true,
-	expelHarm = false,
-	healingElixir = true,
-	witheringPotion = false,
-}
-
-local panel = CreateFrame("Frame")
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
+local panel = CreateFrame("Frame", "Auto Potion", InterfaceOptionsFramePanelContainer)
+local ICON_SIZE = 50
+local PADDING_CATERGORY = 60
+local PADDING = 30
+local PADDING_HORIZONTAL = 200
+local PADDING_PRIO_CATEGORY = 130
+local classButtons = {}
+local prioFrames = {}
+local firstIcon = nil
+local currentPrioTitle = nil
 
 function panel:OnEvent(event, addOnName)
 	if addOnName == "AutoPotion" then
-		HAMDB = HAMDB or CopyTable(defaults)
-		self.db = HAMDB
-		self:InitializeOptions()
-	end
-	---LEGACY
-	if addOnName == "HealthstoneAutoMacro" then
-		HAMDB = HAMDB or CopyTable(defaults)
-		self.db = HAMDB
+		HAMDB = HAMDB or CopyTable(ham.defaults)
+		if HAMDB.activatedSpells == nil then
+			print("The Settings of AutoPotion were reset due to breaking changes.")
+			HAMDB = CopyTable(ham.defaults)
+		end
 		self:InitializeOptions()
 	end
 end
@@ -31,233 +26,205 @@ end
 panel:RegisterEvent("ADDON_LOADED")
 panel:SetScript("OnEvent", panel.OnEvent)
 
+local function createPrioFrame(parentPanel, id, iconTexture, positionx, isSpell)
+	local icon = CreateFrame("Frame", nil, parentPanel, UIParent)
+	icon:SetFrameStrata("MEDIUM")
+	icon:SetWidth(ICON_SIZE)
+	icon:SetHeight(ICON_SIZE)
+	icon:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(icon, "ANCHOR_TOPRIGHT")
+		if isSpell == true then
+			GameTooltip:SetSpellByID(id)
+		else
+			GameTooltip:SetItemByID(id)
+		end
+		GameTooltip:Show()
+	end)
+	icon:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	local texture = icon:CreateTexture(nil, "BACKGROUND")
+	texture:SetTexture(iconTexture)
+	texture:SetAllPoints(icon)
+	icon.texture = texture
+
+	if firstIcon == nil then
+		icon:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY - PADDING * 2)
+		firstIcon = icon
+	else
+		icon:SetPoint("TOPLEFT", firstIcon, positionx, 0)
+	end
+	icon:Show()
+	return icon
+end
+
+local function updatePrio(parentPanel)
+	if next(prioFrames) ~= nil then
+		--remove drawn frames
+		for i, frame in pairs(prioFrames) do
+			frame:Hide()
+		end
+	end
+	ham.updateHeals()
+	local positionx = 0
+	if next(ham.spellIDs) ~= nil then
+		for i, id in ipairs(ham.spellIDs) do
+			local name, rank, iconTexture, castTime, minRange, maxRange = GetSpellInfo(id)
+			local icon = createPrioFrame(parentPanel, id, iconTexture, positionx, true)
+			table.insert(prioFrames, icon)
+			positionx = positionx + (ICON_SIZE + (ICON_SIZE / 2))
+		end
+	end
+	if next(ham.itemIdList) ~= nil then
+		for i, id in ipairs(ham.itemIdList) do
+			local itemID, itemType, itemSubType, itemEquipLoc, iconTexture, classID, subclassID = GetItemInfoInstant(
+				id)
+			local icon = createPrioFrame(parentPanel, id, iconTexture, positionx, false)
+			table.insert(prioFrames, icon)
+			positionx = positionx + (ICON_SIZE + (ICON_SIZE / 2))
+		end
+	end
+end
+
 function panel:InitializeOptions()
-	self.panel = CreateFrame("Frame")
+	self.panel = CreateFrame("Frame", "Auto Potion", InterfaceOptionsFramePanelContainer)
 	self.panel.name = "Auto Potion"
 
-	local title = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalLarge")
-	title:SetPoint("TOP")
+	-------------  HEADER  -------------
+	local title = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+	title:SetPoint("TOP", 0, -2)
 	title:SetText("Auto Potion Settings")
 
 	local subtitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-	subtitle:SetPoint("TOPLEFT", 20, -30)
+	subtitle:SetPoint("TOPLEFT", 0, -PADDING)
 	subtitle:SetText("Here you can configure the behaviour of the Addon eg. if you want to include class spells")
 
-	if isClassic == false then
-		--[[local dkTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-	dkTitle:SetPoint("TOPLEFT", subtitle, 0, -50)
-	dkTitle:SetText("Death Knight")
 
-	local dhTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-	dhTitle:SetPoint("TOPLEFT", subtitle, 0, -50)
-	dhTitle:SetText("Demon Hunter")--]]
-		local druidTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-		druidTitle:SetPoint("TOPLEFT", subtitle, 0, -30)
-		druidTitle:SetText("Druid")
 
-		local renewalButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
-		renewalButton:SetPoint("TOPLEFT", druidTitle, 0, -15)
-		renewalButton.Text:SetText("Use Renewal")
-		renewalButton:HookScript("OnClick", function(_, btn, down)
-			self.db.renewal = renewalButton:GetChecked()
-		end)
-		renewalButton:HookScript("OnEnter", function(_, btn, down)
-			GameTooltip:SetOwner(renewalButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetSpellByID(ham.renewal);
-			GameTooltip:Show()
-		end)
-		renewalButton:HookScript("OnLeave", function(_, btn, down)
-			GameTooltip:Hide()
-		end)
-		renewalButton:SetChecked(self.db.renewal)
+	-------------  General  -------------
+	local behaviourTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+	behaviourTitle:SetPoint("TOPLEFT", subtitle, 0, -PADDING_CATERGORY)
+	behaviourTitle:SetText("Addon Behaviour")
 
-		--[[local evokerTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-	evokerTitle:SetPoint("TOPLEFT", subtitle, 0, -50)
-	evokerTitle:SetText("Evoker")--]]
-		local hunterTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-		hunterTitle:SetPoint("TOPLEFT", renewalButton, 0, -50)
-		hunterTitle:SetText("Hunter")
+	local cdResetButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+	cdResetButton:SetPoint("TOPLEFT", behaviourTitle, 0, -PADDING)
+	cdResetButton.Text:SetText(
+		"Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!")
+	cdResetButton:HookScript("OnClick", function(_, btn, down)
+		HAMDB.cdReset = cdResetButton:GetChecked()
+		updatePrio(self.panel)
+	end)
+	cdResetButton:SetChecked(HAMDB.cdReset)
 
-		local exhilarationButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
-		exhilarationButton:SetPoint("TOPLEFT", hunterTitle, 0, -15)
-		exhilarationButton.Text:SetText("Use Exhilaration")
-		exhilarationButton:HookScript("OnClick", function(_, btn, down)
-			self.db.exhilaration = exhilarationButton:GetChecked()
-		end)
-		exhilarationButton:HookScript("OnEnter", function(_, btn, down)
-			GameTooltip:SetOwner(exhilarationButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetSpellByID(ham.exhilaration);
-			GameTooltip:Show()
-		end)
-		exhilarationButton:HookScript("OnLeave", function(_, btn, down)
-			GameTooltip:Hide()
-		end)
-		exhilarationButton:SetChecked(self.db.exhilaration)
 
-		local fortitudeOfTheBearButton = CreateFrame("CheckButton", nil, self.panel,
-			"InterfaceOptionsCheckButtonTemplate")
-		fortitudeOfTheBearButton:SetPoint("TOPLEFT", exhilarationButton, 200, 0)
-		fortitudeOfTheBearButton.Text:SetText("Use Fortitude of the Bear")
-		fortitudeOfTheBearButton:HookScript("OnClick", function(_, btn, down)
-			self.db.fortitudeOfTheBear = fortitudeOfTheBearButton:GetChecked()
-		end)
-		fortitudeOfTheBearButton:HookScript("OnEnter", function(_, btn, down)
-			GameTooltip:SetOwner(fortitudeOfTheBearButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetSpellByID(ham.fortitudeOfTheBear);
-			GameTooltip:Show()
-		end)
-		fortitudeOfTheBearButton:HookScript("OnLeave", function(_, btn, down)
-			GameTooltip:Hide()
-		end)
-		fortitudeOfTheBearButton:SetChecked(self.db.fortitudeOfTheBear)
 
-		--[[local mageTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-	mageTitle:SetPoint("TOPLEFT", subtitle, 0, -50)
-	mageTitle:SetText("Mage")--]]
-		local monkTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-		monkTitle:SetPoint("TOPLEFT", exhilarationButton, 0, -50)
-		monkTitle:SetText("Monk")
 
-		local expelHarmButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
-		expelHarmButton:SetPoint("TOPLEFT", monkTitle, 0, -15)
-		expelHarmButton.Text:SetText("Use Expel Harm")
-		expelHarmButton:HookScript("OnClick", function(_, btn, down)
-			self.db.expelHarm = expelHarmButton:GetChecked()
-		end)
-		expelHarmButton:HookScript("OnEnter", function(_, btn, down)
-			GameTooltip:SetOwner(expelHarmButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetSpellByID(ham.expelHarm);
-			GameTooltip:Show()
-		end)
-		expelHarmButton:HookScript("OnLeave", function(_, btn, down)
-			GameTooltip:Hide()
-		end)
-		expelHarmButton:SetChecked(self.db.expelHarm)
+	-------------  CLASSES  -------------
+	local myClassTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+	myClassTitle:SetPoint("TOPLEFT", cdResetButton, 0, -PADDING_CATERGORY)
+	myClassTitle:SetText("Class Spells")
 
-		local healingElixirButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
-		healingElixirButton:SetPoint("TOPLEFT", expelHarmButton, 200, 0)
-		healingElixirButton.Text:SetText("Use Healing Elixir")
-		healingElixirButton:HookScript("OnClick", function(_, btn, down)
-			self.db.healingElixir = healingElixirButton:GetChecked()
-		end)
-		healingElixirButton:HookScript("OnEnter", function(_, btn, down)
-			GameTooltip:SetOwner(healingElixirButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetSpellByID(ham.healingElixir);
-			GameTooltip:Show()
-		end)
-		healingElixirButton:HookScript("OnLeave", function(_, btn, down)
-			GameTooltip:Hide()
-		end)
-		healingElixirButton:SetChecked(self.db.healingElixir)
+	local lastbutton = nil
+	local posy = -PADDING
+	if next(ham.supportedSpells) ~= nil then
+		local count = 0
+		for i, spell in ipairs(ham.supportedSpells) do
+			if IsSpellKnown(spell) then
+				local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(spell)
+				local button = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
 
-		--[[local paladinTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-	paladinTitle:SetPoint("TOPLEFT", subtitle, 0, -50)
-	paladinTitle:SetText("Paladin")--]]
-		local priestTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-		priestTitle:SetPoint("TOPLEFT", expelHarmButton, 0, -50)
-		priestTitle:SetText("Priest")
-
-		local desperatePrayerButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
-		desperatePrayerButton:SetPoint("TOPLEFT", priestTitle, 0, -15)
-		desperatePrayerButton.Text:SetText("Use Desperate Prayer")
-		desperatePrayerButton:HookScript("OnClick", function(_, btn, down)
-			self.db.desperatePrayer = desperatePrayerButton:GetChecked()
-		end)
-		desperatePrayerButton:HookScript("OnEnter", function(_, btn, down)
-			GameTooltip:SetOwner(desperatePrayerButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetSpellByID(ham.desperatePrayer);
-			GameTooltip:Show()
-		end)
-		desperatePrayerButton:HookScript("OnLeave", function(_, btn, down)
-			GameTooltip:Hide()
-		end)
-		desperatePrayerButton:SetChecked(self.db.desperatePrayer)
-
-		local rogueTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-		rogueTitle:SetPoint("TOPLEFT", desperatePrayerButton, 0, -50)
-		rogueTitle:SetText("Rogue")
-
-		local crimsonVialButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
-		crimsonVialButton:SetPoint("TOPLEFT", rogueTitle, 0, -15)
-		crimsonVialButton.Text:SetText("Use Crimson Vial")
-		crimsonVialButton:HookScript("OnClick", function(_, btn, down)
-			self.db.crimsonVial = crimsonVialButton:GetChecked()
-		end)
-		crimsonVialButton:HookScript("OnEnter", function(_, btn, down)
-			GameTooltip:SetOwner(crimsonVialButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetSpellByID(ham.crimsonVialSpell);
-			GameTooltip:Show()
-		end)
-		crimsonVialButton:HookScript("OnLeave", function(_, btn, down)
-			GameTooltip:Hide()
-		end)
-		crimsonVialButton:SetChecked(self.db.crimsonVial)
-
-		--[[local shamanTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-	shamanTitle:SetPoint("TOPLEFT", subtitle, 0, -50)
-	shamanTitle:SetText("Shaman")
-
-	local wlTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-	wlTitle:SetPoint("TOPLEFT", subtitle, 0, -50)
-	wlTitle:SetText("Warlock")--]]
-		local warriorTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-		warriorTitle:SetPoint("TOPLEFT", crimsonVialButton, 0, -50)
-		warriorTitle:SetText("Warrior")
-		local bitterImmunityButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
-		bitterImmunityButton:SetPoint("TOPLEFT", warriorTitle, 0, -15)
-		bitterImmunityButton.Text:SetText("Use Bitter Immunity")
-		bitterImmunityButton:HookScript("OnClick", function(_, btn, down)
-			self.db.bitterImmunity = bitterImmunityButton:GetChecked()
-		end)
-		bitterImmunityButton:HookScript("OnEnter", function(_, btn, down)
-			GameTooltip:SetOwner(bitterImmunityButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetSpellByID(ham.bitterImmunity);
-			GameTooltip:Show()
-		end)
-		bitterImmunityButton:HookScript("OnLeave", function(_, btn, down)
-			GameTooltip:Hide()
-		end)
-		bitterImmunityButton:SetChecked(self.db.bitterImmunity)
-
-		local witheringPotTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-		witheringPotTitle:SetPoint("TOPLEFT", bitterImmunityButton, 0, -50)
-		witheringPotTitle:SetText("Withering Potions")
-
-		local witheringPotionButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
-		witheringPotionButton:SetPoint("TOPLEFT", witheringPotTitle, 0, -15)
-		witheringPotionButton.Text:SetText("Use Potion of Withering Vitality")
-		witheringPotionButton:HookScript("OnClick", function(_, btn, down)
-			self.db.witheringPotion = witheringPotionButton:GetChecked()
-		end)
-		witheringPotionButton:HookScript("OnEnter", function(_, btn, down)
-			GameTooltip:SetOwner(witheringPotionButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetItemByID(ham.witheringR3.getId())
-			GameTooltip:Show()
-		end)
-		witheringPotionButton:HookScript("OnLeave", function(_, btn, down)
-			GameTooltip:Hide()
-		end)
-		witheringPotionButton:SetChecked(self.db.witheringPotion)
-
-		local btn = CreateFrame("Button", nil, self.panel, "UIPanelButtonTemplate")
-		btn:SetPoint("TOPLEFT", witheringPotionButton, 0, -50)
-		btn:SetText("Reset to Default")
-		btn:SetWidth(120)
-		btn:SetScript("OnClick", function()
-			HAMDB = CopyTable(defaults)
-			self.db = HAMDB
-			renewalButton:SetChecked(self.db.renewal)
-			exhilarationButton:SetChecked(self.db.exhilaration)
-			fortitudeOfTheBearButton:SetChecked(self.db.fortitudeOfTheBear)
-			bitterImmunityButton:SetChecked(self.db.bitterImmunity)
-			crimsonVialButton:SetChecked(self.db.crimsonVial)
-			desperatePrayerButton:SetChecked(self.db.desperatePrayer)
-			expelHarmButton:SetChecked(self.db.expelHarm)
-			healingElixirButton:SetChecked(self.db.healingElixir)
-			witheringPotionButton:SetChecked(self.db.witheringPotion)
-			print("Reset successful!")
-		end)
+				if count == 3 then
+					lastbutton = nil
+					count = 0
+					posy = posy - PADDING
+				end
+				if lastbutton ~= nil then
+					button:SetPoint("TOPLEFT", lastbutton, PADDING_HORIZONTAL, 0)
+				else
+					button:SetPoint("TOPLEFT", myClassTitle, 0, posy)
+				end
+				button.Text:SetText("Use " .. name)
+				button:HookScript("OnClick", function(_, btn, down)
+					if button:GetChecked() then
+						ham.insertIntoDB(spell)
+					else
+						ham.removeFromDB(spell)
+					end
+					updatePrio(self.panel)
+				end)
+				button:HookScript("OnEnter", function(_, btn, down)
+					GameTooltip:SetOwner(button, "ANCHOR_TOPRIGHT")
+					GameTooltip:SetSpellByID(spell);
+					GameTooltip:Show()
+				end)
+				button:HookScript("OnLeave", function(_, btn, down)
+					GameTooltip:Hide()
+				end)
+				button:SetChecked(ham.dbContains(spell))
+				table.insert(classButtons, spell, button)
+				lastbutton = button
+				count = count + 1
+			end
+		end
 	end
+
+
+	-------------  ITEMS  -------------
+	local itemsTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+	if lastbutton ~= nil then
+		itemsTitle:SetPoint("TOPLEFT", myClassTitle, 0, posy - PADDING_CATERGORY)
+	else
+		itemsTitle:SetPoint("TOPLEFT", myClassTitle, 0, -PADDING_CATERGORY)
+	end
+
+	itemsTitle:SetText("Items")
+
+	local witheringPotionButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+	witheringPotionButton:SetPoint("TOPLEFT", itemsTitle, 0, -PADDING)
+	witheringPotionButton.Text:SetText("Use Potion of Withering Vitality")
+	witheringPotionButton:HookScript("OnClick", function(_, btn, down)
+		HAMDB.witheringPotion = witheringPotionButton:GetChecked()
+		updatePrio(self.panel)
+	end)
+	witheringPotionButton:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(witheringPotionButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetItemByID(ham.witheringR3.getId())
+		GameTooltip:Show()
+	end)
+	witheringPotionButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	witheringPotionButton:SetChecked(HAMDB.witheringPotion)
+
+
+	-------------  CURRENT PRIORITY  -------------
+	currentPrioTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+	currentPrioTitle:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY)
+	currentPrioTitle:SetText("Current Priority")
+	updatePrio(self.panel)
+
+
+
+	-------------  RESET BUTTON  -------------
+	local btn = CreateFrame("Button", nil, self.panel, "UIPanelButtonTemplate")
+	btn:SetPoint("BOTTOMLEFT", 2, 3)
+	btn:SetText("Reset to Default")
+	btn:SetWidth(120)
+	btn:SetScript("OnClick", function()
+		HAMDB = CopyTable(ham.defaults)
+
+		for spellID, button in pairs(classButtons) do
+			if ham.dbContains(spellID) then
+				button:SetChecked(true)
+			else
+				button:SetChecked(false)
+			end
+		end
+		cdResetButton:SetChecked(HAMDB.cdReset)
+		witheringPotionButton:SetChecked(HAMDB.witheringPotion)
+		updatePrio(self.panel)
+		print("Reset successful!")
+	end)
 	InterfaceOptions_AddCategory(self.panel)
 end
 
