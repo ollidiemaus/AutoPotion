@@ -1,26 +1,12 @@
 local addonName, ham = ...
-local defaults = {
-	--cdReset = false,
-	renewal = true,
-	exhilaration = true,
-	fortitudeOfTheBear = true,
-	bitterImmunity = true,
-	crimsonVial = false,
-	desperatePrayer = true,
-	expelHarm = false,
-	healingElixir = true,
-	witheringPotion = false,
-}
-
-
-local panel = CreateFrame("Frame", "Auto Potion", InterfaceOptionsFramePanelContainer)
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
+local panel = CreateFrame("Frame", "Auto Potion", InterfaceOptionsFramePanelContainer)
+local classButtons = {}
 
 function panel:OnEvent(event, addOnName)
 	if addOnName == "AutoPotion" then
-		HAMDB = HAMDB or CopyTable(defaults)
-		self.db = HAMDB
+		HAMDB = HAMDB or CopyTable(ham.defaults)
 		self:InitializeOptions()
 	end
 end
@@ -30,7 +16,6 @@ panel:SetScript("OnEvent", panel.OnEvent)
 
 function panel:InitializeOptions()
 	local localizedClass, englishClass, classIndex = UnitClass("player");
-
 
 	self.panel = CreateFrame("Frame", "Auto Potion", InterfaceOptionsFramePanelContainer)
 	self.panel.name = "Auto Potion"
@@ -55,9 +40,9 @@ function panel:InitializeOptions()
 	cdResetButton:SetPoint("TOPLEFT", behaviourTitle, 0, -30)
 	cdResetButton.Text:SetText("Include Spell Cooldown in Macro")
 	cdResetButton:HookScript("OnClick", function(_, btn, down)
-		self.db.renewal = cdResetButton:GetChecked()
+		HAMDB.cdReset = cdResetButton:GetChecked()
 	end)
-	cdResetButton:SetChecked(self.db.cdReset)
+	cdResetButton:SetChecked(HAMDB.cdReset)
 
 
 
@@ -71,9 +56,9 @@ function panel:InitializeOptions()
 			local count = 0
 			local lastbutton = nil
 			local posy = -30
-			for i, v in ipairs(ham.supportedSpells) do
+			for i, spell in ipairs(ham.supportedSpells) do
 				--if IsSpellKnown(v) then
-				local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(v)
+				local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(spell)
 				local button = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
 
 				if count == 3 then
@@ -88,19 +73,24 @@ function panel:InitializeOptions()
 				end
 				button.Text:SetText("Use " .. name)
 				button:HookScript("OnClick", function(_, btn, down)
-					--self.db.renewal = button:GetChecked()
+					if button:GetChecked() then
+						ham.insertIntoDB(spell)
+					else
+						ham.removeFromDB(spell)
+					end
 				end)
 				button:HookScript("OnEnter", function(_, btn, down)
 					GameTooltip:SetOwner(button, "ANCHOR_TOPRIGHT")
-					GameTooltip:SetSpellByID(v);
+					GameTooltip:SetSpellByID(spell);
 					GameTooltip:Show()
 				end)
 				button:HookScript("OnLeave", function(_, btn, down)
 					GameTooltip:Hide()
 				end)
+				button:SetChecked(ham.dbContains(spell))
+				table.insert(classButtons, spell, button)
 				lastbutton = button
 				count = count + 1
-				--renewalButton:SetChecked(self.db.renewal)
 				--end
 			end
 		end
@@ -115,7 +105,7 @@ function panel:InitializeOptions()
 		witheringPotionButton:SetPoint("TOPLEFT", itemsTitle, 0, -30)
 		witheringPotionButton.Text:SetText("Use Potion of Withering Vitality")
 		witheringPotionButton:HookScript("OnClick", function(_, btn, down)
-			self.db.witheringPotion = witheringPotionButton:GetChecked()
+			HAMDB.witheringPotion = witheringPotionButton:GetChecked()
 		end)
 		witheringPotionButton:HookScript("OnEnter", function(_, btn, down)
 			GameTooltip:SetOwner(witheringPotionButton, "ANCHOR_TOPRIGHT")
@@ -125,7 +115,7 @@ function panel:InitializeOptions()
 		witheringPotionButton:HookScript("OnLeave", function(_, btn, down)
 			GameTooltip:Hide()
 		end)
-		witheringPotionButton:SetChecked(self.db.witheringPotion)
+		witheringPotionButton:SetChecked(HAMDB.witheringPotion)
 
 
 
@@ -135,17 +125,17 @@ function panel:InitializeOptions()
 		btn:SetText("Reset to Default")
 		btn:SetWidth(120)
 		btn:SetScript("OnClick", function()
-			HAMDB = CopyTable(defaults)
-			self.db = HAMDB
-			renewalButton:SetChecked(self.db.renewal)
-			exhilarationButton:SetChecked(self.db.exhilaration)
-			fortitudeOfTheBearButton:SetChecked(self.db.fortitudeOfTheBear)
-			bitterImmunityButton:SetChecked(self.db.bitterImmunity)
-			crimsonVialButton:SetChecked(self.db.crimsonVial)
-			desperatePrayerButton:SetChecked(self.db.desperatePrayer)
-			expelHarmButton:SetChecked(self.db.expelHarm)
-			healingElixirButton:SetChecked(self.db.healingElixir)
-			witheringPotionButton:SetChecked(self.db.witheringPotion)
+			HAMDB = CopyTable(ham.defaults)
+
+			for spellID, button in pairs(classButtons) do
+				if ham.dbContains(spellID) then
+					button:SetChecked(true)
+				else
+					button:SetChecked(false)
+				end
+			end
+			cdResetButton:SetChecked(HAMDB.cdReset)
+			witheringPotionButton:SetChecked(HAMDB.witheringPotion)
 			print("Reset successful!")
 		end)
 	end

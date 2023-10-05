@@ -13,5 +13,6 @@ Core/Item.lua
 Core/Player.lua
 Core/Potions.lua
 Core/Spells.lua
+Core/DB.lua
 Bindings.lua
 FrameXML/InterfaceOptionsFrame.lua
