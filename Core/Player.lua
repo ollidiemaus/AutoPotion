@@ -17,10 +17,6 @@ ham.Player.new = function()
     for i, spell in ipairs(HAMDB.activatedSpells) do
       if IsSpellKnown(spell) then
         table.insert(spells, spell)
-        --TODO HEALING Elixir Twice because it has two charges ?! kinda janky but will work for now
-        if spell == ham.healingElixir then
-          table.insert(spells, spell)
-        end
       end
     end
 
