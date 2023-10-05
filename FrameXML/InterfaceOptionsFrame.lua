@@ -104,7 +104,8 @@ function panel:InitializeOptions()
 
 	local cdResetButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
 	cdResetButton:SetPoint("TOPLEFT", behaviourTitle, 0, -PADDING)
-	cdResetButton.Text:SetText("Include Spell Cooldown in Macro")
+	cdResetButton.Text:SetText(
+		"Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!")
 	cdResetButton:HookScript("OnClick", function(_, btn, down)
 		HAMDB.cdReset = cdResetButton:GetChecked()
 		updatePrio(self.panel)

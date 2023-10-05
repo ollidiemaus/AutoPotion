@@ -8,6 +8,7 @@ ham.myPlayer = ham.Player.new()
 local spellsMacroString = ''
 local itemsMacroString = ''
 local macroStr = ''
+local resetType = "combat"
 
 local function addPlayerHealingItemIfAvailable()
   local playerResetType, item = ham.myPlayer.getHealingItems()
@@ -67,8 +68,20 @@ local function buildSpellMacroString()
   spellsMacroString = ''
 
   if next(ham.spellIDs) ~= nil then
+    local shortestCD = nil
     for i, spell in ipairs(ham.spellIDs) do
       local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(spell)
+
+      if HAMDB.cdReset then
+        local cooldownMS, gcdMS = GetSpellBaseCooldown(spell)
+        local cd = cooldownMS / 1000
+        if shortestCD == nil then
+          shortestCD = cd
+        end
+        if cd < shortestCD then
+          shortestCD = cd
+        end
+      end
       --TODO HEALING Elixir Twice because it has two charges ?! kinda janky but will work for now
       if spell == ham.healingElixir then
         name = name .. ", " .. name
@@ -78,6 +91,10 @@ local function buildSpellMacroString()
       else
         spellsMacroString = spellsMacroString .. ", " .. name;
       end
+    end
+    --add if ham.cdReset == true then combat/spelltime
+    if HAMDB.cdReset then
+      resetType = "combat/" .. shortestCD
     end
   end
 end
@@ -95,11 +112,10 @@ local function buildItemMacroString()
 end
 
 local function updateMacro()
-  local resetType = "combat"
-  --add if ham.cdReset == true then combat/spelltime
   if next(ham.itemIdList) == nil and next(ham.spellIDs) == nil then
     macroStr = "#showtooltip"
   else
+    resetType = "combat"
     buildItemMacroString()
     buildSpellMacroString()
     macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " "
