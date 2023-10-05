@@ -5,15 +5,16 @@ local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 
 local function addPlayerHealingSpellsIfAvailable()
   local myPlayer = ham.Player.new()
-  ham.spellNameList = myPlayer.getHealingSpells()
+  ham.spellIDs = myPlayer.getHealingSpells()
   ham.spellsMacroString = ""
 
-  if next(ham.spellNameList) ~= nil then
-    for i, v in ipairs(ham.spellNameList) do
+  if next(ham.spellIDs) ~= nil then
+    for i, v in ipairs(ham.spellIDs) do
+      local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(v)
       if i == 1 then
-        ham.spellsMacroString = v;
+        ham.spellsMacroString = name;
       else
-        ham.spellsMacroString = ham.spellsMacroString .. ", " .. v;
+        ham.spellsMacroString = ham.spellsMacroString .. ", " .. name;
       end
     end
   end
@@ -77,7 +78,7 @@ local function updateMacro()
   local resetType = "combat"
   --add if ham.cdReset == true then combat/spelltime
   local itemsString = ""
-  if next(ham.itemIdList) == nil and next(ham.spellNameList) == nil then
+  if next(ham.itemIdList) == nil and next(ham.spellIDs) == nil then
     ham.macroStr = "#showtooltip"
   else
     if next(ham.itemIdList) ~= nil then
