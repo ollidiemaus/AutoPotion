@@ -1,6 +1,9 @@
 local addonName, ham = ...
+local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
+
+
 
 --ham.leywine = ham.Item.new(194684,"Azure Leywine")
 --ham.healthstone = ham.Item.new(117, "Healthstone")
@@ -67,7 +70,7 @@ ham.fel1 = ham.Item.new(36893, "Fel Healthstone")
 ham.fel2 = ham.Item.new(36894, "Fel Healthstone")
 
 function ham.getPots()
-  if isClassic == false and isWrath == false then
+  if isRetail then
     local pots = {
       ham.refreshingR3,
       ham.refreshingR2,
@@ -103,7 +106,7 @@ function ham.getPots()
 
     return pots
   end
-  if isClassic == true then
+  if isClassic then
     return {
       ham.major,
       ham.superior,
@@ -114,7 +117,7 @@ function ham.getPots()
     }
   end
 
-  if isWrath == true then
+  if isWrath then
     return {
       ham.runic,
       ham.superreju,
@@ -135,7 +138,7 @@ function ham.getPots()
 end
 
 function ham.getHealthstonesClassic()
-  if isClassic == true then
+  if isClassic then
     return {
       ham.major2,
       ham.major1,
@@ -155,7 +158,7 @@ function ham.getHealthstonesClassic()
     }
   end
 
-  if isWrath == true then
+  if isWrath then
     return {
       ham.fel2,
       ham.fel1,
