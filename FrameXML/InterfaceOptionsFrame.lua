@@ -9,7 +9,10 @@ local PADDING_HORIZONTAL = 200
 local PADDING_PRIO_CATEGORY = 130
 local classButtons = {}
 local prioFrames = {}
+local prioTextures = {}
+local prioFramesCounter = 0
 local firstIcon = nil
+local positionx = 0
 local currentPrioTitle = nil
 
 function panel:OnEvent(event, addOnName)
@@ -55,33 +58,74 @@ local function createPrioFrame(parentPanel, id, iconTexture, positionx, isSpell)
 		icon:SetPoint("TOPLEFT", firstIcon, positionx, 0)
 	end
 	icon:Show()
+	table.insert(prioFrames, icon)
+	table.insert(prioTextures, texture)
+	prioFramesCounter = prioFramesCounter + 1
 	return icon
 end
 
 local function updatePrio(parentPanel)
-	if next(prioFrames) ~= nil then
-		--remove drawn frames
-		for i, frame in pairs(prioFrames) do
-			frame:Hide()
-		end
-	end
 	ham.updateHeals()
-	local positionx = 0
+	local spellCounter = 0
+	local itemCounter = 0
+
+	for i, frame in pairs(prioFrames) do
+		frame:Hide()
+	end
+
 	if next(ham.spellIDs) ~= nil then
 		for i, id in ipairs(ham.spellIDs) do
 			local name, rank, iconTexture, castTime, minRange, maxRange = GetSpellInfo(id)
-			local icon = createPrioFrame(parentPanel, id, iconTexture, positionx, true)
-			table.insert(prioFrames, icon)
-			positionx = positionx + (ICON_SIZE + (ICON_SIZE / 2))
+			local currentFrame = prioFrames[i]
+			local currentTexture = prioTextures[i]
+			if currentFrame ~= nil then
+				currentFrame:SetScript("OnEnter", nil)
+				currentFrame:SetScript("OnLeave", nil)
+				currentFrame:HookScript("OnEnter", function(_, btn, down)
+					GameTooltip:SetOwner(currentFrame, "ANCHOR_TOPRIGHT")
+					GameTooltip:SetSpellByID(id)
+					GameTooltip:Show()
+				end)
+				currentFrame:HookScript("OnLeave", function(_, btn, down)
+					GameTooltip:Hide()
+				end)
+				currentTexture:SetTexture(iconTexture)
+				currentTexture:SetAllPoints(currentFrame)
+				currentFrame.texture = currentTexture
+				currentFrame:Show()
+			else
+				createPrioFrame(parentPanel, id, iconTexture, positionx, true)
+				positionx = positionx + (ICON_SIZE + (ICON_SIZE / 2))
+			end
+			spellCounter = spellCounter + 1
 		end
 	end
 	if next(ham.itemIdList) ~= nil then
 		for i, id in ipairs(ham.itemIdList) do
-			local itemID, itemType, itemSubType, itemEquipLoc, iconTexture, classID, subclassID = GetItemInfoInstant(
-				id)
-			local icon = createPrioFrame(parentPanel, id, iconTexture, positionx, false)
-			table.insert(prioFrames, icon)
-			positionx = positionx + (ICON_SIZE + (ICON_SIZE / 2))
+			local itemID, itemType, itemSubType, itemEquipLoc, iconTexture, classID, subclassID = GetItemInfoInstant(id)
+			local currentFrame = prioFrames[i + spellCounter]
+			local currentTexture = prioTextures[i + spellCounter]
+
+			if currentFrame ~= nil then
+				currentFrame:SetScript("OnEnter", nil)
+				currentFrame:SetScript("OnLeave", nil)
+				currentFrame:HookScript("OnEnter", function(_, btn, down)
+					GameTooltip:SetOwner(currentFrame, "ANCHOR_TOPRIGHT")
+					GameTooltip:SetItemByID(id)
+					GameTooltip:Show()
+				end)
+				currentFrame:HookScript("OnLeave", function(_, btn, down)
+					GameTooltip:Hide()
+				end)
+				currentTexture:SetTexture(iconTexture)
+				currentTexture:SetAllPoints(currentFrame)
+				currentFrame.texture = currentTexture
+				currentFrame:Show()
+			else
+				createPrioFrame(parentPanel, id, iconTexture, positionx, false)
+				positionx = positionx + (ICON_SIZE + (ICON_SIZE / 2))
+			end
+			itemCounter = itemCounter + 1
 		end
 	end
 end
