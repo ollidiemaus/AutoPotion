@@ -134,15 +134,15 @@ local function updateMacro()
 end
 
 local onCombat = true
-local HealPotMacroIcon = CreateFrame("Frame")
-HealPotMacroIcon:RegisterEvent("BAG_UPDATE")
-HealPotMacroIcon:RegisterEvent("PLAYER_LOGIN")
+local updateFrame = CreateFrame("Frame")
+updateFrame:RegisterEvent("BAG_UPDATE")
+updateFrame:RegisterEvent("PLAYER_LOGIN")
 if isClassic == false then
-  HealPotMacroIcon:RegisterEvent("TRAIT_CONFIG_UPDATED")
+  updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end
-HealPotMacroIcon:RegisterEvent("PLAYER_REGEN_ENABLED")
-HealPotMacroIcon:RegisterEvent("PLAYER_REGEN_DISABLED")
-HealPotMacroIcon:SetScript("OnEvent", function(self, event, ...)
+updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+updateFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+updateFrame:SetScript("OnEvent", function(self, event, ...)
   if event == "PLAYER_LOGIN" then
     onCombat = false
   end

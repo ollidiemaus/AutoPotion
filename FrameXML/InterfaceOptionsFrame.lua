@@ -1,7 +1,8 @@
 local addonName, ham = ...
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
-local panel = CreateFrame("Frame", "Auto Potion", InterfaceOptionsFramePanelContainer)
+---@class Frame
+local panel = CreateFrame("Frame")
 local ICON_SIZE = 50
 local PADDING_CATERGORY = 60
 local PADDING = 30
@@ -14,23 +15,31 @@ local prioFramesCounter = 0
 local firstIcon = nil
 local positionx = 0
 local currentPrioTitle = nil
+local lastStaticElement = nil
 
 function panel:OnEvent(event, addOnName)
 	if addOnName == "AutoPotion" then
-		HAMDB = HAMDB or CopyTable(ham.defaults)
-		if HAMDB.activatedSpells == nil then
-			print("The Settings of AutoPotion were reset due to breaking changes.")
-			HAMDB = CopyTable(ham.defaults)
+		if event == "ADDON_LOADED" then
+			HAMDB = HAMDB or CopyTable(ham.defaults)
+			if HAMDB.activatedSpells == nil then
+				print("The Settings of AutoPotion were reset due to breaking changes.")
+				HAMDB = CopyTable(ham.defaults)
+			end
+			self:InitializeOptions()
 		end
-		self:InitializeOptions()
+	end
+	if event == "PLAYER_LOGIN" then
+		self:InitializeClassSpells(lastStaticElement)
+		self:updatePrio()
 	end
 end
 
+panel:RegisterEvent("PLAYER_LOGIN")
 panel:RegisterEvent("ADDON_LOADED")
 panel:SetScript("OnEvent", panel.OnEvent)
 
-local function createPrioFrame(parentPanel, id, iconTexture, positionx, isSpell)
-	local icon = CreateFrame("Frame", nil, parentPanel, UIParent)
+function panel:createPrioFrame(id, iconTexture, positionx, isSpell)
+	local icon = CreateFrame("Frame", nil, self.panel, UIParent)
 	icon:SetFrameStrata("MEDIUM")
 	icon:SetWidth(ICON_SIZE)
 	icon:SetHeight(ICON_SIZE)
@@ -49,6 +58,7 @@ local function createPrioFrame(parentPanel, id, iconTexture, positionx, isSpell)
 	local texture = icon:CreateTexture(nil, "BACKGROUND")
 	texture:SetTexture(iconTexture)
 	texture:SetAllPoints(icon)
+	---@diagnostic disable-next-line: inject-field
 	icon.texture = texture
 
 	if firstIcon == nil then
@@ -64,7 +74,7 @@ local function createPrioFrame(parentPanel, id, iconTexture, positionx, isSpell)
 	return icon
 end
 
-local function updatePrio(parentPanel)
+function panel:updatePrio()
 	ham.updateHeals()
 	local spellCounter = 0
 	local itemCounter = 0
@@ -94,7 +104,7 @@ local function updatePrio(parentPanel)
 				currentFrame.texture = currentTexture
 				currentFrame:Show()
 			else
-				createPrioFrame(parentPanel, id, iconTexture, positionx, true)
+				self:createPrioFrame(id, iconTexture, positionx, true)
 				positionx = positionx + (ICON_SIZE + (ICON_SIZE / 2))
 			end
 			spellCounter = spellCounter + 1
@@ -122,7 +132,7 @@ local function updatePrio(parentPanel)
 				currentFrame.texture = currentTexture
 				currentFrame:Show()
 			else
-				createPrioFrame(parentPanel, id, iconTexture, positionx, false)
+				self:createPrioFrame(id, iconTexture, positionx, false)
 				positionx = positionx + (ICON_SIZE + (ICON_SIZE / 2))
 			end
 			itemCounter = itemCounter + 1
@@ -132,7 +142,9 @@ end
 
 function panel:InitializeOptions()
 	self.panel = CreateFrame("Frame", "Auto Potion", InterfaceOptionsFramePanelContainer)
+	---@diagnostic disable-next-line: inject-field
 	self.panel.name = "Auto Potion"
+	InterfaceOptions_AddCategory(self.panel)
 
 	-------------  HEADER  -------------
 	local title = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
@@ -144,7 +156,6 @@ function panel:InitializeOptions()
 	subtitle:SetText("Here you can configure the behaviour of the Addon eg. if you want to include class spells")
 
 
-
 	-------------  General  -------------
 	local behaviourTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
 	behaviourTitle:SetPoint("TOPLEFT", subtitle, 0, -PADDING_CATERGORY)
@@ -152,20 +163,76 @@ function panel:InitializeOptions()
 
 	local cdResetButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
 	cdResetButton:SetPoint("TOPLEFT", behaviourTitle, 0, -PADDING)
+	---@diagnostic disable-next-line: undefined-field
 	cdResetButton.Text:SetText(
 		"Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!")
 	cdResetButton:HookScript("OnClick", function(_, btn, down)
 		HAMDB.cdReset = cdResetButton:GetChecked()
-		updatePrio(self.panel)
 	end)
 	cdResetButton:SetChecked(HAMDB.cdReset)
 
+	-------------  ITEMS  -------------
+	local itemsTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+	itemsTitle:SetPoint("TOPLEFT", cdResetButton, 0, -PADDING_CATERGORY)
+
+	itemsTitle:SetText("Items")
+
+	local witheringPotionButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+	witheringPotionButton:SetPoint("TOPLEFT", itemsTitle, 0, -PADDING)
+	---@diagnostic disable-next-line: undefined-field
+	witheringPotionButton.Text:SetText("Use Potion of Withering Vitality")
+	witheringPotionButton:HookScript("OnClick", function(_, btn, down)
+		HAMDB.witheringPotion = witheringPotionButton:GetChecked()
+		self:updatePrio()
+	end)
+	witheringPotionButton:HookScript("OnEnter", function(_, btn, down)
+		---@diagnostic disable-next-line: param-type-mismatch
+		GameTooltip:SetOwner(witheringPotionButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetItemByID(ham.witheringR3.getId())
+		GameTooltip:Show()
+	end)
+	witheringPotionButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	witheringPotionButton:SetChecked(HAMDB.witheringPotion)
+
+	lastStaticElement = witheringPotionButton
+
+
+	-------------  CURRENT PRIORITY  -------------
+	currentPrioTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+	currentPrioTitle:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY)
+	currentPrioTitle:SetText("Current Priority")
 
 
 
+
+	-------------  RESET BUTTON  -------------
+	local btn = CreateFrame("Button", nil, self.panel, "UIPanelButtonTemplate")
+	btn:SetPoint("BOTTOMLEFT", 2, 3)
+	btn:SetText("Reset to Default")
+	btn:SetWidth(120)
+	btn:SetScript("OnClick", function()
+		HAMDB = CopyTable(ham.defaults)
+
+		for spellID, button in pairs(classButtons) do
+			if ham.dbContains(spellID) then
+				button:SetChecked(true)
+			else
+				button:SetChecked(false)
+			end
+		end
+		cdResetButton:SetChecked(HAMDB.cdReset)
+		witheringPotionButton:SetChecked(HAMDB.witheringPotion)
+		self:updatePrio()
+		print("Reset successful!")
+	end)
+end
+
+function panel:InitializeClassSpells(relativeTo)
 	-------------  CLASSES  -------------
 	local myClassTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-	myClassTitle:SetPoint("TOPLEFT", cdResetButton, 0, -PADDING_CATERGORY)
+	myClassTitle:SetPoint("TOPLEFT", relativeTo, 0, -PADDING_CATERGORY)
 	myClassTitle:SetText("Class Spells")
 
 	local lastbutton = nil
@@ -187,6 +254,7 @@ function panel:InitializeOptions()
 				else
 					button:SetPoint("TOPLEFT", myClassTitle, 0, posy)
 				end
+				---@diagnostic disable-next-line: undefined-field
 				button.Text:SetText("Use " .. name)
 				button:HookScript("OnClick", function(_, btn, down)
 					if button:GetChecked() then
@@ -194,9 +262,10 @@ function panel:InitializeOptions()
 					else
 						ham.removeFromDB(spell)
 					end
-					updatePrio(self.panel)
+					self:updatePrio()
 				end)
 				button:HookScript("OnEnter", function(_, btn, down)
+					---@diagnostic disable-next-line: param-type-mismatch
 					GameTooltip:SetOwner(button, "ANCHOR_TOPRIGHT")
 					GameTooltip:SetSpellByID(spell);
 					GameTooltip:Show()
@@ -211,65 +280,6 @@ function panel:InitializeOptions()
 			end
 		end
 	end
-
-
-	-------------  ITEMS  -------------
-	local itemsTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-	if lastbutton ~= nil then
-		itemsTitle:SetPoint("TOPLEFT", myClassTitle, 0, posy - PADDING_CATERGORY)
-	else
-		itemsTitle:SetPoint("TOPLEFT", myClassTitle, 0, -PADDING_CATERGORY)
-	end
-
-	itemsTitle:SetText("Items")
-
-	local witheringPotionButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
-	witheringPotionButton:SetPoint("TOPLEFT", itemsTitle, 0, -PADDING)
-	witheringPotionButton.Text:SetText("Use Potion of Withering Vitality")
-	witheringPotionButton:HookScript("OnClick", function(_, btn, down)
-		HAMDB.witheringPotion = witheringPotionButton:GetChecked()
-		updatePrio(self.panel)
-	end)
-	witheringPotionButton:HookScript("OnEnter", function(_, btn, down)
-		GameTooltip:SetOwner(witheringPotionButton, "ANCHOR_TOPRIGHT")
-		GameTooltip:SetItemByID(ham.witheringR3.getId())
-		GameTooltip:Show()
-	end)
-	witheringPotionButton:HookScript("OnLeave", function(_, btn, down)
-		GameTooltip:Hide()
-	end)
-	witheringPotionButton:SetChecked(HAMDB.witheringPotion)
-
-
-	-------------  CURRENT PRIORITY  -------------
-	currentPrioTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-	currentPrioTitle:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY)
-	currentPrioTitle:SetText("Current Priority")
-	updatePrio(self.panel)
-
-
-
-	-------------  RESET BUTTON  -------------
-	local btn = CreateFrame("Button", nil, self.panel, "UIPanelButtonTemplate")
-	btn:SetPoint("BOTTOMLEFT", 2, 3)
-	btn:SetText("Reset to Default")
-	btn:SetWidth(120)
-	btn:SetScript("OnClick", function()
-		HAMDB = CopyTable(ham.defaults)
-
-		for spellID, button in pairs(classButtons) do
-			if ham.dbContains(spellID) then
-				button:SetChecked(true)
-			else
-				button:SetChecked(false)
-			end
-		end
-		cdResetButton:SetChecked(HAMDB.cdReset)
-		witheringPotionButton:SetChecked(HAMDB.witheringPotion)
-		updatePrio(self.panel)
-		print("Reset successful!")
-	end)
-	InterfaceOptions_AddCategory(self.panel)
 end
 
 SLASH_HAM1 = "/ham"
