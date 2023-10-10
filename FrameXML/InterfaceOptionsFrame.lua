@@ -17,6 +17,8 @@ local positionx = 0
 local currentPrioTitle = nil
 local lastStaticElement = nil
 
+local onCombat = true
+
 function panel:OnEvent(event, addOnName)
 	if addOnName == "AutoPotion" then
 		if event == "ADDON_LOADED" then
@@ -31,11 +33,31 @@ function panel:OnEvent(event, addOnName)
 	if event == "PLAYER_LOGIN" then
 		self:InitializeClassSpells(lastStaticElement)
 		self:updatePrio()
+		onCombat = false
+	end
+	if event == "PLAYER_REGEN_DISABLED" then
+		onCombat = true
+		return
+	end
+	if event == "PLAYER_REGEN_ENABLED" then
+		onCombat = false
+	end
+
+	if onCombat == false then
+		self:updatePrio()
 	end
 end
 
 panel:RegisterEvent("PLAYER_LOGIN")
 panel:RegisterEvent("ADDON_LOADED")
+
+panel:RegisterEvent("BAG_UPDATE")
+if isClassic == false then
+	panel:RegisterEvent("TRAIT_CONFIG_UPDATED")
+end
+panel:RegisterEvent("PLAYER_REGEN_ENABLED")
+panel:RegisterEvent("PLAYER_REGEN_DISABLED")
+
 panel:SetScript("OnEvent", panel.OnEvent)
 
 function panel:createPrioFrame(id, iconTexture, positionx, isSpell)
