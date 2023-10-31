@@ -24,6 +24,7 @@ ham.aged = ham.Item.new(136569, "Aged Health Potion")
 ham.tonic = ham.Item.new(109223, "Healing Tonic")
 ham.master = ham.Item.new(76097, "Master Healing Potion")
 ham.mythical = ham.Item.new(57191, "Mythical Healing Potion")
+ham.crazy_alch = ham.Item.new(40077, "Crazy Alchemist's Potion")
 ham.runic_inject = ham.Item.new(41166, "Runic Healing Injector")
 ham.runic = ham.Item.new(33447, "Runic Healing Potion")
 ham.superreju = ham.Item.new(22850, "Super Rejuvenation Potion")
@@ -118,6 +119,7 @@ function ham.getPots()
 
   if isWrath then
     return {
+      ham.crazy_alch,
       ham.runic_inject,
       ham.runic,
       ham.superreju,
