@@ -6,6 +6,9 @@ local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 --ham.leywine = ham.Item.new(194684,"Azure Leywine")
 --ham.healthstone = ham.Item.new(117, "Healthstone")
 ham.healthstone = ham.Item.new(5512, "Healthstone")
+ham.dreamR3 = ham.Item.new(207023, "Dreamwalker's Healing Potion")
+ham.dreamsR2 = ham.Item.new(207022, "Dreamwalker's Healing Potion")
+ham.dreamR1 = ham.Item.new(207021, "Dreamwalker's Healing Potion")
 ham.witheringR3 = ham.Item.new(191371, "Potion of Withering Vitality")
 ham.witheringR2 = ham.Item.new(191370, "Potion of Withering Vitality")
 ham.witheringR1 = ham.Item.new(191369, "Potion of Withering Vitality")
@@ -72,6 +75,9 @@ ham.fel2 = ham.Item.new(36894, "Fel Healthstone")
 function ham.getPots()
   if isRetail then
     local pots = {
+      ham.dreamR3,
+      ham.dreamsR2,
+      ham.dreamR1,
       ham.refreshingR3,
       ham.refreshingR2,
       ham.refreshingR1,
