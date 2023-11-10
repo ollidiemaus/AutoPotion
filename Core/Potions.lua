@@ -6,6 +6,9 @@ local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 --ham.leywine = ham.Item.new(194684,"Azure Leywine")
 --ham.healthstone = ham.Item.new(117, "Healthstone")
 ham.healthstone = ham.Item.new(5512, "Healthstone")
+ham.witheringDreamsR3 = ham.Item.new(207041, "Potion of Withering Dreams")
+ham.witheringDreamsR2 = ham.Item.new(207040, "Potion of Withering Dreams")
+ham.witheringDreamsR1 = ham.Item.new(207039, "Potion of Withering Dreams")
 ham.dreamR3 = ham.Item.new(207023, "Dreamwalker's Healing Potion")
 ham.dreamsR2 = ham.Item.new(207022, "Dreamwalker's Healing Potion")
 ham.dreamR1 = ham.Item.new(207021, "Dreamwalker's Healing Potion")
@@ -108,6 +111,13 @@ function ham.getPots()
       table.insert(pots, 1, ham.witheringR1)
       table.insert(pots, 1, ham.witheringR2)
       table.insert(pots, 1, ham.witheringR3)
+    end
+
+    ---ADD HERE new WITHERING
+    if HAMDB.witheringDreamsPotion then
+      table.insert(pots, 1, ham.witheringDreamsR1)
+      table.insert(pots, 1, ham.witheringDreamsR2)
+      table.insert(pots, 1, ham.witheringDreamsR3)
     end
 
     return pots

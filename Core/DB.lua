@@ -2,6 +2,7 @@ local addonName, ham = ...
 ham.defaults = {
     cdReset = false,
     witheringPotion = false,
+    witheringDreamsPotion = false,
     activatedSpells = { ham.crimsonVialSpell, ham.renewal, ham.exhilaration, ham.fortitudeOfTheBear, ham.bitterImmunity,
         ham.desperatePrayer,
         ham.healingElixir }

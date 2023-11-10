@@ -196,7 +196,6 @@ function panel:InitializeOptions()
 	-------------  ITEMS  -------------
 	local itemsTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
 	itemsTitle:SetPoint("TOPLEFT", cdResetButton, 0, -PADDING_CATERGORY)
-
 	itemsTitle:SetText("Items")
 
 	local witheringPotionButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
@@ -218,7 +217,27 @@ function panel:InitializeOptions()
 	end)
 	witheringPotionButton:SetChecked(HAMDB.witheringPotion)
 
-	lastStaticElement = witheringPotionButton
+
+	local witheringDreamsPotionButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+	witheringDreamsPotionButton:SetPoint("TOPLEFT", itemsTitle, 300, -PADDING)
+	---@diagnostic disable-next-line: undefined-field
+	witheringDreamsPotionButton.Text:SetText("Use Potion of Withering Dreams")
+	witheringDreamsPotionButton:HookScript("OnClick", function(_, btn, down)
+		HAMDB.witheringDreamsPotion = witheringDreamsPotionButton:GetChecked()
+		self:updatePrio()
+	end)
+	witheringDreamsPotionButton:HookScript("OnEnter", function(_, btn, down)
+		---@diagnostic disable-next-line: param-type-mismatch
+		GameTooltip:SetOwner(witheringDreamsPotionButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetItemByID(ham.witheringDreamsR3.getId())
+		GameTooltip:Show()
+	end)
+	witheringDreamsPotionButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
+
+	lastStaticElement = witheringPotionButton ---MAYBE witheringDreamsPotionButton
 
 
 	-------------  CURRENT PRIORITY  -------------
