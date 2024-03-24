@@ -137,6 +137,7 @@ local onCombat = true
 local updateFrame = CreateFrame("Frame")
 updateFrame:RegisterEvent("BAG_UPDATE")
 updateFrame:RegisterEvent("PLAYER_LOGIN")
+updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD") -- Initial login and UI reload
 if isClassic == false then
   updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end

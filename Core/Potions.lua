@@ -6,6 +6,7 @@ local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 --ham.leywine = ham.Item.new(194684,"Azure Leywine")
 --ham.healthstone = ham.Item.new(117, "Healthstone")
 ham.healthstone = ham.Item.new(5512, "Healthstone")
+ham.thirdWind = ham.Item.new(138486, "\"Third Wind\" Potion")
 ham.witheringDreamsR3 = ham.Item.new(207041, "Potion of Withering Dreams")
 ham.witheringDreamsR2 = ham.Item.new(207040, "Potion of Withering Dreams")
 ham.witheringDreamsR1 = ham.Item.new(207039, "Potion of Withering Dreams")
@@ -75,9 +76,18 @@ ham.fel0 = ham.Item.new(36892, "Fel Healthstone")
 ham.fel1 = ham.Item.new(36893, "Fel Healthstone")
 ham.fel2 = ham.Item.new(36894, "Fel Healthstone")
 
+function RemoveFromList(list, itemToRemove)
+  for i = #list, 1, -1 do
+    if list[i] == itemToRemove then
+      table.remove(list, i)
+    end
+  end
+end
+
 function ham.getPots()
   if isRetail then
     local pots = {
+      ham.thirdWind,
       ham.dreamR3,
       ham.dreamsR2,
       ham.dreamR1,
@@ -106,6 +116,12 @@ function ham.getPots()
       ham.greater,
       ham.healingPotion
     }
+
+
+    local isUnratedBattleground = C_PvP.IsBattleground() and not C_PvP.IsRatedBattleground()
+    if not isUnratedBattleground then
+      RemoveFromList(pots, ham.thirdWind)
+    end
 
     if HAMDB.witheringPotion then
       table.insert(pots, 1, ham.witheringR1)
