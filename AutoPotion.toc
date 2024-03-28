@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 100206
 ## Interface-Classic: 11501
 ## Interface-WOTLKC: 30403
 ## Version: 3.3.7
