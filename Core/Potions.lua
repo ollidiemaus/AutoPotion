@@ -2,6 +2,7 @@ local addonName, ham = ...
 local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
+local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 
 --ham.leywine = ham.Item.new(194684,"Azure Leywine")
 --ham.healthstone = ham.Item.new(117, "Healthstone")
@@ -30,6 +31,7 @@ ham.ancient = ham.Item.new(127834, "Ancient Healing Potion")
 ham.aged = ham.Item.new(136569, "Aged Health Potion")
 ham.tonic = ham.Item.new(109223, "Healing Tonic")
 ham.master = ham.Item.new(76097, "Master Healing Potion")
+ham.roguesDraught = ham.Item.new(63300, "Rogue's Draught")
 ham.mythical = ham.Item.new(57191, "Mythical Healing Potion")
 ham.crazy_alch = ham.Item.new(40077, "Crazy Alchemist's Potion")
 ham.runic_inject = ham.Item.new(41166, "Runic Healing Injector")
@@ -75,6 +77,7 @@ ham.demonic2 = ham.Item.new(36891, "Demonic Healthstone")
 ham.fel0 = ham.Item.new(36892, "Fel Healthstone")
 ham.fel1 = ham.Item.new(36893, "Fel Healthstone")
 ham.fel2 = ham.Item.new(36894, "Fel Healthstone")
+------Healthstones for Cata------
 
 function RemoveFromList(list, itemToRemove)
   for i = #list, 1, -1 do
@@ -88,9 +91,6 @@ function ham.getPots()
   if isRetail then
     local pots = {
       ham.thirdWind,
-      ham.witheringDreamsR3,
-      ham.witheringDreamsR2,
-      ham.witheringDreamsR1,
       ham.dreamR3,
       ham.dreamsR2,
       ham.dreamR1,
@@ -132,7 +132,6 @@ function ham.getPots()
       table.insert(pots, 1, ham.witheringR3)
     end
 
-    ---ADD HERE new WITHERING
     if HAMDB.witheringDreamsPotion then
       table.insert(pots, 1, ham.witheringDreamsR1)
       table.insert(pots, 1, ham.witheringDreamsR2)
@@ -154,6 +153,29 @@ function ham.getPots()
 
   if isWrath then
     return {
+      ham.crazy_alch,
+      ham.runic_inject,
+      ham.runic,
+      ham.superreju,
+      ham.endless,
+      ham.injector,
+      ham.resurgent,
+      ham.super,
+      ham.argent,
+      ham.auchenai,
+      ham.major,
+      ham.superior,
+      ham.greater,
+      ham.healingPotion,
+      ham.lesser,
+      ham.minor
+    }
+  end
+
+  if isCata then
+    return {
+      ham.roguesDraught,
+      ham.mythical,
       ham.crazy_alch,
       ham.runic_inject,
       ham.runic,
@@ -196,6 +218,35 @@ function ham.getHealthstonesClassic()
   end
 
   if isWrath then
+    return {
+      ham.fel2,
+      ham.fel1,
+      ham.fel0,
+      ham.demonic2,
+      ham.demonic1,
+      ham.demonic0,
+      ham.master2,
+      ham.master1,
+      ham.master0,
+      ham.major2,
+      ham.major1,
+      ham.major0,
+      ham.greater2,
+      ham.greater1,
+      ham.greater0,
+      ham.healtsthone2,
+      ham.healtsthone1,
+      ham.healtsthone0,
+      ham.lesser2,
+      ham.lesser1,
+      ham.lesser0,
+      ham.minor2,
+      ham.minor1,
+      ham.minor0
+    }
+  end
+
+  if isCata then
     return {
       ham.fel2,
       ham.fel1,
