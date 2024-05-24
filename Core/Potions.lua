@@ -88,6 +88,9 @@ function ham.getPots()
   if isRetail then
     local pots = {
       ham.thirdWind,
+      ham.witheringDreamsR3,
+      ham.witheringDreamsR2,
+      ham.witheringDreamsR1,
       ham.dreamR3,
       ham.dreamsR2,
       ham.dreamR1,
