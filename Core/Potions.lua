@@ -45,6 +45,7 @@ ham.auchenai = ham.Item.new(32947, "Auchenai Healing Potion")
 ham.super = ham.Item.new(22829, "Super Healing Potion")
 ham.major = ham.Item.new(13446, "Major Healing Potion")
 ham.lesser = ham.Item.new(858, "Lesser Healing Potion")
+ham.combat = ham.Item.new(18839, "Combat Healing Potion")
 --superior has probably wrong scaling
 ham.superior = ham.Item.new(3928, "Superior Healing Potion")
 ham.minor = ham.Item.new(118, "Minor Healing Potion")
@@ -143,6 +144,7 @@ function ham.getPots()
   if isClassic then
     return {
       ham.major,
+      ham.combat,
       ham.superior,
       ham.greater,
       ham.healingPotion,
