@@ -169,7 +169,12 @@ function panel:InitializeOptions()
 	self.panel = CreateFrame("Frame", "Auto Potion", InterfaceOptionsFramePanelContainer)
 	---@diagnostic disable-next-line: inject-field
 	self.panel.name = "Auto Potion"
-	InterfaceOptions_AddCategory(self.panel)
+	if InterfaceOptions_AddCategory then
+		InterfaceOptions_AddCategory(self.panel)
+	else
+		local category = Settings.RegisterCanvasLayoutCategory(self.panel, self.panel.name);
+		Settings.RegisterAddOnCategory(category);
+	end
 
 	-------------  HEADER  -------------
 	local title = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
