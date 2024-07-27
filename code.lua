@@ -13,11 +13,10 @@ local macroStr = ''
 local resetType = "combat"
 
 local function addPlayerHealingItemIfAvailable()
-  local playerResetType, item = ham.myPlayer.getHealingItems()
-
-  if item ~= nil then
-    if item.getCount() > 0 then
-      table.insert(ham.itemIdList, item.getId())
+  for i, value in ipairs(ham.myPlayer.getHealingItems()) do
+    if value.getCount() > 0 then
+      table.insert(ham.itemIdList, value.getId())
+      break;
     end
   end
 end
@@ -113,7 +112,7 @@ local function buildItemMacroString()
   end
 end
 
-local function updateMacro()
+function ham.updateMacro()
   if next(ham.itemIdList) == nil and next(ham.spellIDs) == nil then
     macroStr = "#showtooltip"
   else
@@ -159,6 +158,6 @@ updateFrame:SetScript("OnEvent", function(self, event, ...)
 
   if onCombat == false then
     ham.updateHeals()
-    updateMacro()
+    ham.updateMacro()
   end
 end)

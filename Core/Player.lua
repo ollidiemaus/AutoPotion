@@ -8,7 +8,12 @@ ham.Player.new = function()
   self.localizedClass, self.englishClass, self.classIndex = UnitClass("player");
 
   function self.getHealingItems()
-    return
+    local healingItems = {}
+    ham.demonicHealthstoneItem = ham.Item.new(224464, "Demonic Healthstone")
+
+    table.insert(healingItems, ham.demonicHealthstoneItem)
+
+    return healingItems
   end
 
   function self.getHealingSpells()

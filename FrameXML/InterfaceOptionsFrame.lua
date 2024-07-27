@@ -101,6 +101,7 @@ end
 
 function panel:updatePrio()
 	ham.updateHeals()
+	ham.updateMacro()
 	local spellCounter = 0
 	local itemCounter = 0
 
