@@ -7,6 +7,12 @@ local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 --ham.leywine = ham.Item.new(194684,"Azure Leywine")
 --ham.healthstone = ham.Item.new(117, "Healthstone")
 ham.healthstone = ham.Item.new(5512, "Healthstone")
+ham.algariHealingPotionR3 = ham.Item.new(211880, "Algari Healing Potion")
+ham.algariHealingPotionR2 = ham.Item.new(211879, "Algari Healing Potion")
+ham.algariHealingPotionR1 = ham.Item.new(211878, "Algari Healing Potion")
+ham.fleetingAlgariHealingPotionR3 = ham.Item.new(212944, "Fleeting Algari Healing Potion")
+ham.fleetingAlgariHealingPotionR2 = ham.Item.new(212943, "Fleeting Algari Healing Potion")
+ham.fleetingAlgariHealingPotionR1 = ham.Item.new(212942, "Fleeting Algari Healing Potion")
 ham.thirdWind = ham.Item.new(138486, "\"Third Wind\" Potion")
 ham.witheringDreamsR3 = ham.Item.new(207041, "Potion of Withering Dreams")
 ham.witheringDreamsR2 = ham.Item.new(207040, "Potion of Withering Dreams")
@@ -91,6 +97,12 @@ end
 function ham.getPots()
   if isRetail then
     local pots = {
+      ham.algariHealingPotionR3,
+      ham.algariHealingPotionR2,
+      ham.algariHealingPotionR1,
+      ham.fleetingAlgariHealingPotionR3,
+      ham.fleetingAlgariHealingPotionR2,
+      ham.fleetingAlgariHealingPotionR1,
       ham.thirdWind,
       ham.dreamR3,
       ham.dreamsR2,
