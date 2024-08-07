@@ -211,10 +211,34 @@ function panel:InitializeOptions()
 
 	lastStaticElement = cdResetButton
 
+	if isRetail then
+		-------------  Healthstone button  -------------	
+		local raidStoneButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+		raidStoneButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
+		---@diagnostic disable-next-line: undefined-field
+		raidStoneButton.Text:SetText("Low Priority Healthstones(raid only)")
+		raidStoneButton:HookScript("OnClick", function(_, btn, down)
+			HAMDB.raidStone = raidStoneButton:GetChecked()
+			self:updatePrio()
+		end)
+		raidStoneButton:HookScript("OnEnter", function(_, btn, down)
+			---@diagnostic disable-next-line: param-type-mismatch
+			GameTooltip:SetOwner(raidStoneButton, "ANCHOR_TOPRIGHT")
+			GameTooltip:SetText(
+				"This option will prioritize health potions over a healthstone while in a raid group")
+			GameTooltip:Show()
+		end)
+		raidStoneButton:HookScript("OnLeave", function(_, btn, down)
+			GameTooltip:Hide()
+		end)
+		raidStoneButton:SetChecked(HAMDB.raidStone)
+		lastStaticElement = raidStoneButton
+	end
+
 	-------------  ITEMS  -------------
 	if isRetail then
 		local itemsTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-		itemsTitle:SetPoint("TOPLEFT", cdResetButton, 0, -PADDING_CATERGORY)
+		itemsTitle:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING_CATERGORY)
 		itemsTitle:SetText("Items")
 
 		local witheringPotionButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
