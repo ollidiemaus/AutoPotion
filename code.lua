@@ -3,6 +3,7 @@ local macroName = "AutoPotion"
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
+local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 
 
 ham.myPlayer = ham.Player.new()
@@ -11,6 +12,7 @@ local spellsMacroString = ''
 local itemsMacroString = ''
 local macroStr = ''
 local resetType = "combat"
+local shortestCD = nil
 
 local function addPlayerHealingItemIfAvailable()
   for i, value in ipairs(ham.myPlayer.getHealingItems()) do
@@ -41,6 +43,10 @@ local function addPotIfAvailable()
   for i, value in ipairs(ham.getPots()) do
     if value.getCount() > 0 then
       table.insert(ham.itemIdList, value.getId())
+      -- if healthstone does not has priority, remember healing potion's CD
+      if isRetail and HAMDB.raidStone and IsInRaid() and IsInInstance() then
+        shortestCD = 300 --potion CD
+      end
       --we break because all Pots share a cd so we only want the highest healing one
       break;
     end
@@ -54,8 +60,14 @@ function ham.updateHeals()
   ham.spellIDs = ham.myPlayer.getHealingSpells()
 
   addPlayerHealingItemIfAvailable()
-  addHealthstoneIfAvailable()
-  addPotIfAvailable()
+  -- lower the priority of healthstones in a raid environment if selected
+  if HAMDB.raidStone and IsInRaid() and IsInInstance() then
+    addPotIfAvailable()
+    addHealthstoneIfAvailable()
+  else
+    addHealthstoneIfAvailable()
+    addPotIfAvailable()
+  end
 end
 
 local function createMacroIfMissing()
@@ -67,9 +79,8 @@ end
 
 local function buildSpellMacroString()
   spellsMacroString = ''
-
-  if next(ham.spellIDs) ~= nil then
-    local shortestCD = nil
+  
+  if next(ham.spellIDs) ~= nil then	
     for i, spell in ipairs(ham.spellIDs) do
       local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(spell)
 
@@ -93,10 +104,10 @@ local function buildSpellMacroString()
         spellsMacroString = spellsMacroString .. ", " .. name;
       end
     end
-    --add if ham.cdReset == true then combat/spelltime
-    if HAMDB.cdReset then
-      resetType = "combat/" .. shortestCD
-    end
+  end
+  --add if ham.cdReset == true then combat/spelltime
+  if HAMDB.cdReset and shortestCD ~= nil then
+    resetType = "combat/" .. shortestCD
   end
 end
 
