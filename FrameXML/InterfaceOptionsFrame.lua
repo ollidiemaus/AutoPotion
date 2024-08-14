@@ -111,7 +111,7 @@ function panel:updatePrio()
 
 	if next(ham.spellIDs) ~= nil then
 		for i, id in ipairs(ham.spellIDs) do
-			local name, rank, iconTexture, castTime, minRange, maxRange = GetSpellInfo(id)
+			local iconTexture, originalIconTexture = C_Spell.GetSpellTexture(id)
 			local currentFrame = prioFrames[i]
 			local currentTexture = prioTextures[i]
 			if currentFrame ~= nil then
@@ -297,7 +297,7 @@ function panel:InitializeClassSpells(relativeTo)
 		local count = 0
 		for i, spell in ipairs(ham.supportedSpells) do
 			if IsSpellKnown(spell) then
-				local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(spell)
+				local name = C_Spell.GetSpellName(spell)
 				local button = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
 
 				if count == 3 then

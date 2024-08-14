@@ -71,10 +71,10 @@ local function buildSpellMacroString()
   if next(ham.spellIDs) ~= nil then
     local shortestCD = nil
     for i, spell in ipairs(ham.spellIDs) do
-      local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(spell)
+      local name = C_Spell.GetSpellName(spell)
 
       if HAMDB.cdReset then
-        local cooldownMS, gcdMS = GetSpellBaseCooldown(spell)
+        local cooldownMS, gcdMS = C_Spell.GetSpellCooldown(spell)
         local cd = cooldownMS / 1000
         if shortestCD == nil then
           shortestCD = cd
