@@ -74,8 +74,7 @@ local function buildSpellMacroString()
       local name = C_Spell.GetSpellName(spell)
 
       if HAMDB.cdReset then
-        local cooldownMS, gcdMS = C_Spell.GetSpellCooldown(spell)
-        local cd = cooldownMS / 1000
+        local cd = C_Spell.GetSpellCooldown(spell).duration
         if shortestCD == nil then
           shortestCD = cd
         end
