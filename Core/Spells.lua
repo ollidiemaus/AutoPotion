@@ -49,7 +49,7 @@ ham.Spell.new = function(id, name)
 
     self.id = id
     self.name = name
-    self.cd = C_Spell.GetSpellCooldown(id)
+    self.cd = C_Spell.GetSpellCooldown(id).duration
 
     function self.getId()
         return self.id
