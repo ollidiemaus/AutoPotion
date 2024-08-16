@@ -138,7 +138,7 @@ function panel:updatePrio()
 	end
 	if next(ham.itemIdList) ~= nil then
 		for i, id in ipairs(ham.itemIdList) do
-			local itemID, itemType, itemSubType, itemEquipLoc, iconTexture, classID, subclassID = GetItemInfoInstant(id)
+			local iconTexture, originalIconTexture = C_Spell.GetSpellTexture(id)
 			local currentFrame = prioFrames[i + spellCounter]
 			local currentTexture = prioTextures[i + spellCounter]
 
