@@ -111,7 +111,12 @@ function panel:updatePrio()
 
 	if next(ham.spellIDs) ~= nil then
 		for i, id in ipairs(ham.spellIDs) do
-			local iconTexture, originalIconTexture = C_Spell.GetSpellTexture(id)
+			local iconTexture, originalIconTexture
+			if isRetail == true then
+				iconTexture, originalIconTexture = C_Spell.GetSpellTexture(id)
+			else
+				iconTexture = GetSpellTexture(id)
+			end
 			local currentFrame = prioFrames[i]
 			local currentTexture = prioTextures[i]
 			if currentFrame ~= nil then
@@ -138,7 +143,12 @@ function panel:updatePrio()
 	end
 	if next(ham.itemIdList) ~= nil then
 		for i, id in ipairs(ham.itemIdList) do
-			local iconTexture, originalIconTexture = C_Spell.GetSpellTexture(id)
+			local iconTexture, originalIconTexture
+			if isRetail == true then
+				iconTexture, originalIconTexture = C_Spell.GetSpellTexture(id)
+			else
+				iconTexture = GetSpellTexture(id)
+			end
 			local currentFrame = prioFrames[i + spellCounter]
 			local currentTexture = prioTextures[i + spellCounter]
 

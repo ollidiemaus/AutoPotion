@@ -1,4 +1,6 @@
 local addonName, ham = ...
+local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
+
 
 ham.crimsonVialSpell = 185311
 ham.renewal = 108238
@@ -49,7 +51,12 @@ ham.Spell.new = function(id, name)
 
     self.id = id
     self.name = name
-    self.cd = C_Spell.GetSpellCooldown(id).duration
+    if isRetail == true then
+        self.cd = C_Spell.GetSpellCooldown(id).duration
+    else
+        self.cd = GetSpellBaseCooldown(id)
+    end
+
 
     function self.getId()
         return self.id

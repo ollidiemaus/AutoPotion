@@ -1,5 +1,6 @@
 local addonName, ham = ...
 local macroName = "AutoPotion"
+local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
@@ -71,10 +72,20 @@ local function buildSpellMacroString()
   if next(ham.spellIDs) ~= nil then
     local shortestCD = nil
     for i, spell in ipairs(ham.spellIDs) do
-      local name = C_Spell.GetSpellName(spell)
+      local name
+      if isRetail == true then
+        name = C_Spell.GetSpellName(spell)
+      else
+        name = GetSpellInfo(spell)
+      end
 
       if HAMDB.cdReset then
-        local cd = C_Spell.GetSpellCooldown(spell).duration
+        local cd
+        if isRetail == true then
+          cd = C_Spell.GetSpellCooldown(spell).duration
+        else
+          cd = GetSpellBaseCooldown(spell)
+        end
         if shortestCD == nil then
           shortestCD = cd
         end
