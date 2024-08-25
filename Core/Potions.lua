@@ -13,6 +13,12 @@ ham.algariHealingPotionR1 = ham.Item.new(211878, "Algari Healing Potion")
 ham.fleetingAlgariHealingPotionR3 = ham.Item.new(212944, "Fleeting Algari Healing Potion")
 ham.fleetingAlgariHealingPotionR2 = ham.Item.new(212943, "Fleeting Algari Healing Potion")
 ham.fleetingAlgariHealingPotionR1 = ham.Item.new(212942, "Fleeting Algari Healing Potion")
+ham.cavedwellersDelightR3 = ham.Item.new(212244, "Cavedweller's Delight")
+ham.cavedwellersDelightR2 = ham.Item.new(212243, "Cavedweller's Delight")
+ham.cavedwellersDelightR1 = ham.Item.new(212242, "Cavedweller's Delight")
+ham.fleetingCavedwellersDelightR3 = ham.Item.new(212950, "Fleeting Cavedweller's Delight")
+ham.fleetingCavedwellersDelightR2 = ham.Item.new(212949, "Fleeting Cavedweller's Delight")
+ham.fleetingCavedwellersDelightR1 = ham.Item.new(212948, "Fleeting Cavedweller's Delight")
 ham.thirdWind = ham.Item.new(138486, "\"Third Wind\" Potion")
 ham.witheringDreamsR3 = ham.Item.new(207041, "Potion of Withering Dreams")
 ham.witheringDreamsR2 = ham.Item.new(207040, "Potion of Withering Dreams")
@@ -103,6 +109,12 @@ function ham.getPots()
       ham.fleetingAlgariHealingPotionR3,
       ham.fleetingAlgariHealingPotionR2,
       ham.fleetingAlgariHealingPotionR1,
+      ham.cavedwellersDelightR3,
+      ham.cavedwellersDelightR2,
+      ham.cavedwellersDelightR1,
+      ham.fleetingCavedwellersDelightR3,
+      ham.fleetingCavedwellersDelightR2,
+      ham.fleetingCavedwellersDelightR1,
       ham.thirdWind,
       ham.dreamR3,
       ham.dreamsR2,
