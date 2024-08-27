@@ -211,13 +211,37 @@ function panel:InitializeOptions()
 
 	lastStaticElement = cdResetButton
 
+	-------------  Healthstone button  -------------	
+	local raidStoneButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+	raidStoneButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
+	---@diagnostic disable-next-line: undefined-field
+	raidStoneButton.Text:SetText("Low Priority Healthstones(Instance only)")
+	raidStoneButton:HookScript("OnClick", function(_, btn, down)
+		HAMDB.raidStone = raidStoneButton:GetChecked()
+		self:updatePrio()
+	end)
+	raidStoneButton:HookScript("OnEnter", function(_, btn, down)
+		---@diagnostic disable-next-line: param-type-mismatch
+		GameTooltip:SetOwner(raidStoneButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetText(
+			"This option will prioritize health potions over a healthstone while in a Instance")
+		GameTooltip:Show()
+	end)
+	raidStoneButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	raidStoneButton:SetChecked(HAMDB.raidStone)
+	lastStaticElement = raidStoneButton
+
 	-------------  ITEMS  -------------
+	local witheringPotionButton = nil
+	local witheringDreamsPotionButton = nil
 	if isRetail then
 		local itemsTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-		itemsTitle:SetPoint("TOPLEFT", cdResetButton, 0, -PADDING_CATERGORY)
+		itemsTitle:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING_CATERGORY)
 		itemsTitle:SetText("Items")
 
-		local witheringPotionButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+		witheringPotionButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
 		witheringPotionButton:SetPoint("TOPLEFT", itemsTitle, 0, -PADDING)
 		---@diagnostic disable-next-line: undefined-field
 		witheringPotionButton.Text:SetText("Use Potion of Withering Vitality")
@@ -237,7 +261,7 @@ function panel:InitializeOptions()
 		witheringPotionButton:SetChecked(HAMDB.witheringPotion)
 
 
-		local witheringDreamsPotionButton = CreateFrame("CheckButton", nil, self.panel,
+		witheringDreamsPotionButton = CreateFrame("CheckButton", nil, self.panel,
 			"InterfaceOptionsCheckButtonTemplate")
 		witheringDreamsPotionButton:SetPoint("TOPLEFT", itemsTitle, 300, -PADDING)
 		---@diagnostic disable-next-line: undefined-field
@@ -285,7 +309,11 @@ function panel:InitializeOptions()
 			end
 		end
 		cdResetButton:SetChecked(HAMDB.cdReset)
-		witheringPotionButton:SetChecked(HAMDB.witheringPotion)
+		raidStoneButton:SetChecked(HAMDB.raidStone)
+		if isRetail then
+			witheringPotionButton:SetChecked(HAMDB.witheringPotion)
+			witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
+		end
 		self:updatePrio()
 		print("Reset successful!")
 	end)
