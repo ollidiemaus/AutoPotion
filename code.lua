@@ -45,7 +45,7 @@ local function addPotIfAvailable()
     if value.getCount() > 0 then
       table.insert(ham.itemIdList, value.getId())
       -- if healthstone does not has priority, remember healing potion's CD
-      if isRetail and HAMDB.raidStone and IsInRaid() and IsInInstance() then
+      if isRetail and HAMDB.raidStone and IsInInstance() then
         shortestCD = 300 --potion CD
       end
       --we break because all Pots share a cd so we only want the highest healing one
@@ -62,7 +62,7 @@ function ham.updateHeals()
 
   addPlayerHealingItemIfAvailable()
   -- lower the priority of healthstones in a raid environment if selected
-  if HAMDB.raidStone and IsInRaid() and IsInInstance() then
+  if HAMDB.raidStone and IsInInstance() then
     addPotIfAvailable()
     addHealthstoneIfAvailable()
   else
@@ -80,8 +80,8 @@ end
 
 local function buildSpellMacroString()
   spellsMacroString = ''
-  
-  if next(ham.spellIDs) ~= nil then	
+
+  if next(ham.spellIDs) ~= nil then
     for i, spell in ipairs(ham.spellIDs) do
       local name
       if isRetail == true then
