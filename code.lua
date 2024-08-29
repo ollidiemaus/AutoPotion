@@ -55,10 +55,6 @@ local function addPotIfAvailable()
   for i, value in ipairs(ham.getPots()) do
     if value.getCount() > 0 then
       table.insert(ham.itemIdList, value.getId())
-      -- if healthstone does not has priority, remember healing potion's CD
-      if isRetail and HAMDB.raidStone and IsInInstance() then
-        shortestCD = 300 --potion CD
-      end
       --we break because all Pots share a cd so we only want the highest healing one
       break;
     end
