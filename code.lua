@@ -169,7 +169,7 @@ function ham.updateMacro()
   EditMacro(macroName, macroName, nil, macroStr)
 end
 
-local onCombat = true
+local inCombat = true
 local updateFrame = CreateFrame("Frame")
 updateFrame:RegisterEvent("BAG_UPDATE")
 updateFrame:RegisterEvent("PLAYER_LOGIN")
@@ -181,18 +181,19 @@ updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 updateFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 updateFrame:SetScript("OnEvent", function(self, event, ...)
   if event == "PLAYER_LOGIN" then
-    onCombat = false
+    inCombat = false
   end
   if event == "PLAYER_REGEN_DISABLED" then
-    onCombat = true
+    inCombat = true
     return
   end
   if event == "PLAYER_REGEN_ENABLED" then
-    onCombat = false
+    inCombat = false
   end
 
-  if onCombat == false then
+  if inCombat == false then
     ham.updateHeals()
     ham.updateMacro()
+    ham.settingsFrame:updatePrio()
   end
 end)

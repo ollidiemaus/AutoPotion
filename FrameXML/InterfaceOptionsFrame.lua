@@ -5,7 +5,7 @@ local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 
 ---@class Frame
-local panel = CreateFrame("Frame")
+ham.settingsFrame = CreateFrame("Frame")
 local ICON_SIZE = 50
 local PADDING_CATERGORY = 60
 local PADDING = 30
@@ -20,9 +20,8 @@ local positionx = 0
 local currentPrioTitle = nil
 local lastStaticElement = nil
 
-local onCombat = true
 
-function panel:OnEvent(event, addOnName)
+function ham.settingsFrame:OnEvent(event, addOnName)
 	if addOnName == "AutoPotion" then
 		if event == "ADDON_LOADED" then
 			HAMDB = HAMDB or CopyTable(ham.defaults)
@@ -35,35 +34,18 @@ function panel:OnEvent(event, addOnName)
 	end
 	if event == "PLAYER_LOGIN" then
 		self:InitializeClassSpells(lastStaticElement)
-		self:updatePrio()
-		onCombat = false
-	end
-	if event == "PLAYER_REGEN_DISABLED" then
-		onCombat = true
-		return
-	end
-	if event == "PLAYER_REGEN_ENABLED" then
-		onCombat = false
-	end
-
-	if onCombat == false then
+		ham.updateHeals()
+		ham.updateMacro()
 		self:updatePrio()
 	end
 end
 
-panel:RegisterEvent("PLAYER_LOGIN")
-panel:RegisterEvent("ADDON_LOADED")
+ham.settingsFrame:RegisterEvent("PLAYER_LOGIN")
+ham.settingsFrame:RegisterEvent("ADDON_LOADED")
 
-panel:RegisterEvent("BAG_UPDATE")
-if isClassic == false then
-	panel:RegisterEvent("TRAIT_CONFIG_UPDATED")
-end
-panel:RegisterEvent("PLAYER_REGEN_ENABLED")
-panel:RegisterEvent("PLAYER_REGEN_DISABLED")
+ham.settingsFrame:SetScript("OnEvent", ham.settingsFrame.OnEvent)
 
-panel:SetScript("OnEvent", panel.OnEvent)
-
-function panel:createPrioFrame(id, iconTexture, positionx, isSpell)
+function ham.settingsFrame:createPrioFrame(id, iconTexture, positionx, isSpell)
 	local icon = CreateFrame("Frame", nil, self.panel, UIParent)
 	icon:SetFrameStrata("MEDIUM")
 	icon:SetWidth(ICON_SIZE)
@@ -99,9 +81,7 @@ function panel:createPrioFrame(id, iconTexture, positionx, isSpell)
 	return icon
 end
 
-function panel:updatePrio()
-	ham.updateHeals()
-	ham.updateMacro()
+function ham.settingsFrame:updatePrio()
 	local spellCounter = 0
 	local itemCounter = 0
 
@@ -172,7 +152,8 @@ function panel:updatePrio()
 	end
 end
 
-function panel:InitializeOptions()
+function ham.settingsFrame:InitializeOptions()
+	print("init frame")
 	self.panel = CreateFrame("Frame", addonName, InterfaceOptionsFramePanelContainer)
 	---@diagnostic disable-next-line: inject-field
 	self.panel.name = addonName
@@ -183,6 +164,7 @@ function panel:InitializeOptions()
 		Settings.RegisterAddOnCategory(category);
 		self.panel.categoryID = category:GetID() -- for OpenToCategory use
 	end
+
 
 	-------------  HEADER  -------------
 	local title = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
@@ -211,6 +193,7 @@ function panel:InitializeOptions()
 
 	lastStaticElement = cdResetButton
 
+
 	-------------  Healthstone button  -------------	
 	local raidStoneButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
 	raidStoneButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
@@ -218,6 +201,8 @@ function panel:InitializeOptions()
 	raidStoneButton.Text:SetText("Low Priority Healthstones(Instance only)")
 	raidStoneButton:HookScript("OnClick", function(_, btn, down)
 		HAMDB.raidStone = raidStoneButton:GetChecked()
+		ham.updateHeals()
+		ham.updateMacro()
 		self:updatePrio()
 	end)
 	raidStoneButton:HookScript("OnEnter", function(_, btn, down)
@@ -233,6 +218,7 @@ function panel:InitializeOptions()
 	raidStoneButton:SetChecked(HAMDB.raidStone)
 	lastStaticElement = raidStoneButton
 
+
 	-------------  ITEMS  -------------
 	local witheringPotionButton = nil
 	local witheringDreamsPotionButton = nil
@@ -247,6 +233,8 @@ function panel:InitializeOptions()
 		witheringPotionButton.Text:SetText("Use Potion of Withering Vitality")
 		witheringPotionButton:HookScript("OnClick", function(_, btn, down)
 			HAMDB.witheringPotion = witheringPotionButton:GetChecked()
+			ham.updateHeals()
+			ham.updateMacro()
 			self:updatePrio()
 		end)
 		witheringPotionButton:HookScript("OnEnter", function(_, btn, down)
@@ -268,6 +256,8 @@ function panel:InitializeOptions()
 		witheringDreamsPotionButton.Text:SetText("Use Potion of Withering Dreams")
 		witheringDreamsPotionButton:HookScript("OnClick", function(_, btn, down)
 			HAMDB.witheringDreamsPotion = witheringDreamsPotionButton:GetChecked()
+			ham.updateHeals()
+			ham.updateMacro()
 			self:updatePrio()
 		end)
 		witheringDreamsPotionButton:HookScript("OnEnter", function(_, btn, down)
@@ -291,8 +281,6 @@ function panel:InitializeOptions()
 	currentPrioTitle:SetText("Current Priority")
 
 
-
-
 	-------------  RESET BUTTON  -------------
 	local btn = CreateFrame("Button", nil, self.panel, "UIPanelButtonTemplate")
 	btn:SetPoint("BOTTOMLEFT", 2, 3)
@@ -314,12 +302,14 @@ function panel:InitializeOptions()
 			witheringPotionButton:SetChecked(HAMDB.witheringPotion)
 			witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
 		end
+		ham.updateHeals()
+		ham.updateMacro()
 		self:updatePrio()
 		print("Reset successful!")
 	end)
 end
 
-function panel:InitializeClassSpells(relativeTo)
+function ham.settingsFrame:InitializeClassSpells(relativeTo)
 	-------------  CLASS / RACIALS  -------------
 	local myClassTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
 	myClassTitle:SetPoint("TOPLEFT", relativeTo, 0, -PADDING_CATERGORY)
@@ -352,6 +342,8 @@ function panel:InitializeClassSpells(relativeTo)
 					else
 						ham.removeFromDB(spell)
 					end
+					ham.updateHeals()
+					ham.updateMacro()
 					self:updatePrio()
 				end)
 				button:HookScript("OnEnter", function(_, btn, down)
