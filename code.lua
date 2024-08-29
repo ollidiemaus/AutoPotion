@@ -37,6 +37,17 @@ local function addHealthstoneIfAvailable()
     if ham.healthstone.getCount() > 0 then
       table.insert(ham.itemIdList, ham.healthstone.getId())
     end
+    if ham.demonicHealthstone.getCount() > 0 then
+      table.insert(ham.itemIdList, ham.demonicHealthstone.getId())
+      if HAMDB.cdReset then
+        if shortestCD == nil then
+          shortestCD = 60
+        end
+        if 60 < shortestCD then
+          shortestCD = 60
+        end
+      end
+    end
   end
 end
 
@@ -61,7 +72,7 @@ function ham.updateHeals()
   ham.spellIDs = ham.myPlayer.getHealingSpells()
 
   addPlayerHealingItemIfAvailable()
-  -- lower the priority of healthstones in a raid environment if selected
+  -- lower the priority of healthstones in insatanced content if selected
   if HAMDB.raidStone and IsInInstance() then
     addPotIfAvailable()
     addHealthstoneIfAvailable()
@@ -78,6 +89,27 @@ local function createMacroIfMissing()
   end
 end
 
+local function setShortestSpellCD(newSpell)
+  if HAMDB.cdReset then
+    local cd
+    cd = GetSpellBaseCooldown(newSpell) / 1000
+    if shortestCD == nil then
+      shortestCD = cd
+    end
+    if cd < shortestCD then
+      shortestCD = cd
+    end
+  end
+end
+
+local function setResetType()
+  if HAMDB.cdReset == true and shortestCD ~= nil then
+    resetType = "combat/" .. shortestCD
+  else
+    resetType = "combat"
+  end
+end
+
 local function buildSpellMacroString()
   spellsMacroString = ''
 
@@ -90,20 +122,8 @@ local function buildSpellMacroString()
         name = GetSpellInfo(spell)
       end
 
-      if HAMDB.cdReset then
-        local cd
-        if isRetail == true then
-          cd = C_Spell.GetSpellCooldown(spell).duration
-        else
-          cd = GetSpellBaseCooldown(spell)
-        end
-        if shortestCD == nil then
-          shortestCD = cd
-        end
-        if cd < shortestCD then
-          shortestCD = cd
-        end
-      end
+      setShortestSpellCD(spell)
+
       --TODO HEALING Elixir Twice because it has two charges ?! kinda janky but will work for now
       if spell == ham.healingElixir then
         name = name .. ", " .. name
@@ -115,19 +135,15 @@ local function buildSpellMacroString()
       end
     end
   end
-  --add if ham.cdReset == true then combat/spelltime
-  if HAMDB.cdReset and shortestCD ~= nil then
-    resetType = "combat/" .. shortestCD
-  end
 end
 
 local function buildItemMacroString()
   if next(ham.itemIdList) ~= nil then
-    for i, v in ipairs(ham.itemIdList) do
+    for i, name in ipairs(ham.itemIdList) do
       if i == 1 then
-        itemsMacroString = "item:" .. v;
+        itemsMacroString = "item:" .. name;
       else
-        itemsMacroString = itemsMacroString .. ", " .. "item:" .. v;
+        itemsMacroString = itemsMacroString .. ", " .. "item:" .. name;
       end
     end
   end
@@ -140,6 +156,7 @@ function ham.updateMacro()
     resetType = "combat"
     buildItemMacroString()
     buildSpellMacroString()
+    setResetType()
     macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " "
     if spellsMacroString ~= "" then
       macroStr = macroStr .. spellsMacroString
@@ -151,6 +168,7 @@ function ham.updateMacro()
       macroStr = macroStr .. itemsMacroString
     end
   end
+
   createMacroIfMissing()
   EditMacro(macroName, macroName, nil, macroStr)
 end

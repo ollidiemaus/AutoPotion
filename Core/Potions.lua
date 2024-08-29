@@ -4,10 +4,8 @@ local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 
---ham.leywine = ham.Item.new(194684,"Azure Leywine")
---ham.healthstone = ham.Item.new(117, "Healthstone")
 ham.healthstone = ham.Item.new(5512, "Healthstone")
-ham.demonicHealthstone = ham.Item.new(224464, "Demonic Healthstone") ---1 Minute CD
+ham.demonicHealthstone = ham.Item.new(224464, "Demonic Healthstone") ---1 Minute CD due to Pact of Gluttony
 ham.algariHealingPotionR3 = ham.Item.new(211880, "Algari Healing Potion")
 ham.algariHealingPotionR2 = ham.Item.new(211879, "Algari Healing Potion")
 ham.algariHealingPotionR1 = ham.Item.new(211878, "Algari Healing Potion")
