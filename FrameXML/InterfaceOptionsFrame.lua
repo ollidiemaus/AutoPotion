@@ -274,6 +274,19 @@ function ham.settingsFrame:InitializeOptions()
 		lastStaticElement = witheringPotionButton ---MAYBE witheringDreamsPotionButton
 	end
 
+	local useHealthstonesButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+	useHealthstonesButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
+	---@diagnostic disable-next-line: undefined-field
+	useHealthstonesButton.Text:SetText("Include Healthstones")
+	useHealthstonesButton:HookScript("OnClick", function(_, btn, down)
+		HAMDB.useHealthstones = useHealthstonesButton:GetChecked()
+		ham.updateHeals()
+		ham.updateMacro()
+		self:updatePrio()
+	end)
+	useHealthstonesButton:SetChecked(HAMDB.useHealthstones)
+	lastStaticElement = useHealthstonesButton
+
 
 	-------------  CURRENT PRIORITY  -------------
 	currentPrioTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
@@ -302,6 +315,7 @@ function ham.settingsFrame:InitializeOptions()
 			witheringPotionButton:SetChecked(HAMDB.witheringPotion)
 			witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
 		end
+		useHealthstonesButton:SetChecked(HAMDB.useHealthstones)
 		ham.updateHeals()
 		ham.updateMacro()
 		self:updatePrio()
