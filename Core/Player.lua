@@ -9,10 +9,6 @@ ham.Player.new = function()
 
   function self.getHealingItems()
     local healingItems = {}
-    ham.demonicHealthstoneItem = ham.Item.new(224464, "Demonic Healthstone")
-
-    table.insert(healingItems, ham.demonicHealthstoneItem)
-
     return healingItems
   end
 
