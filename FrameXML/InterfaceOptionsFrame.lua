@@ -153,7 +153,6 @@ function ham.settingsFrame:updatePrio()
 end
 
 function ham.settingsFrame:InitializeOptions()
-	print("init frame")
 	self.panel = CreateFrame("Frame", addonName, InterfaceOptionsFramePanelContainer)
 	---@diagnostic disable-next-line: inject-field
 	self.panel.name = addonName
