@@ -25,6 +25,9 @@ local function addPlayerHealingItemIfAvailable()
 end
 
 local function addHealthstoneIfAvailable()
+  if not HAMDB.useHealthstones then
+    return
+  end
   if isClassic == true or isWrath == true then
     for i, value in ipairs(ham.getHealthstonesClassic()) do
       if value.getCount() > 0 then
