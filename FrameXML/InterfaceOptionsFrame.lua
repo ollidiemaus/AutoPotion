@@ -326,6 +326,7 @@ function ham.settingsFrame:InitializeOptions()
 		if isRetail then
 			witheringPotionButton:SetChecked(HAMDB.witheringPotion)
 			witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
+			cavedwellerDelightButton:SetChecked(HAMDB.cavedwellerDelight)
 		end
 		ham.updateHeals()
 		ham.updateMacro()
