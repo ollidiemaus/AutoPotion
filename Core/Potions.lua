@@ -15,9 +15,6 @@ ham.fleetingAlgariHealingPotionR1 = ham.Item.new(212942, "Fleeting Algari Healin
 ham.cavedwellersDelightR3 = ham.Item.new(212244, "Cavedweller's Delight")
 ham.cavedwellersDelightR2 = ham.Item.new(212243, "Cavedweller's Delight")
 ham.cavedwellersDelightR1 = ham.Item.new(212242, "Cavedweller's Delight")
-ham.fleetingCavedwellersDelightR3 = ham.Item.new(212950, "Fleeting Cavedweller's Delight")
-ham.fleetingCavedwellersDelightR2 = ham.Item.new(212949, "Fleeting Cavedweller's Delight")
-ham.fleetingCavedwellersDelightR1 = ham.Item.new(212948, "Fleeting Cavedweller's Delight")
 ham.thirdWind = ham.Item.new(138486, "\"Third Wind\" Potion")
 ham.witheringDreamsR3 = ham.Item.new(207041, "Potion of Withering Dreams")
 ham.witheringDreamsR2 = ham.Item.new(207040, "Potion of Withering Dreams")
@@ -111,13 +108,16 @@ function ham.getPots()
       ham.cavedwellersDelightR3,
       ham.cavedwellersDelightR2,
       ham.cavedwellersDelightR1,
-      ham.fleetingCavedwellersDelightR3,
-      ham.fleetingCavedwellersDelightR2,
-      ham.fleetingCavedwellersDelightR1,
       ham.thirdWind,
+      ham.witheringDreamsR3,
+      ham.witheringDreamsR2,
+      ham.witheringDreamsR1,
       ham.dreamR3,
       ham.dreamsR2,
       ham.dreamR1,
+      ham.witheringR3,
+      ham.witheringR2,
+      ham.witheringR1,
       ham.refreshingR3,
       ham.refreshingR2,
       ham.refreshingR1,
@@ -150,16 +150,22 @@ function ham.getPots()
       RemoveFromList(pots, ham.thirdWind)
     end
 
-    if HAMDB.witheringPotion then
-      table.insert(pots, 1, ham.witheringR1)
-      table.insert(pots, 1, ham.witheringR2)
-      table.insert(pots, 1, ham.witheringR3)
+    if not HAMDB.witheringPotion then
+      RemoveFromList(pots, ham.witheringR1)
+      RemoveFromList(pots, ham.witheringR2)
+      RemoveFromList(pots, ham.witheringR3)
     end
 
-    if HAMDB.witheringDreamsPotion then
-      table.insert(pots, 1, ham.witheringDreamsR1)
-      table.insert(pots, 1, ham.witheringDreamsR2)
-      table.insert(pots, 1, ham.witheringDreamsR3)
+    if not HAMDB.witheringDreamsPotion then
+      RemoveFromList(pots, ham.witheringDreamsR1)
+      RemoveFromList(pots, ham.witheringDreamsR2)
+      RemoveFromList(pots, ham.witheringDreamsR3)
+    end
+
+    if not HAMDB.cavedwellerDelight then
+      RemoveFromList(pots, ham.cavedwellersDelightR1)
+      RemoveFromList(pots, ham.cavedwellersDelightR2)
+      RemoveFromList(pots, ham.cavedwellersDelightR3)
     end
 
     return pots

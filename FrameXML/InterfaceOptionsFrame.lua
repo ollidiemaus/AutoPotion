@@ -221,15 +221,17 @@ function ham.settingsFrame:InitializeOptions()
 	-------------  ITEMS  -------------
 	local witheringPotionButton = nil
 	local witheringDreamsPotionButton = nil
+	local cavedwellerDelightButton = nil
 	if isRetail then
 		local itemsTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
 		itemsTitle:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING_CATERGORY)
 		itemsTitle:SetText("Items")
 
+		---Withering Potion---
 		witheringPotionButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
 		witheringPotionButton:SetPoint("TOPLEFT", itemsTitle, 0, -PADDING)
 		---@diagnostic disable-next-line: undefined-field
-		witheringPotionButton.Text:SetText("Use Potion of Withering Vitality")
+		witheringPotionButton.Text:SetText("Potion of Withering Vitality")
 		witheringPotionButton:HookScript("OnClick", function(_, btn, down)
 			HAMDB.witheringPotion = witheringPotionButton:GetChecked()
 			ham.updateHeals()
@@ -247,12 +249,12 @@ function ham.settingsFrame:InitializeOptions()
 		end)
 		witheringPotionButton:SetChecked(HAMDB.witheringPotion)
 
-
+		---Withering Dreams Potion---
 		witheringDreamsPotionButton = CreateFrame("CheckButton", nil, self.panel,
 			"InterfaceOptionsCheckButtonTemplate")
-		witheringDreamsPotionButton:SetPoint("TOPLEFT", itemsTitle, 300, -PADDING)
+		witheringDreamsPotionButton:SetPoint("TOPLEFT", itemsTitle, 220, -PADDING)
 		---@diagnostic disable-next-line: undefined-field
-		witheringDreamsPotionButton.Text:SetText("Use Potion of Withering Dreams")
+		witheringDreamsPotionButton.Text:SetText("Potion of Withering Dreams")
 		witheringDreamsPotionButton:HookScript("OnClick", function(_, btn, down)
 			HAMDB.witheringDreamsPotion = witheringDreamsPotionButton:GetChecked()
 			ham.updateHeals()
@@ -269,6 +271,30 @@ function ham.settingsFrame:InitializeOptions()
 			GameTooltip:Hide()
 		end)
 		witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
+
+		---Cavedwellers Deligth---
+		cavedwellerDelightButton = CreateFrame("CheckButton", nil, self.panel,
+			"InterfaceOptionsCheckButtonTemplate")
+		cavedwellerDelightButton:SetPoint("TOPLEFT", itemsTitle, 440, -PADDING)
+		---@diagnostic disable-next-line: undefined-field
+		cavedwellerDelightButton.Text:SetText("Cavedweller's Delight")
+		cavedwellerDelightButton:HookScript("OnClick", function(_, btn, down)
+			HAMDB.cavedwellerDelight = cavedwellerDelightButton:GetChecked()
+			ham.updateHeals()
+			ham.updateMacro()
+			self:updatePrio()
+		end)
+		cavedwellerDelightButton:HookScript("OnEnter", function(_, btn, down)
+			---@diagnostic disable-next-line: param-type-mismatch
+			GameTooltip:SetOwner(cavedwellerDelightButton, "ANCHOR_TOPRIGHT")
+			GameTooltip:SetItemByID(ham.cavedwellersDelightR3.getId())
+			GameTooltip:Show()
+		end)
+		cavedwellerDelightButton:HookScript("OnLeave", function(_, btn, down)
+			GameTooltip:Hide()
+		end)
+		cavedwellerDelightButton:SetChecked(HAMDB.cavedwellerDelight)
+
 
 		lastStaticElement = witheringPotionButton ---MAYBE witheringDreamsPotionButton
 	end
@@ -334,7 +360,7 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 					button:SetPoint("TOPLEFT", myClassTitle, 0, posy)
 				end
 				---@diagnostic disable-next-line: undefined-field
-				button.Text:SetText("Use " .. name)
+				button.Text:SetText(name)
 				button:HookScript("OnClick", function(_, btn, down)
 					if button:GetChecked() then
 						ham.insertIntoDB(spell)
