@@ -4,8 +4,6 @@ local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
-local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
-
 
 ham.myPlayer = ham.Player.new()
 
