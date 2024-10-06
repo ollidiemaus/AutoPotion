@@ -96,6 +96,14 @@ function RemoveFromList(list, itemToRemove)
   end
 end
 
+function ham.getDelightPots()
+    return {
+      ham.cavedwellersDelightR3,
+      ham.cavedwellersDelightR2,
+      ham.cavedwellersDelightR1,
+    }
+end
+
 function ham.getPots()
   if isRetail then
     local pots = {
