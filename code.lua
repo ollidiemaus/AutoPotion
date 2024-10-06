@@ -81,12 +81,12 @@ function ham.updateHeals()
   -- lower the priority of healthstones in insatanced content if selected
   if HAMDB.raidStone and IsInInstance() then
     addPotIfAvailable()
-	  addDelightPotIfAvailable()
+    addDelightPotIfAvailable()
     addHealthstoneIfAvailable()
   else
     addHealthstoneIfAvailable()
     addPotIfAvailable()
-	  addDelightPotIfAvailable()
+    addDelightPotIfAvailable()
   end
 end
 
