@@ -61,6 +61,16 @@ local function addPotIfAvailable()
   end
 end
 
+local function addDelightPotIfAvailable()
+  for i, value in ipairs(ham.getDelightPots()) do
+    if value.getCount() > 0 then
+      table.insert(ham.itemIdList, value.getId())
+      --we break because all Pots share a cd so we only want the highest healing one
+      break;
+    end
+  end
+end
+
 
 function ham.updateHeals()
   ham.itemIdList = {}
@@ -71,10 +81,12 @@ function ham.updateHeals()
   -- lower the priority of healthstones in insatanced content if selected
   if HAMDB.raidStone and IsInInstance() then
     addPotIfAvailable()
+	  addDelightPotIfAvailable()
     addHealthstoneIfAvailable()
   else
     addHealthstoneIfAvailable()
     addPotIfAvailable()
+	  addDelightPotIfAvailable()
   end
 end
 
