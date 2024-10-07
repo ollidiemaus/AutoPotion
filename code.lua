@@ -12,6 +12,8 @@ local itemsMacroString = ''
 local macroStr = ''
 local resetType = "combat"
 local shortestCD = nil
+local bagUpdates = false -- debounce watcher for BAG_UPDATE events
+local debounceTime = 3 -- seconds
 
 local function addPlayerHealingItemIfAvailable()
   for i, value in ipairs(ham.myPlayer.getHealingItems()) do
@@ -167,31 +169,51 @@ function ham.updateMacro()
   EditMacro(macroName, macroName, nil, macroStr)
 end
 
-local inCombat = true
+local function MakeMacro()
+  ham.updateHeals()
+  ham.updateMacro()
+  ham.settingsFrame:updatePrio()
+end
+
+-- debounce handler for BAG_UPDATE events which can fire very rapidly
+local function onBagUpdate()
+  if bagUpdates then
+    return
+  end
+  bagUpdates = true
+  C_Timer.After(debounceTime, function()
+    MakeMacro()
+    bagUpdates = false
+  end)
+end
+
 local updateFrame = CreateFrame("Frame")
+updateFrame:RegisterEvent("ADDON_LOADED")
 updateFrame:RegisterEvent("BAG_UPDATE")
-updateFrame:RegisterEvent("PLAYER_LOGIN")
-updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD") -- Initial login and UI reload
+updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 if isClassic == false then
   updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-updateFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-updateFrame:SetScript("OnEvent", function(self, event, ...)
-  if event == "PLAYER_LOGIN" then
-    inCombat = false
-  end
-  if event == "PLAYER_REGEN_DISABLED" then
-    inCombat = true
+updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
+  -- when addon is loaded
+  if event == "ADDON_LOADED" and arg1 == addonName then
+    updateFrame:UnregisterEvent("ADDON_LOADED")
+    MakeMacro()
     return
   end
-  if event == "PLAYER_REGEN_ENABLED" then
-    inCombat = false
+  -- player is in combat, do nothing
+  if UnitAffectingCombat("player") then
+    return
   end
-
-  if inCombat == false then
-    ham.updateHeals()
-    ham.updateMacro()
-    ham.settingsFrame:updatePrio()
+  -- bag update events
+  if event == "BAG_UPDATE" then
+    onBagUpdate()
+  -- on loading/reloading, or exiting combat
+  elseif event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_REGEN_ENABLED" then
+    MakeMacro()
+  -- classic: when talents change
+  elseif isClassic and event == "TRAIT_CONFIG_UPDATED" then
+    MakeMacro()
   end
 end)
