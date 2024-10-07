@@ -7,6 +7,7 @@ local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 
 ham.myPlayer = ham.Player.new()
 
+local debug = false
 local spellsMacroString = ''
 local itemsMacroString = ''
 local macroStr = ''
@@ -23,6 +24,12 @@ local megaMacro = {
   installed = false, -- is the addon installed?
   loaded = false, -- is the addon loaded?
 }
+
+local function log(message)
+  if debug then
+    print("|cffb48ef9AutoPotion:|r " .. message)
+  end
+end
 
 local function addPlayerHealingItemIfAvailable()
   for i, value in ipairs(ham.myPlayer.getHealingItems()) do
@@ -61,7 +68,9 @@ local function addHealthstoneIfAvailable()
 end
 
 local function addPotIfAvailable()
+  log("Updating pot counts...")
   for i, value in ipairs(ham.getPots()) do
+    log("Item: " .. tostring(value.getId()) .. " Count: " .. tostring(value.getCount()))
     if value.getCount() > 0 then
       table.insert(ham.itemIdList, value.getId())
       --we break because all Pots share a cd so we only want the highest healing one
@@ -70,13 +79,12 @@ local function addPotIfAvailable()
   end
 end
 
-
 function ham.updateHeals()
   ham.itemIdList = {}
-
   ham.spellIDs = ham.myPlayer.getHealingSpells()
 
   addPlayerHealingItemIfAvailable()
+
   -- lower the priority of healthstones in insatanced content if selected
   if HAMDB.raidStone and IsInInstance() then
     addPotIfAvailable()
@@ -162,10 +170,11 @@ local function UpdateMegaMacro(newCode)
   for _, macro in pairs(MegaMacroGlobalData.Macros) do
     if macro.DisplayName == macroName then
       MegaMacro.UpdateCode(macro, newCode)
+      log("MegaMacro updated with: " .. newCode)
       return
     end
   end
-  print("|cffff0000AutoPotion Error:|r Missing 'AutoPotion' macro in MegaMacro. Please create it first.")
+  print("|cffff0000AutoPotion Error:|r Missing global 'AutoPotion' macro in MegaMacro. Please create it.")
 end
 
 local function checkMegaMacroAddon()
@@ -222,6 +231,7 @@ function ham.updateMacro()
   end
 
   if not megaMacro.checked then
+    log("MegaMacro not checked. Retrying.")
     checkMegaMacroAddon()
     return
   end
@@ -237,6 +247,7 @@ end
 local function MakeMacro()
   -- dont attempt to create macro until MegaMacro addon is checked
   if not megaMacro.checked or (megaMacro.checked and megaMacro.installed and not megaMacro.loaded) then
+    log("MegaMacro not checked or loaded. Retrying.")
     checkMegaMacroAddon()
     return
   end
@@ -250,6 +261,7 @@ local function onBagUpdate()
   if bagUpdates then
     return
   end
+  log("event: BAG_UPDATE")
   bagUpdates = true
   C_Timer.After(debounceTime, function()
     MakeMacro()
@@ -269,6 +281,7 @@ updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
   -- when addon is loaded
   if event == "ADDON_LOADED" and arg1 == addonName then
     updateFrame:UnregisterEvent("ADDON_LOADED")
+    log("event: ADDON_LOADED")
     MakeMacro()
     return
   end
@@ -279,11 +292,17 @@ updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
   -- bag update events
   if event == "BAG_UPDATE" then
     onBagUpdate()
-  -- on loading/reloading, or exiting combat
-  elseif event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_REGEN_ENABLED" then
+  -- on loading/reloading
+  elseif event == "PLAYER_ENTERING_WORLD" then
+    log("event: PLAYER_ENTERING_WORLD")
+    MakeMacro()
+  -- on exiting combat
+  elseif event == "PLAYER_REGEN_ENABLED" then
+    log("event: PLAYER_REGEN_ENABLED")
     MakeMacro()
   -- classic: when talents change
   elseif isClassic and event == "TRAIT_CONFIG_UPDATED" then
+    log("event: TRAIT_CONFIG_UPDATED")
     MakeMacro()
   end
 end)
