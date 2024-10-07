@@ -96,6 +96,17 @@ function RemoveFromList(list, itemToRemove)
   end
 end
 
+function ham.getDelightPots()
+  if isRetail then
+    return {
+      ham.cavedwellersDelightR3,
+      ham.cavedwellersDelightR2,
+      ham.cavedwellersDelightR1,
+    }
+  end
+  return {}
+end
+
 function ham.getPots()
   if isRetail then
     local pots = {
@@ -105,9 +116,6 @@ function ham.getPots()
       ham.fleetingAlgariHealingPotionR3,
       ham.fleetingAlgariHealingPotionR2,
       ham.fleetingAlgariHealingPotionR1,
-      ham.cavedwellersDelightR3,
-      ham.cavedwellersDelightR2,
-      ham.cavedwellersDelightR1,
       ham.thirdWind,
       ham.witheringDreamsR3,
       ham.witheringDreamsR2,
@@ -160,12 +168,6 @@ function ham.getPots()
       RemoveFromList(pots, ham.witheringDreamsR1)
       RemoveFromList(pots, ham.witheringDreamsR2)
       RemoveFromList(pots, ham.witheringDreamsR3)
-    end
-
-    if not HAMDB.cavedwellerDelight then
-      RemoveFromList(pots, ham.cavedwellersDelightR1)
-      RemoveFromList(pots, ham.cavedwellersDelightR2)
-      RemoveFromList(pots, ham.cavedwellersDelightR3)
     end
 
     return pots

@@ -67,9 +67,11 @@ local function addHealthstoneIfAvailable()
   end
 end
 
-local function addPotIfAvailable()
+local function addPotIfAvailable(useDelightPots)
   log("Updating pot counts...")
-  for i, value in ipairs(ham.getPots()) do
+  useDelightPots = useDelightPots or false
+  local pots = useDelightPots and ham.getDelightPots() or ham.getPots()
+  for i, value in ipairs(pots) do
     log("Item: " .. tostring(value.getId()) .. " Count: " .. tostring(value.getCount()))
     if value.getCount() > 0 then
       table.insert(ham.itemIdList, value.getId())
@@ -88,10 +90,16 @@ function ham.updateHeals()
   -- lower the priority of healthstones in insatanced content if selected
   if HAMDB.raidStone and IsInInstance() then
     addPotIfAvailable()
+    if HAMDB.cavedwellerDelight then
+      addPotIfAvailable(true)
+    end
     addHealthstoneIfAvailable()
   else
     addHealthstoneIfAvailable()
     addPotIfAvailable()
+    if HAMDB.cavedwellerDelight then
+      addPotIfAvailable(true)
+    end
   end
 end
 
