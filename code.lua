@@ -15,6 +15,15 @@ local shortestCD = nil
 local bagUpdates = false -- debounce watcher for BAG_UPDATE events
 local debounceTime = 3 -- seconds
 
+-- MegaMacro addon compatibility
+local megaMacro = {
+  name = "MegaMacro", -- the addon name
+  retries = 0, -- number of loaded checks to prevent infinite loop
+  checked = false, -- did we check for the addon?
+  installed = false, -- is the addon installed?
+  loaded = false, -- is the addon loaded?
+}
+
 local function addPlayerHealingItemIfAvailable()
   for i, value in ipairs(ham.myPlayer.getHealingItems()) do
     if value.getCount() > 0 then
@@ -79,6 +88,10 @@ function ham.updateHeals()
 end
 
 local function createMacroIfMissing()
+  -- dont create macro if MegaMacro is installed and loaded
+  if megaMacro.installed and megaMacro.loaded then
+    return
+  end
   local name = GetMacroInfo(macroName)
   if name == nil then
     CreateMacro(macroName, "INV_Misc_QuestionMark")
@@ -145,6 +158,49 @@ local function buildItemMacroString()
   end
 end
 
+local function UpdateMegaMacro(newCode)
+  for _, macro in pairs(MegaMacroGlobalData.Macros) do
+    if macro.DisplayName == macroName then
+      MegaMacro.UpdateCode(macro, newCode)
+      return
+    end
+  end
+  print("|cffff0000AutoPotion Error:|r Missing 'AutoPotion' macro in MegaMacro. Please create it first.")
+end
+
+local function checkMegaMacroAddon()
+  -- MegaMacro is only available for retail
+  if not isRetail then
+    megaMacro.checked = true
+    return
+  end
+
+  -- is MegaMacro installed?
+  local name = C_AddOns.GetAddOnInfo(megaMacro.name)
+  if not name then
+    megaMacro.installed = false
+    megaMacro.checked = true
+    return
+  end
+
+  megaMacro.installed = true
+
+  -- is the addon loaded?
+  if C_AddOns.IsAddOnLoaded(megaMacro.name) then
+    megaMacro.loaded = true
+    megaMacro.checked = true
+    return
+  end
+
+  -- Retry loading if not yet loaded
+  if megaMacro.retries < 3 then
+    megaMacro.retries = megaMacro.retries + 1
+    C_Timer.After(debounceTime, checkMegaMacroAddon)
+  else
+    megaMacro.checked = true
+  end
+end
+
 function ham.updateMacro()
   if next(ham.itemIdList) == nil and next(ham.spellIDs) == nil then
     macroStr = "#showtooltip"
@@ -165,11 +221,25 @@ function ham.updateMacro()
     end
   end
 
-  createMacroIfMissing()
-  EditMacro(macroName, macroName, nil, macroStr)
+  if not megaMacro.checked then
+    checkMegaMacroAddon()
+    return
+  end
+
+  if megaMacro.installed and megaMacro.loaded then
+    UpdateMegaMacro(macroStr)
+  else
+    createMacroIfMissing()
+    EditMacro(macroName, macroName, nil, macroStr)
+  end
 end
 
 local function MakeMacro()
+  -- dont attempt to create macro until MegaMacro addon is checked
+  if not megaMacro.checked or (megaMacro.checked and megaMacro.installed and not megaMacro.loaded) then
+    checkMegaMacroAddon()
+    return
+  end
   ham.updateHeals()
   ham.updateMacro()
   ham.settingsFrame:updatePrio()
