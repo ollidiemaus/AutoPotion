@@ -14,15 +14,15 @@ local macroStr = ''
 local resetType = "combat"
 local shortestCD = nil
 local bagUpdates = false -- debounce watcher for BAG_UPDATE events
-local debounceTime = 3 -- seconds
+local debounceTime = 3   -- seconds
 
 -- MegaMacro addon compatibility
 local megaMacro = {
   name = "MegaMacro", -- the addon name
-  retries = 0, -- number of loaded checks to prevent infinite loop
-  checked = false, -- did we check for the addon?
-  installed = false, -- is the addon installed?
-  loaded = false, -- is the addon loaded?
+  retries = 0,        -- number of loaded checks to prevent infinite loop
+  checked = false,    -- did we check for the addon?
+  installed = false,  -- is the addon installed?
+  loaded = false,     -- is the addon loaded?
 }
 
 local function log(message)
@@ -300,16 +300,16 @@ updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
   -- bag update events
   if event == "BAG_UPDATE" then
     onBagUpdate()
-  -- on loading/reloading
+    -- on loading/reloading
   elseif event == "PLAYER_ENTERING_WORLD" then
     log("event: PLAYER_ENTERING_WORLD")
     MakeMacro()
-  -- on exiting combat
+    -- on exiting combat
   elseif event == "PLAYER_REGEN_ENABLED" then
     log("event: PLAYER_REGEN_ENABLED")
     MakeMacro()
-  -- classic: when talents change
-  elseif isClassic and event == "TRAIT_CONFIG_UPDATED" then
+    -- when talents change and classic is false
+  elseif isClassic == false and event == "TRAIT_CONFIG_UPDATED" then
     log("event: TRAIT_CONFIG_UPDATED")
     MakeMacro()
   end
