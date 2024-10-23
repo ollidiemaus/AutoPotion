@@ -4,16 +4,32 @@ local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
-local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
-
 
 ham.myPlayer = ham.Player.new()
 
+local debug = false
 local spellsMacroString = ''
 local itemsMacroString = ''
 local macroStr = ''
 local resetType = "combat"
 local shortestCD = nil
+local bagUpdates = false -- debounce watcher for BAG_UPDATE events
+local debounceTime = 3 -- seconds
+
+-- MegaMacro addon compatibility
+local megaMacro = {
+  name = "MegaMacro", -- the addon name
+  retries = 0, -- number of loaded checks to prevent infinite loop
+  checked = false, -- did we check for the addon?
+  installed = false, -- is the addon installed?
+  loaded = false, -- is the addon loaded?
+}
+
+local function log(message)
+  if debug then
+    print("|cffb48ef9AutoPotion:|r " .. message)
+  end
+end
 
 local function addPlayerHealingItemIfAvailable()
   for i, value in ipairs(ham.myPlayer.getHealingItems()) do
@@ -51,8 +67,12 @@ local function addHealthstoneIfAvailable()
   end
 end
 
-local function addPotIfAvailable()
-  for i, value in ipairs(ham.getPots()) do
+local function addPotIfAvailable(useDelightPots)
+  log("Updating pot counts...")
+  useDelightPots = useDelightPots or false
+  local pots = useDelightPots and ham.getDelightPots() or ham.getPots()
+  for i, value in ipairs(pots) do
+    log("Item: " .. tostring(value.getId()) .. " Count: " .. tostring(value.getCount()))
     if value.getCount() > 0 then
       table.insert(ham.itemIdList, value.getId())
       --we break because all Pots share a cd so we only want the highest healing one
@@ -61,24 +81,33 @@ local function addPotIfAvailable()
   end
 end
 
-
 function ham.updateHeals()
   ham.itemIdList = {}
-
   ham.spellIDs = ham.myPlayer.getHealingSpells()
 
   addPlayerHealingItemIfAvailable()
+
   -- lower the priority of healthstones in insatanced content if selected
   if HAMDB.raidStone and IsInInstance() then
     addPotIfAvailable()
+    if HAMDB.cavedwellerDelight then
+      addPotIfAvailable(true)
+    end
     addHealthstoneIfAvailable()
   else
     addHealthstoneIfAvailable()
     addPotIfAvailable()
+    if HAMDB.cavedwellerDelight then
+      addPotIfAvailable(true)
+    end
   end
 end
 
 local function createMacroIfMissing()
+  -- dont create macro if MegaMacro is installed and loaded
+  if megaMacro.installed and megaMacro.loaded then
+    return
+  end
   local name = GetMacroInfo(macroName)
   if name == nil then
     CreateMacro(macroName, "INV_Misc_QuestionMark")
@@ -145,6 +174,50 @@ local function buildItemMacroString()
   end
 end
 
+local function UpdateMegaMacro(newCode)
+  for _, macro in pairs(MegaMacroGlobalData.Macros) do
+    if macro.DisplayName == macroName then
+      MegaMacro.UpdateCode(macro, newCode)
+      log("MegaMacro updated with: " .. newCode)
+      return
+    end
+  end
+  print("|cffff0000AutoPotion Error:|r Missing global 'AutoPotion' macro in MegaMacro. Please create it.")
+end
+
+local function checkMegaMacroAddon()
+  -- MegaMacro is only available for retail
+  if not isRetail then
+    megaMacro.checked = true
+    return
+  end
+
+  -- is MegaMacro installed?
+  local name = C_AddOns.GetAddOnInfo(megaMacro.name)
+  if not name then
+    megaMacro.installed = false
+    megaMacro.checked = true
+    return
+  end
+
+  megaMacro.installed = true
+
+  -- is the addon loaded?
+  if C_AddOns.IsAddOnLoaded(megaMacro.name) then
+    megaMacro.loaded = true
+    megaMacro.checked = true
+    return
+  end
+
+  -- Retry loading if not yet loaded
+  if megaMacro.retries < 3 then
+    megaMacro.retries = megaMacro.retries + 1
+    C_Timer.After(debounceTime, checkMegaMacroAddon)
+  else
+    megaMacro.checked = true
+  end
+end
+
 function ham.updateMacro()
   if next(ham.itemIdList) == nil and next(ham.spellIDs) == nil then
     macroStr = "#showtooltip"
@@ -165,35 +238,79 @@ function ham.updateMacro()
     end
   end
 
-  createMacroIfMissing()
-  EditMacro(macroName, macroName, nil, macroStr)
+  if not megaMacro.checked then
+    log("MegaMacro not checked. Retrying.")
+    checkMegaMacroAddon()
+    return
+  end
+
+  if megaMacro.installed and megaMacro.loaded then
+    UpdateMegaMacro(macroStr)
+  else
+    createMacroIfMissing()
+    EditMacro(macroName, macroName, nil, macroStr)
+  end
 end
 
-local inCombat = true
+local function MakeMacro()
+  -- dont attempt to create macro until MegaMacro addon is checked
+  if not megaMacro.checked or (megaMacro.checked and megaMacro.installed and not megaMacro.loaded) then
+    log("MegaMacro not checked or loaded. Retrying.")
+    checkMegaMacroAddon()
+    return
+  end
+  ham.updateHeals()
+  ham.updateMacro()
+  ham.settingsFrame:updatePrio()
+end
+
+-- debounce handler for BAG_UPDATE events which can fire very rapidly
+local function onBagUpdate()
+  if bagUpdates then
+    return
+  end
+  log("event: BAG_UPDATE")
+  bagUpdates = true
+  C_Timer.After(debounceTime, function()
+    MakeMacro()
+    bagUpdates = false
+  end)
+end
+
 local updateFrame = CreateFrame("Frame")
+updateFrame:RegisterEvent("ADDON_LOADED")
 updateFrame:RegisterEvent("BAG_UPDATE")
-updateFrame:RegisterEvent("PLAYER_LOGIN")
-updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD") -- Initial login and UI reload
+updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 if isClassic == false then
   updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-updateFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-updateFrame:SetScript("OnEvent", function(self, event, ...)
-  if event == "PLAYER_LOGIN" then
-    inCombat = false
-  end
-  if event == "PLAYER_REGEN_DISABLED" then
-    inCombat = true
+updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
+  -- when addon is loaded
+  if event == "ADDON_LOADED" and arg1 == addonName then
+    updateFrame:UnregisterEvent("ADDON_LOADED")
+    log("event: ADDON_LOADED")
+    MakeMacro()
     return
   end
-  if event == "PLAYER_REGEN_ENABLED" then
-    inCombat = false
+  -- player is in combat, do nothing
+  if UnitAffectingCombat("player") then
+    return
   end
-
-  if inCombat == false then
-    ham.updateHeals()
-    ham.updateMacro()
-    ham.settingsFrame:updatePrio()
+  -- bag update events
+  if event == "BAG_UPDATE" then
+    onBagUpdate()
+  -- on loading/reloading
+  elseif event == "PLAYER_ENTERING_WORLD" then
+    log("event: PLAYER_ENTERING_WORLD")
+    MakeMacro()
+  -- on exiting combat
+  elseif event == "PLAYER_REGEN_ENABLED" then
+    log("event: PLAYER_REGEN_ENABLED")
+    MakeMacro()
+  -- classic: when talents change
+  elseif isClassic and event == "TRAIT_CONFIG_UPDATED" then
+    log("event: TRAIT_CONFIG_UPDATED")
+    MakeMacro()
   end
 end)
