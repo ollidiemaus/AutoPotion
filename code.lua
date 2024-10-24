@@ -200,8 +200,6 @@ local function checkMegaMacroAddon()
     return
   end
 
-  megaMacro.installed = true
-
   -- is the addon loaded?
   if C_AddOns.IsAddOnLoaded(megaMacro.name) then
     megaMacro.loaded = true
