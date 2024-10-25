@@ -182,7 +182,7 @@ local function UpdateMegaMacro(newCode)
       return
     end
   end
-  print("|cffff0000AutoPotion Error:|r Missing global 'AutoPotion' macro in MegaMacro. Please create it.")
+  print("|cffff0000AutoPotion Error:|r Missing global 'AutoPotion' macro in MegaMacro. Please create it then reload your game.")
 end
 
 local function checkMegaMacroAddon()
@@ -199,6 +199,8 @@ local function checkMegaMacroAddon()
     megaMacro.checked = true
     return
   end
+
+  megaMacro.installed = true
 
   -- is the addon loaded?
   if C_AddOns.IsAddOnLoaded(megaMacro.name) then
@@ -244,15 +246,17 @@ function ham.updateMacro()
 
   if megaMacro.installed and megaMacro.loaded then
     UpdateMegaMacro(macroStr)
-  else
-    createMacroIfMissing()
-    EditMacro(macroName, macroName, nil, macroStr)
+    return
   end
+
+  log('MegaMacro not in use. Creating default macro.')
+  createMacroIfMissing()
+  EditMacro(macroName, macroName, nil, macroStr)
 end
 
 local function MakeMacro()
   -- dont attempt to create macro until MegaMacro addon is checked
-  if not megaMacro.checked or (megaMacro.checked and megaMacro.installed and not megaMacro.loaded) then
+  if not megaMacro.checked then
     log("MegaMacro not checked or loaded. Retrying.")
     checkMegaMacroAddon()
     return
@@ -298,15 +302,15 @@ updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
   -- bag update events
   if event == "BAG_UPDATE" then
     onBagUpdate()
-    -- on loading/reloading
+  -- on loading/reloading
   elseif event == "PLAYER_ENTERING_WORLD" then
     log("event: PLAYER_ENTERING_WORLD")
     MakeMacro()
-    -- on exiting combat
+  -- on exiting combat
   elseif event == "PLAYER_REGEN_ENABLED" then
     log("event: PLAYER_REGEN_ENABLED")
     MakeMacro()
-    -- when talents change and classic is false
+  -- when talents change and classic is false
   elseif isClassic == false and event == "TRAIT_CONFIG_UPDATED" then
     log("event: TRAIT_CONFIG_UPDATED")
     MakeMacro()
