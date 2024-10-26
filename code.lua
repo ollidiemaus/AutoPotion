@@ -226,7 +226,11 @@ function ham.updateMacro()
     buildItemMacroString()
     buildSpellMacroString()
     setResetType()
-    macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " "
+    macroStr = "#showtooltip \n"
+    if HAMDB.stopCast then
+      macroStr = macroStr .. "/stopcasting \n"
+    end
+    macroStr = macroStr .. "/castsequence reset=" .. resetType .. " "
     if spellsMacroString ~= "" then
       macroStr = macroStr .. spellsMacroString
     end
