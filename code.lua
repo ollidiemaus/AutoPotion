@@ -259,7 +259,14 @@ function ham.updateMacro()
 
   log('MegaMacro not in use. Creating default macro.')
   createMacroIfMissing()
-  EditMacro(macroName, macroName, nil, macroStr)
+
+  -- Use pcall to suppress LUA errors
+  local success, err = pcall(function()
+    EditMacro(macroName, macroName, nil, macroStr)
+  end)
+  if success then
+    log('Macro updated.')
+  end
 end
 
 local function MakeMacro()
@@ -334,7 +341,7 @@ updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
     log("event: PLAYER_REGEN_ENABLED")
     -- Wait a second after combat ends to update the macro
     -- as the UI may still be cleaning up a protected state.
-    C_Timer.After(1, MakeMacro)
+    C_Timer.After(0.5, MakeMacro)
   -- when talents change and classic is false
   elseif isClassic == false and event == "TRAIT_CONFIG_UPDATED" then
     log("event: TRAIT_CONFIG_UPDATED")
