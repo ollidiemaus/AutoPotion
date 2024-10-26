@@ -20,7 +20,6 @@ local positionx = 0
 local currentPrioTitle = nil
 local lastStaticElement = nil
 
-
 function ham.settingsFrame:OnEvent(event, addOnName)
 	if addOnName == "AutoPotion" then
 		if event == "ADDON_LOADED" then
@@ -42,11 +41,10 @@ end
 
 ham.settingsFrame:RegisterEvent("PLAYER_LOGIN")
 ham.settingsFrame:RegisterEvent("ADDON_LOADED")
-
 ham.settingsFrame:SetScript("OnEvent", ham.settingsFrame.OnEvent)
 
 function ham.settingsFrame:createPrioFrame(id, iconTexture, positionx, isSpell)
-	local icon = CreateFrame("Frame", nil, self.panel, UIParent)
+	local icon = CreateFrame("Frame", nil, self.content, UIParent)
 	icon:SetFrameStrata("MEDIUM")
 	icon:SetWidth(ICON_SIZE)
 	icon:SetHeight(ICON_SIZE)
@@ -153,51 +151,67 @@ function ham.settingsFrame:updatePrio()
 end
 
 function ham.settingsFrame:InitializeOptions()
+
+	-- Create the main panel inside the Interface Options container
 	self.panel = CreateFrame("Frame", addonName, InterfaceOptionsFramePanelContainer)
-	---@diagnostic disable-next-line: inject-field
 	self.panel.name = addonName
-	if InterfaceOptions_AddCategory then
-		InterfaceOptions_AddCategory(self.panel)
-	else
-		local category = Settings.RegisterCanvasLayoutCategory(self.panel, addonName);
-		Settings.RegisterAddOnCategory(category);
-		self.panel.categoryID = category:GetID() -- for OpenToCategory use
-	end
 
+	-- Register with Interface Options
+    if InterfaceOptions_AddCategory then
+        InterfaceOptions_AddCategory(self.panel)
+    else
+        local category = Settings.RegisterCanvasLayoutCategory(self.panel, addonName)
+        Settings.RegisterAddOnCategory(category)
+        self.panel.categoryID = category:GetID() -- for OpenToCategory use
+    end
 
-	-------------  HEADER  -------------
-	local title = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-	title:SetPoint("TOP", 0, -2)
-	title:SetText("Auto Potion Settings")
+	-- inset frame to provide some padding
+	self.content = CreateFrame("Frame", nil, self.panel)
+	self.content:SetPoint("TOPLEFT", self.panel, "TOPLEFT", 16, -16)
+	self.content:SetPoint("BOTTOMRIGHT", self.panel, "BOTTOMRIGHT", -16, 16)
 
-	local subtitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormal")
-	subtitle:SetPoint("TOPLEFT", 0, -PADDING)
-	subtitle:SetText("Here you can configure the behaviour of the Addon eg. if you want to include class spells")
+	-- title
+    local title = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
+    title:SetPoint("TOP", 0, 0)
+    title:SetText("Auto Potion Settings")
 
+    -- subtitle
+    local subtitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    subtitle:SetPoint("TOPLEFT", 0, -40)
+    subtitle:SetText("Configure the behavior of the addon. IE: if you want to include class spells")
 
-	-------------  General  -------------
-	local behaviourTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-	behaviourTitle:SetPoint("TOPLEFT", subtitle, 0, -PADDING_CATERGORY)
-	behaviourTitle:SetText("Addon Behaviour")
+    -- behavior title
+    local behaviourTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
+    behaviourTitle:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 0, -30)
+    behaviourTitle:SetText("Addon Behaviour")
 
-	local cdResetButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
-	cdResetButton:SetPoint("TOPLEFT", behaviourTitle, 0, -PADDING)
+	-------------  Stop Casting  -------------	
+	local stopCastButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
+	stopCastButton:SetPoint("TOPLEFT", behaviourTitle, 0, -PADDING)
 	---@diagnostic disable-next-line: undefined-field
-	cdResetButton.Text:SetText(
-		"Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!")
+	stopCastButton.Text:SetText("Include /stopcasting in the macro (reload after changing)")
+	stopCastButton:HookScript("OnClick", function(_, btn, down)
+		HAMDB.stopCast = stopCastButton:GetChecked()
+	end)
+	stopCastButton:SetChecked(HAMDB.stopCast)
+	lastStaticElement = stopCastButton
+
+	-------------  Shortest Cooldown  -------------	
+	local cdResetButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
+	cdResetButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
+	---@diagnostic disable-next-line: undefined-field
+	cdResetButton.Text:SetText("Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!")
 	cdResetButton:HookScript("OnClick", function(_, btn, down)
 		HAMDB.cdReset = cdResetButton:GetChecked()
 	end)
 	cdResetButton:SetChecked(HAMDB.cdReset)
-
 	lastStaticElement = cdResetButton
 
-
-	-------------  Healthstone button  -------------	
-	local raidStoneButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+	-------------  Healthstone Priority  -------------	
+	local raidStoneButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 	raidStoneButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
 	---@diagnostic disable-next-line: undefined-field
-	raidStoneButton.Text:SetText("Low Priority Healthstones(Instance only)")
+	raidStoneButton.Text:SetText("Low Priority Healthstones (Instance only)")
 	raidStoneButton:HookScript("OnClick", function(_, btn, down)
 		HAMDB.raidStone = raidStoneButton:GetChecked()
 		ham.updateHeals()
@@ -223,12 +237,12 @@ function ham.settingsFrame:InitializeOptions()
 	local witheringDreamsPotionButton = nil
 	local cavedwellerDelightButton = nil
 	if isRetail then
-		local itemsTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+		local itemsTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
 		itemsTitle:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING_CATERGORY)
 		itemsTitle:SetText("Items")
 
 		---Withering Potion---
-		witheringPotionButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+		witheringPotionButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 		witheringPotionButton:SetPoint("TOPLEFT", itemsTitle, 0, -PADDING)
 		---@diagnostic disable-next-line: undefined-field
 		witheringPotionButton.Text:SetText("Potion of Withering Vitality")
@@ -250,7 +264,7 @@ function ham.settingsFrame:InitializeOptions()
 		witheringPotionButton:SetChecked(HAMDB.witheringPotion)
 
 		---Withering Dreams Potion---
-		witheringDreamsPotionButton = CreateFrame("CheckButton", nil, self.panel,
+		witheringDreamsPotionButton = CreateFrame("CheckButton", nil, self.content,
 			"InterfaceOptionsCheckButtonTemplate")
 		witheringDreamsPotionButton:SetPoint("TOPLEFT", itemsTitle, 220, -PADDING)
 		---@diagnostic disable-next-line: undefined-field
@@ -273,7 +287,7 @@ function ham.settingsFrame:InitializeOptions()
 		witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
 
 		---Cavedwellers Deligth---
-		cavedwellerDelightButton = CreateFrame("CheckButton", nil, self.panel,
+		cavedwellerDelightButton = CreateFrame("CheckButton", nil, self.content,
 			"InterfaceOptionsCheckButtonTemplate")
 		cavedwellerDelightButton:SetPoint("TOPLEFT", itemsTitle, 440, -PADDING)
 		---@diagnostic disable-next-line: undefined-field
@@ -301,13 +315,13 @@ function ham.settingsFrame:InitializeOptions()
 
 
 	-------------  CURRENT PRIORITY  -------------
-	currentPrioTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+	currentPrioTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
 	currentPrioTitle:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY)
 	currentPrioTitle:SetText("Current Priority")
 
 
 	-------------  RESET BUTTON  -------------
-	local btn = CreateFrame("Button", nil, self.panel, "UIPanelButtonTemplate")
+	local btn = CreateFrame("Button", nil, self.content, "UIPanelButtonTemplate")
 	btn:SetPoint("BOTTOMLEFT", 2, 3)
 	btn:SetText("Reset to Default")
 	btn:SetWidth(120)
@@ -337,7 +351,7 @@ end
 
 function ham.settingsFrame:InitializeClassSpells(relativeTo)
 	-------------  CLASS / RACIALS  -------------
-	local myClassTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+	local myClassTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
 	myClassTitle:SetPoint("TOPLEFT", relativeTo, 0, -PADDING_CATERGORY)
 	myClassTitle:SetText("Class/Racial Spells")
 
@@ -348,7 +362,7 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 		for i, spell in ipairs(ham.supportedSpells) do
 			if IsSpellKnown(spell) then
 				local name = C_Spell.GetSpellName(spell)
-				local button = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
+				local button = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 
 				if count == 3 then
 					lastbutton = nil

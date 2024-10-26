@@ -15,6 +15,7 @@ local resetType = "combat"
 local shortestCD = nil
 local bagUpdates = false -- debounce watcher for BAG_UPDATE events
 local debounceTime = 3   -- seconds
+local combatRetry = 0    -- number of combat retries
 
 -- MegaMacro addon compatibility
 local megaMacro = {
@@ -221,12 +222,19 @@ end
 function ham.updateMacro()
   if next(ham.itemIdList) == nil and next(ham.spellIDs) == nil then
     macroStr = "#showtooltip"
+    if HAMDB.stopCast then
+      macroStr = macroStr .. "\n /stopcasting \n"
+    end
   else
     resetType = "combat"
     buildItemMacroString()
     buildSpellMacroString()
     setResetType()
-    macroStr = "#showtooltip \n/castsequence reset=" .. resetType .. " "
+    macroStr = "#showtooltip \n"
+    if HAMDB.stopCast then
+      macroStr = macroStr .. "/stopcasting \n"
+    end
+    macroStr = macroStr .. "/castsequence reset=" .. resetType .. " "
     if spellsMacroString ~= "" then
       macroStr = macroStr .. spellsMacroString
     end
@@ -251,7 +259,14 @@ function ham.updateMacro()
 
   log('MegaMacro not in use. Creating default macro.')
   createMacroIfMissing()
-  EditMacro(macroName, macroName, nil, macroStr)
+
+  -- Use pcall to suppress LUA errors
+  local success, err = pcall(function()
+    EditMacro(macroName, macroName, nil, macroStr)
+  end)
+  if success then
+    log('Macro updated.')
+  end
 end
 
 local function MakeMacro()
@@ -261,6 +276,21 @@ local function MakeMacro()
     checkMegaMacroAddon()
     return
   end
+
+  -- retry if player is still in combat
+  if InCombatLockdown() then
+    if combatRetry < 4 then
+      combatRetry = combatRetry + 1
+      log("Player in combat. Retry attempt: " .. combatRetry)
+      C_Timer.After(0.5, MakeMacro)
+    else
+      log("Failed to update macro after 4 attempts.")
+    end
+    return
+  end
+
+  -- safe to update macro
+  combatRetry = 0
   ham.updateHeals()
   ham.updateMacro()
   ham.settingsFrame:updatePrio()
@@ -296,7 +326,7 @@ updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
     return
   end
   -- player is in combat, do nothing
-  if UnitAffectingCombat("player") then
+  if InCombatLockdown() then
     return
   end
   -- bag update events
@@ -309,7 +339,9 @@ updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
   -- on exiting combat
   elseif event == "PLAYER_REGEN_ENABLED" then
     log("event: PLAYER_REGEN_ENABLED")
-    MakeMacro()
+    -- Wait a second after combat ends to update the macro
+    -- as the UI may still be cleaning up a protected state.
+    C_Timer.After(0.5, MakeMacro)
   -- when talents change and classic is false
   elseif isClassic == false and event == "TRAIT_CONFIG_UPDATED" then
     log("event: TRAIT_CONFIG_UPDATED")

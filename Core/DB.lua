@@ -1,6 +1,7 @@
 local addonName, ham = ...
 ham.defaults = {
     cdReset = false,
+    stopCast = false,
     raidStone = false,
     witheringPotion = false,
     witheringDreamsPotion = false,
