@@ -353,9 +353,11 @@ function ham.settingsFrame:InitializeOptions()
 		end)
 		heartseekingButton:HookScript("OnEnter", function(_, btn, down)
 			---@diagnostic disable-next-line: param-type-mismatch
-			GameTooltip:SetOwner(heartseekingButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetItemByID(ham.cavedwellersDelightR3.getId())
-			GameTooltip:Show()
+			if ham.tinkerSlot then
+				GameTooltip:SetOwner(heartseekingButton, "ANCHOR_TOPRIGHT")
+				GameTooltip:SetInventoryItem("player", ham.tinkerSlot)
+				GameTooltip:Show()
+			end
 		end)
 		heartseekingButton:HookScript("OnLeave", function(_, btn, down)
 			GameTooltip:Hide()
