@@ -5,9 +5,30 @@ local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 
+-- Configuration options
+-- Use in-memory options as HAMDB updates are not persisted instantly.
+-- We'll also use lazy initialization to prevent early access issues.
+setmetatable(ham, {
+  __index = function(t, k)
+    if k == "options" then
+      t.options = {
+        cdReset = HAMDB.cdReset or false,
+        stopCast = HAMDB.stopCast or false,
+        raidStone = HAMDB.raidStone or false,
+        witheringPotion = HAMDB.witheringPotion or false,
+        witheringDreamsPotion = HAMDB.witheringDreamsPotion or false,
+        cavedwellerDelight = HAMDB.cavedwellerDelight or true,
+        heartseekingInjector = HAMDB.heartseekingInjector or false,
+      }
+      return t.options
+    end
+  end
+})
+
+ham.debug = false
+ham.tinkerSlot = nil
 ham.myPlayer = ham.Player.new()
 
-local debug = false
 local spellsMacroString = ''
 local itemsMacroString = ''
 local macroStr = ''
@@ -26,13 +47,25 @@ local megaMacro = {
   loaded = false,     -- is the addon loaded?
 }
 
+-- Slots to check for tinkers
+-- As of 2024-10-27, only Head, Wrist and Guns can have tinkers.
+local tinkerSlots = {
+  1,  -- Head
+  9,  -- Wrist
+  18, -- Gun
+  14, -- Trinket 2 (for debugging)
+}
+
 local function log(message)
-  if debug then
+  if ham.debug then
     print("|cffb48ef9AutoPotion:|r " .. message)
   end
 end
 
 local function addPlayerHealingItemIfAvailable()
+  if isRetail and ham.options.heartseekingInjector and ham.tinkerSlot then
+    table.insert(ham.itemIdList, "slot:" .. ham.tinkerSlot)
+  end
   for i, value in ipairs(ham.myPlayer.getHealingItems()) do
     if value.getCount() > 0 then
       table.insert(ham.itemIdList, value.getId())
@@ -56,7 +89,7 @@ local function addHealthstoneIfAvailable()
     end
     if ham.demonicHealthstone.getCount() > 0 then
       table.insert(ham.itemIdList, ham.demonicHealthstone.getId())
-      if HAMDB.cdReset then
+      if ham.options.cdReset then
         if shortestCD == nil then
           shortestCD = 60
         end
@@ -86,21 +119,27 @@ function ham.updateHeals()
   ham.itemIdList = {}
   ham.spellIDs = ham.myPlayer.getHealingSpells()
 
+  -- Priority 1: Add player items, including tinkers
   addPlayerHealingItemIfAvailable()
 
-  -- lower the priority of healthstones in insatanced content if selected
-  if HAMDB.raidStone and IsInInstance() then
-    addPotIfAvailable()
-    if HAMDB.cavedwellerDelight then
-      addPotIfAvailable(true)
-    end
+  -- Priority 2: Add Healthstone if NOT set to lower priority
+  if not ham.options.raidStone then
     addHealthstoneIfAvailable()
-  else
-    addHealthstoneIfAvailable()
+  end
+
+  -- Priority 3: Add Health Pots if available, and Heartseeking is NOT available or enabled
+  if not ham.options.heartseekingInjector or not ham.tinkerSlot then
     addPotIfAvailable()
-    if HAMDB.cavedwellerDelight then
-      addPotIfAvailable(true)
-    end
+  end
+
+  -- Priority 4: Add Cavedweller's Delight if enabled
+  if ham.options.cavedwellerDelight then
+    addPotIfAvailable(true)
+  end
+
+  -- Priority 5: Add Healthstone if set to lower priority
+  if ham.options.raidStone then
+    addHealthstoneIfAvailable()
   end
 end
 
@@ -116,7 +155,7 @@ local function createMacroIfMissing()
 end
 
 local function setShortestSpellCD(newSpell)
-  if HAMDB.cdReset then
+  if ham.options.cdReset then
     local cd
     cd = GetSpellBaseCooldown(newSpell) / 1000
     if shortestCD == nil then
@@ -129,7 +168,7 @@ local function setShortestSpellCD(newSpell)
 end
 
 local function setResetType()
-  if HAMDB.cdReset == true and shortestCD ~= nil then
+  if ham.options.cdReset == true and shortestCD ~= nil then
     resetType = "combat/" .. shortestCD
   else
     resetType = "combat"
@@ -166,10 +205,18 @@ end
 local function buildItemMacroString()
   if next(ham.itemIdList) ~= nil then
     for i, name in ipairs(ham.itemIdList) do
-      if i == 1 then
-        itemsMacroString = "item:" .. name;
+      local entry
+      -- Check if the entry starts with "slot:" and extract the slot number
+      if type(name) == "string" and name:match("^slot:") then
+        entry = name:sub(6)  -- Extract everything after "slot:"
       else
-        itemsMacroString = itemsMacroString .. ", " .. "item:" .. name;
+        entry = "item:" .. tostring(name)  -- Default to item ID formatting
+      end
+      -- Add the entry to the macro string
+      if i == 1 then
+        itemsMacroString = entry
+      else
+        itemsMacroString = itemsMacroString .. ", " .. entry
       end
     end
   end
@@ -219,10 +266,35 @@ local function checkMegaMacroAddon()
   end
 end
 
+-- check if player has the engineering tinker: Heartseeking Health Injector
+function ham.checkTinker()
+  if not isRetail then return end
+  ham.tinkerSlot = nil -- always reset
+  for _, slot in ipairs(tinkerSlots) do
+    local itemID = GetInventoryItemID("player", slot)
+    if itemID then
+      local spellName, _ = C_Item.GetItemSpell(itemID)
+      if spellName then
+        -- note: i'm not an engineer, so i use a trinket with a use effect for debugging.
+        -- this is why the "Phylactery" reference exists if debugging is enabled --- phuze.
+        if ham.debug then
+          if spellName:find("Phylactery") or spellName:find("Heartseeking") then
+            ham.tinkerSlot = slot
+          end
+        else
+          if spellName:find("Heartseeking") then
+            ham.tinkerSlot = slot
+          end
+        end
+      end
+    end
+  end
+end
+
 function ham.updateMacro()
   if next(ham.itemIdList) == nil and next(ham.spellIDs) == nil then
     macroStr = "#showtooltip"
-    if HAMDB.stopCast then
+    if ham.options.stopCast then
       macroStr = macroStr .. "\n /stopcasting \n"
     end
   else
@@ -231,7 +303,7 @@ function ham.updateMacro()
     buildSpellMacroString()
     setResetType()
     macroStr = "#showtooltip \n"
-    if HAMDB.stopCast then
+    if ham.options.stopCast then
       macroStr = macroStr .. "/stopcasting \n"
     end
     macroStr = macroStr .. "/castsequence reset=" .. resetType .. " "
@@ -291,6 +363,7 @@ local function MakeMacro()
 
   -- safe to update macro
   combatRetry = 0
+  ham.checkTinker()
   ham.updateHeals()
   ham.updateMacro()
   ham.settingsFrame:updatePrio()
@@ -313,6 +386,7 @@ local updateFrame = CreateFrame("Frame")
 updateFrame:RegisterEvent("ADDON_LOADED")
 updateFrame:RegisterEvent("BAG_UPDATE")
 updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+updateFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 if isClassic == false then
   updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end
@@ -345,6 +419,10 @@ updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
   -- when talents change and classic is false
   elseif isClassic == false and event == "TRAIT_CONFIG_UPDATED" then
     log("event: TRAIT_CONFIG_UPDATED")
+    MakeMacro()
+  -- when player changes equipment
+  elseif event == "PLAYER_EQUIPMENT_CHANGED" then
+    log("event: PLAYER_EQUIPMENT_CHANGED")
     MakeMacro()
   end
 end)
