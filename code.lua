@@ -309,20 +309,6 @@ local function onBagUpdate()
   end)
 end
 
-local petUpdates = false
-
-local function petUpdate()
-  if petUpdates then
-    return
-  end
-  log("event: UNIT_PET")
-  petUpdates = true
-  C_Timer.After(debounceTime, function()
-    MakeMacro()
-    petUpdates = false
-  end)
-end
-
 local updateFrame = CreateFrame("Frame")
 updateFrame:RegisterEvent("ADDON_LOADED")
 updateFrame:RegisterEvent("BAG_UPDATE")
