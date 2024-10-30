@@ -309,6 +309,20 @@ local function onBagUpdate()
   end)
 end
 
+local petUpdates = false
+
+local function petUpdate()
+  if petUpdates then
+    return
+  end
+  log("event: UNIT_PET")
+  petUpdates = true
+  C_Timer.After(debounceTime, function()
+    MakeMacro()
+    petUpdates = false
+  end)
+end
+
 local updateFrame = CreateFrame("Frame")
 updateFrame:RegisterEvent("ADDON_LOADED")
 updateFrame:RegisterEvent("BAG_UPDATE")
@@ -317,6 +331,7 @@ if isClassic == false then
   updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+updateFrame:RegisterEvent("UNIT_PET")
 updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
   -- when addon is loaded
   if event == "ADDON_LOADED" and arg1 == addonName then
@@ -332,6 +347,9 @@ updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
   -- bag update events
   if event == "BAG_UPDATE" then
     onBagUpdate()
+  elseif event == "UNIT_PET" then
+    log("event: UNIT_PET")
+    MakeMacro()
   -- on loading/reloading
   elseif event == "PLAYER_ENTERING_WORLD" then
     log("event: PLAYER_ENTERING_WORLD")
