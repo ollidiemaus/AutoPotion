@@ -273,16 +273,18 @@ function ham.checkTinker()
   for _, slot in ipairs(tinkerSlots) do
     local itemID = GetInventoryItemID("player", slot)
     if itemID then
-      local spellName, _ = C_Item.GetItemSpell(itemID)
+      local spellName, spellID = C_Item.GetItemSpell(itemID)
       if spellName then
         -- note: i'm not an engineer, so i use a trinket with a use effect for debugging.
         -- this is why the "Phylactery" reference exists if debugging is enabled --- phuze.
+        -- note: Using "spellName" to find "Heartseeking" can only support English region.
+        -- So I add spellID to support other region, e.g. Taiwan (TW), China (CN) and Korea (KR) --- Nephits
         if ham.debug then
-          if spellName:find("Phylactery") or spellName:find("Heartseeking") then
+          if spellName:find("Phylactery") or spellName:find("Heartseeking") or spellID == 452767 then
             ham.tinkerSlot = slot
           end
         else
-          if spellName:find("Heartseeking") then
+          if spellName:find("Heartseeking") or spellID == 452767 then
             ham.tinkerSlot = slot
           end
         end
