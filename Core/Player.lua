@@ -16,7 +16,7 @@ ham.Player.new = function()
     local spells = {}
 
     for i, spell in ipairs(HAMDB.activatedSpells) do
-      if IsSpellKnown(spell) then
+      if IsSpellKnown(spell) or IsSpellKnown(spell, true) then
         table.insert(spells, spell)
       end
     end

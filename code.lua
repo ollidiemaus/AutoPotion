@@ -394,6 +394,7 @@ if isClassic == false then
   updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+updateFrame:RegisterEvent("UNIT_PET")
 updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
   -- when addon is loaded
   if event == "ADDON_LOADED" and arg1 == addonName then
@@ -410,6 +411,10 @@ updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
   if event == "BAG_UPDATE" then
     onBagUpdate()
     -- on loading/reloading
+  elseif event == "UNIT_PET" then
+    log("event: UNIT_PET")
+    MakeMacro()
+    -- when pet is called
   elseif event == "PLAYER_ENTERING_WORLD" then
     log("event: PLAYER_ENTERING_WORLD")
     MakeMacro()

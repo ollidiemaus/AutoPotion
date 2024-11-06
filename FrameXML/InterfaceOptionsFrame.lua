@@ -414,7 +414,7 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 	if next(ham.supportedSpells) ~= nil then
 		local count = 0
 		for i, spell in ipairs(ham.supportedSpells) do
-			if IsSpellKnown(spell) then
+			if IsSpellKnown(spell) or IsSpellKnown(spell, true) then
 				local name = C_Spell.GetSpellName(spell)
 				local button = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 
