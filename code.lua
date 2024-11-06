@@ -208,9 +208,9 @@ local function buildItemMacroString()
       local entry
       -- Check if the entry starts with "slot:" and extract the slot number
       if type(name) == "string" and name:match("^slot:") then
-        entry = name:sub(6)  -- Extract everything after "slot:"
+        entry = name:sub(6)               -- Extract everything after "slot:"
       else
-        entry = "item:" .. tostring(name)  -- Default to item ID formatting
+        entry = "item:" .. tostring(name) -- Default to item ID formatting
       end
       -- Add the entry to the macro string
       if i == 1 then
@@ -230,7 +230,8 @@ local function UpdateMegaMacro(newCode)
       return
     end
   end
-  print("|cffff0000AutoPotion Error:|r Missing global 'AutoPotion' macro in MegaMacro. Please create it then reload your game.")
+  print(
+    "|cffff0000AutoPotion Error:|r Missing global 'AutoPotion' macro in MegaMacro. Please create it then reload your game.")
 end
 
 local function checkMegaMacroAddon()
@@ -408,21 +409,21 @@ updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
   -- bag update events
   if event == "BAG_UPDATE" then
     onBagUpdate()
-  -- on loading/reloading
+    -- on loading/reloading
   elseif event == "PLAYER_ENTERING_WORLD" then
     log("event: PLAYER_ENTERING_WORLD")
     MakeMacro()
-  -- on exiting combat
+    -- on exiting combat
   elseif event == "PLAYER_REGEN_ENABLED" then
     log("event: PLAYER_REGEN_ENABLED")
     -- Wait a second after combat ends to update the macro
     -- as the UI may still be cleaning up a protected state.
     C_Timer.After(0.5, MakeMacro)
-  -- when talents change and classic is false
+    -- when talents change and classic is false
   elseif isClassic == false and event == "TRAIT_CONFIG_UPDATED" then
     log("event: TRAIT_CONFIG_UPDATED")
     MakeMacro()
-  -- when player changes equipment
+    -- when player changes equipment
   elseif event == "PLAYER_EQUIPMENT_CHANGED" then
     log("event: PLAYER_EQUIPMENT_CHANGED")
     MakeMacro()
