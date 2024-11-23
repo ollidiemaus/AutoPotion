@@ -116,12 +116,12 @@ end
 function ham.getPots()
   if isRetail then
     local pots = {
-      ham.algariHealingPotionR3,
-      ham.algariHealingPotionR2,
-      ham.algariHealingPotionR1,
       ham.fleetingAlgariHealingPotionR3,
+      ham.algariHealingPotionR3,
       ham.fleetingAlgariHealingPotionR2,
+      ham.algariHealingPotionR2,
       ham.fleetingAlgariHealingPotionR1,
+      ham.algariHealingPotionR1,
       ham.thirdWind,
       ham.witheringDreamsR3,
       ham.witheringDreamsR2,
