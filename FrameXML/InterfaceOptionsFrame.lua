@@ -23,11 +23,11 @@ local lastStaticElement = nil
 
 function ham.settingsFrame:updateConfig(option, value)
 	if ham.options[option] ~= nil then
-        ham.options[option] = value  -- Update in-memory
-        HAMDB[option] = value        -- Persist to DB
-    else
-        print(L["Invalid option: "] .. tostring(option))
-    end
+		ham.options[option] = value -- Update in-memory
+		HAMDB[option] = value       -- Persist to DB
+	else
+		print(L["Invalid option: "] .. tostring(option))
+	end
 	-- Rebuild the macro and update priority frame
 	ham.checkTinker()
 	ham.updateHeals()
@@ -68,7 +68,7 @@ function ham.settingsFrame:createPrioFrame(id, iconTexture, positionx, isSpell, 
 		if isSpell == true then
 			GameTooltip:SetSpellByID(id)
 		elseif isTinker then
-            GameTooltip:SetInventoryItem("player", id)
+			GameTooltip:SetInventoryItem("player", id)
 		else
 			GameTooltip:SetItemByID(id)
 		end
@@ -141,7 +141,6 @@ function ham.settingsFrame:updatePrio()
 	-- Add items to priority frames
 	if next(ham.itemIdList) ~= nil then
 		for i, id in ipairs(ham.itemIdList) do
-
 			local entry
 			local iconTexture
 			local isTinker = false
@@ -150,9 +149,9 @@ function ham.settingsFrame:updatePrio()
 			if type(id) == "string" and id:match("^slot:") then
 				local slot = assert(tonumber(id:sub(6)), "Invalid slot number")
 				entry = GetInventoryItemID("player", slot)
-        		iconTexture = GetInventoryItemTexture("player", slot)
+				iconTexture = GetInventoryItemTexture("player", slot)
 				isTinker = true
-			-- otherwise its a normal item id
+				-- otherwise its a normal item id
 			else
 				local _, _, _, _, _, _, _, _, _, tmpTexture = C_Item.GetItemInfo(id)
 				entry = id
@@ -191,19 +190,18 @@ function ham.settingsFrame:updatePrio()
 end
 
 function ham.settingsFrame:InitializeOptions()
-
 	-- Create the main panel inside the Interface Options container
 	self.panel = CreateFrame("Frame", addonName, InterfaceOptionsFramePanelContainer)
 	self.panel.name = addonName
 
 	-- Register with Interface Options
-    if InterfaceOptions_AddCategory then
-        InterfaceOptions_AddCategory(self.panel)
-    else
-        local category = Settings.RegisterCanvasLayoutCategory(self.panel, addonName)
-        Settings.RegisterAddOnCategory(category)
-        self.panel.categoryID = category:GetID() -- for OpenToCategory use
-    end
+	if InterfaceOptions_AddCategory then
+		InterfaceOptions_AddCategory(self.panel)
+	else
+		local category = Settings.RegisterCanvasLayoutCategory(self.panel, addonName)
+		Settings.RegisterAddOnCategory(category)
+		self.panel.categoryID = category:GetID() -- for OpenToCategory use
+	end
 
 	-- inset frame to provide some padding
 	self.content = CreateFrame("Frame", nil, self.panel)
@@ -211,19 +209,19 @@ function ham.settingsFrame:InitializeOptions()
 	self.content:SetPoint("BOTTOMRIGHT", self.panel, "BOTTOMRIGHT", -16, 16)
 
 	-- title
-    local title = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
-    title:SetPoint("TOP", 0, 0)
-    title:SetText(L["Auto Potion Settings"])
+	local title = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
+	title:SetPoint("TOP", 0, 0)
+	title:SetText(L["Auto Potion Settings"])
 
-    -- subtitle
-    local subtitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    subtitle:SetPoint("TOPLEFT", 0, -40)
-    subtitle:SetText(L["Configure the behavior of the addon. IE: if you want to include class spells"])
+	-- subtitle
+	local subtitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	subtitle:SetPoint("TOPLEFT", 0, -40)
+	subtitle:SetText(L["Configure the behavior of the addon. IE: if you want to include class spells"])
 
-    -- behavior title
-    local behaviourTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
-    behaviourTitle:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 0, -30)
-    behaviourTitle:SetText("Addon Behaviour")
+	-- behavior title
+	local behaviourTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
+	behaviourTitle:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 0, -30)
+	behaviourTitle:SetText("Addon Behaviour")
 
 	-------------  Stop Casting  -------------	
 	local stopCastButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
@@ -249,7 +247,8 @@ function ham.settingsFrame:InitializeOptions()
 	local cdResetButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 	cdResetButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
 	---@diagnostic disable-next-line: undefined-field
-	cdResetButton.Text:SetText(L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"])
+	cdResetButton.Text:SetText(L
+	["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"])
 	cdResetButton:HookScript("OnClick", function(_, btn, down)
 		ham.settingsFrame:updateConfig("cdReset", cdResetButton:GetChecked())
 	end)
@@ -465,19 +464,19 @@ SLASH_HAM3 = "/ap"
 SLASH_HAM4 = "/autopotion"
 
 SlashCmdList.HAM = function(msg, editBox)
-    -- Check if the message contains "debug"
-    if msg and msg:trim():lower() == "debug" then
-        ham.debug = not ham.debug
+	-- Check if the message contains "debug"
+	if msg and msg:trim():lower() == "debug" then
+		ham.debug = not ham.debug
 		ham.checkTinker()
-        print("|cffb48ef9AutoPotion:|r Debug mode is now " .. (ham.debug and "enabled" or "disabled"))
-        return
-    end
+		print("|cffb48ef9AutoPotion:|r Debug mode is now " .. (ham.debug and "enabled" or "disabled"))
+		return
+	end
 
-    -- Open settings if no "debug" keyword was passed
-    if InterfaceOptions_AddCategory then
-        InterfaceOptionsFrame_OpenToCategory(addonName)
-    else
-        local settingsCategoryID = _G[addonName].categoryID
-        Settings.OpenToCategory(settingsCategoryID)
-    end
+	-- Open settings if no "debug" keyword was passed
+	if InterfaceOptions_AddCategory then
+		InterfaceOptionsFrame_OpenToCategory(addonName)
+	else
+		local settingsCategoryID = _G[addonName].categoryID
+		Settings.OpenToCategory(settingsCategoryID)
+	end
 end
