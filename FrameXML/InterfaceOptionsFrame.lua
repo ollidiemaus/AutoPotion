@@ -221,7 +221,7 @@ function ham.settingsFrame:InitializeOptions()
 	-- behavior title
 	local behaviourTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
 	behaviourTitle:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 0, -30)
-	behaviourTitle:SetText("Addon Behaviour")
+	behaviourTitle:SetText(L["Addon Behaviour"])
 
 	-------------  Stop Casting  -------------	
 	local stopCastButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
@@ -247,8 +247,7 @@ function ham.settingsFrame:InitializeOptions()
 	local cdResetButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 	cdResetButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
 	---@diagnostic disable-next-line: undefined-field
-	cdResetButton.Text:SetText(L
-	["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"])
+	cdResetButton.Text:SetText(L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"])
 	cdResetButton:HookScript("OnClick", function(_, btn, down)
 		ham.settingsFrame:updateConfig("cdReset", cdResetButton:GetChecked())
 	end)
