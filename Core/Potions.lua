@@ -70,9 +70,12 @@ ham.minor2 = ham.Item.new(19005, "Minor Healthstone")
 ham.lesser0 = ham.Item.new(5511, "Lesser Healthstone")
 ham.lesser1 = ham.Item.new(19006, "Lesser Healthstone")
 ham.lesser2 = ham.Item.new(19007, "Lesser Healthstone")
+ham.crystalFlakeThroatLozenge = ham.Item.new(23683, "Crystal Flake Throat Lozenge")
 ham.healtsthone0 = ham.Item.new(5509, "Healthstone")
+ham.lilyRoot = ham.Item.new(14894, "Lily Root")
 ham.healtsthone1 = ham.Item.new(19008, "Healthstone")
 ham.healtsthone2 = ham.Item.new(19009, "Healthstone")
+ham.wipperRootTuber = ham.Item.new(11951, "Whipper Root Tuber")
 ham.greater0 = ham.Item.new(5510, "Greater Healthstone")
 ham.greater1 = ham.Item.new(19010, "Greater Healthstone")
 ham.greater2 = ham.Item.new(19011, "Greater Healthstone")
@@ -244,9 +247,12 @@ function ham.getHealthstonesClassic()
       ham.greater2,
       ham.greater1,
       ham.greater0,
+      ham.wipperRootTuber,
       ham.healtsthone2,
       ham.healtsthone1,
+      ham.lilyRoot,
       ham.healtsthone0,
+      ham.crystalFlakeThroatLozenge,
       ham.lesser2,
       ham.lesser1,
       ham.lesser0,
