@@ -7,7 +7,8 @@ ham.defaults = {
     witheringDreamsPotion = false,
     cavedwellerDelight = true,
     heartseekingInjector = false,
-    activatedSpells = { ham.crimsonVialSpell, ham.renewal, ham.exhilaration, ham.fortitudeOfTheBear, ham.bitterImmunity,
+    activatedSpells = { ham.crimsonVialSpell, ham.renewal, ham.exhilaration, ham.fortitudeOfTheBear, ham.lastStand, ham
+        .bitterImmunity,
         ham.desperatePrayer, ham.healingElixir, ham.darkPact, ham.giftOfTheNaaruDK, ham.giftOfTheNaaruHunter, ham
         .giftOfTheNaaruMage,
         ham.giftOfTheNaaruMageWarlock, ham.giftOfTheNaaruMonk, ham.giftOfTheNaaruPaladin, ham.giftOfTheNaaruPriest, ham
