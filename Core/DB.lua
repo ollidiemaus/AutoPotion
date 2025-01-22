@@ -12,7 +12,7 @@ ham.defaults = {
         ham.desperatePrayer, ham.healingElixir, ham.darkPact, ham.giftOfTheNaaruDK, ham.giftOfTheNaaruHunter, ham
         .giftOfTheNaaruMage,
         ham.giftOfTheNaaruMageWarlock, ham.giftOfTheNaaruMonk, ham.giftOfTheNaaruPaladin, ham.giftOfTheNaaruPriest, ham
-        .giftOfTheNaaruRogue, ham.giftOfTheNaaruShaman, ham.giftOfTheNaaruWarrior }
+        .giftOfTheNaaruRogue, ham.giftOfTheNaaruShaman, ham.giftOfTheNaaruWarrior, ham.bagOfTricks }
 }
 
 

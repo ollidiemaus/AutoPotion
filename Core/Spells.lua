@@ -26,6 +26,8 @@ ham.giftOfTheNaaruRogue = 370626
 ham.giftOfTheNaaruShaman = 59547
 ham.giftOfTheNaaruWarrior = 28880
 
+ham.bagOfTricks = 312411
+
 ham.supportedSpells = {}
 table.insert(ham.supportedSpells, ham.crimsonVialSpell)
 table.insert(ham.supportedSpells, ham.renewal)
