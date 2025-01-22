@@ -50,6 +50,7 @@ table.insert(ham.supportedSpells, ham.giftOfTheNaaruPriest)
 table.insert(ham.supportedSpells, ham.giftOfTheNaaruRogue)
 table.insert(ham.supportedSpells, ham.giftOfTheNaaruShaman)
 table.insert(ham.supportedSpells, ham.giftOfTheNaaruWarrior)
+table.insert(ham.supportedSpells, ham.bagOfTricks)
 
 
 ham.Spell = {}
