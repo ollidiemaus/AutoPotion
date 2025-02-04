@@ -4,7 +4,7 @@ if not L then return end
 -- InterfaceOptionsFrame
 --L["Addon Behaviour"] = "Addon Verhalten"
 --L["Auto Potion Settings"] = "Auto Potion Einstellungen"
---L["Cavedweller's Delight"] = "Cavedweller's Delight"
+--L["Cavedweller's Delight"] = "Höhlenbewohnerschmaus"
 --L["Class/Racial Spells"] = "Klassen/Rassen Zauber"
 --L["Configure the behavior of the addon. IE: if you want to include class spells"] = "Configure the behavior of the addon. IE: if you want to include class spells"
 --L["Current Priority"] = "Aktuelle Piorität"
