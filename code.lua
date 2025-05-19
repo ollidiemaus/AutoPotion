@@ -299,7 +299,7 @@ function ham.updateMacro()
   if next(ham.itemIdList) == nil and next(ham.spellIDs) == nil then
     macroStr = "#showtooltip"
     if ham.options.stopCast then
-      macroStr = macroStr .. "\n /stopcasting \n"
+      macroStr = macroStr .. "\n/stopcasting \n"
     end
   else
     resetType = "combat"
