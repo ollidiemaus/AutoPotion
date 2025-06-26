@@ -6,6 +6,9 @@ local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 
 ham.healthstone = ham.Item.new(5512, "Healthstone")
 ham.demonicHealthstone = ham.Item.new(224464, "Demonic Healthstone") ---1 Minute CD due to Pact of Gluttony
+ham.invigoratingHealingPotionR3 = ham.Item.new(244839, "Invigorating Healing Potion")
+ham.invigoratingHealingPotionR2 = ham.Item.new(244838, "Invigorating Healing Potion")
+ham.invigoratingHealingPotionR1 = ham.Item.new(244835, "Invigorating Healing Potion")
 ham.algariHealingPotionR3 = ham.Item.new(211880, "Algari Healing Potion")
 ham.algariHealingPotionR2 = ham.Item.new(211879, "Algari Healing Potion")
 ham.algariHealingPotionR1 = ham.Item.new(211878, "Algari Healing Potion")
