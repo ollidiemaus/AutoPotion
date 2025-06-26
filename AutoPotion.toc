@@ -1,6 +1,6 @@
 ## Interface: 110107
 ## Interface-Classic: 11507
-## Interface-WOTLKC: 30403
+## Interface-WOTLKC: 30404
 ## Interface-Cata: 40402
 ## Version: 3.8.19
 ## Title: Auto Potion
