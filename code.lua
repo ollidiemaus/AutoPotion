@@ -77,7 +77,7 @@ local function addPlayerHealingItemIfAvailable()
 end
 
 local function addHealthstoneIfAvailable()
-  if isClassic == true or isWrath == true then
+  if isClassic == true or isWrath == true or isCata == true or isMop == true then
     for i, value in ipairs(ham.getHealthstonesClassic()) do
       if value.getCount() > 0 then
         table.insert(ham.itemIdList, value.getId())
