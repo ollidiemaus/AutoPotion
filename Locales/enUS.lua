@@ -23,3 +23,4 @@ L["Useful for casters."] = "Useful for casters."
 
 -- code
 L["AutoPotion"] = "AutoPotion"
+L["AutoBandage"] = "AutoBandage"
