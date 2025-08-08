@@ -31,6 +31,7 @@ Core/Spells.lua
 Core/Item.lua
 Core/DB.lua
 Core/Potions.lua
+Core/Bandages.lua
 Core/Player.lua
 code.lua
 Bindings.lua
