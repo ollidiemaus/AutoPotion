@@ -69,6 +69,9 @@ ham.superior = ham.Item.new(3928, "Superior Healing Potion")
 ham.minor = ham.Item.new(118, "Minor Healing Potion")
 ham.greater = ham.Item.new(1710, "Greater Healing Potion")
 ham.healingPotion = ham.Item.new(929, "Healing Potion")
+  -- Classic PvP battleground-only draughts
+  ham.majorHealingDraught = ham.Item.new(17348, "Major Healing Draught")
+  ham.superiorHealingDraught = ham.Item.new(17349, "Superior Healing Draught")
 
 ------Healthstones for Classic------
 ham.minor0 = ham.Item.new(5512, "Minor Healthstone")
@@ -193,7 +196,8 @@ function ham.getPots()
     return pots
   end
   if isClassic then
-    return {
+    -- Base Classic potions list
+    local pots = {
       ham.major,
       ham.combat,
       ham.superior,
@@ -202,6 +206,17 @@ function ham.getPots()
       ham.lesser,
       ham.minor
     }
+
+    -- If in a PvP battleground, prioritize battleground draughts
+    local inInstance, instanceType = IsInInstance()
+    local isInBattleground = inInstance and instanceType == "pvp"
+    if isInBattleground then
+      -- Insert in reverse order so final priority is Major then Superior
+      table.insert(pots, 1, ham.superiorHealingDraught)
+      table.insert(pots, 1, ham.majorHealingDraught)
+    end
+
+    return pots
   end
 
   if isWrath then
