@@ -16,6 +16,9 @@ ham.mageweaveBandage = ham.Item.new(8544, "Mageweave Bandage")
 ham.heavyMageweaveBandage = ham.Item.new(8545, "Heavy Mageweave Bandage")
 ham.runeclothBandage = ham.Item.new(14529, "Runecloth Bandage")
 ham.heavyRuneclothBandage = ham.Item.new(14530, "Heavy Runecloth Bandage")
+  
+  -- Alterac Valley (Classic-only)
+  ham.alteracHeavyRuneclothBandage = ham.Item.new(19307, "Alterac Heavy Runecloth Bandage")
 
 -- TBC
 ham.netherweaveBandage = ham.Item.new(21990, "Netherweave Bandage")
@@ -42,7 +45,8 @@ ham.denseWilderclothBandage = ham.Item.new(194207, "Dense Wildercloth Bandage")
 function ham.getBandages()
   -- Classic Era only has classic bandages
   if isClassic then
-    return {
+    -- Base priority list for Classic
+    local list = {
       ham.heavyRuneclothBandage,
       ham.runeclothBandage,
       ham.heavyMageweaveBandage,
@@ -54,6 +58,18 @@ function ham.getBandages()
       ham.heavyLinenBandage,
       ham.linenBandage,
     }
+
+    -- When inside a PvP instance (e.g., Alterac Valley), prioritize the Alterac-only bandage
+    local inInstance, instanceType = IsInInstance()
+    if inInstance and instanceType == "pvp" then
+        if C_Map.GetBestMapForUnit("player") == 1459 then
+          if ham.alteracHeavyRuneclothBandage.getCount() > 0 then
+            table.insert(list, 1, ham.alteracHeavyRuneclothBandage)
+          end
+        end
+    end
+
+    return list
   end
 
   -- Wrath Classic
