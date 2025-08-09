@@ -10,6 +10,9 @@ ham.demonicHealthstone = ham.Item.new(224464, "Demonic Healthstone") ---1 Minute
 ham.invigoratingHealingPotionR3 = ham.Item.new(244839, "Invigorating Healing Potion")
 ham.invigoratingHealingPotionR2 = ham.Item.new(244838, "Invigorating Healing Potion")
 ham.invigoratingHealingPotionR1 = ham.Item.new(244835, "Invigorating Healing Potion")
+ham.fleetingInvigoratingHealingPotionR3 = ham.Item.new(244849, "Fleeting Invigorating Healing Potion")
+ham.fleetingInvigoratingHealingPotionR2 = ham.Item.new(244848, "Fleeting Invigorating Healing Potion")
+ham.fleetingInvigoratingHealingPotionR1 = ham.Item.new(244847, "Fleeting Invigorating Healing Potion")
 ham.algariHealingPotionR3 = ham.Item.new(211880, "Algari Healing Potion")
 ham.algariHealingPotionR2 = ham.Item.new(211879, "Algari Healing Potion")
 ham.algariHealingPotionR1 = ham.Item.new(211878, "Algari Healing Potion")
@@ -129,8 +132,11 @@ end
 function ham.getPots()
   if isRetail then
     local pots = {
+      ham.fleetingInvigoratingHealingPotionR3,
       ham.invigoratingHealingPotionR3,
+      ham.fleetingInvigoratingHealingPotionR2,
       ham.invigoratingHealingPotionR2,
+      ham.fleetingInvigoratingHealingPotionR1,
       ham.invigoratingHealingPotionR1,
       ham.fleetingAlgariHealingPotionR3,
       ham.algariHealingPotionR3,
