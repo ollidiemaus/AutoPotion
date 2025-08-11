@@ -27,6 +27,7 @@
 embeds.xml
 Locales\Locales.xml
 
+Core/Constants.lua
 Core/Spells.lua
 Core/Item.lua
 Core/DB.lua

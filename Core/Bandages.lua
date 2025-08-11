@@ -20,6 +20,26 @@ ham.heavyRuneclothBandage = ham.Item.new(14530, "Heavy Runecloth Bandage")
   -- Alterac Valley (Classic-only)
   ham.alteracHeavyRuneclothBandage = ham.Item.new(19307, "Alterac Heavy Runecloth Bandage")
 
+-- Warsong Gulch (Classic-only)
+ham.wsgRuneclothBandage = ham.Item.new(19066, "Warsong Gulch Runecloth Bandage")
+ham.wsgMageweaveBandage = ham.Item.new(19067, "Warsong Gulch Mageweave Bandage")
+ham.wsgSilkBandage = ham.Item.new(19068, "Warsong Gulch Silk Bandage")
+
+-- Arathi Basin (Classic-only) - neutral bandages
+ham.abMageweaveBandage = ham.Item.new(20065, "Arathi Basin Mageweave Bandage")
+ham.abRuneclothBandage = ham.Item.new(20066, "Arathi Basin Runecloth Bandage")
+ham.abSilkBandage = ham.Item.new(20067, "Arathi Basin Silk Bandage")
+
+-- Arathi Basin (Classic-only) - faction bandages
+-- Horde (Defiler's)
+ham.defilersSilkBandage = ham.Item.new(20235, "Defiler's Silk Bandage")
+ham.defilersMageweaveBandage = ham.Item.new(20232, "Defiler's Mageweave Bandage")
+ham.defilersRuneclothBandage = ham.Item.new(20234, "Defiler's Runecloth Bandage")
+-- Alliance (Highlander's)
+ham.highlandersSilkBandage = ham.Item.new(20244, "Highlander's Silk Bandage")
+ham.highlandersMageweaveBandage = ham.Item.new(20237, "Highlander's Mageweave Bandage")
+ham.highlandersRuneclothBandage = ham.Item.new(20243, "Highlander's Runecloth Bandage")
+
 -- TBC
 ham.netherweaveBandage = ham.Item.new(21990, "Netherweave Bandage")
 ham.heavyNetherweaveBandage = ham.Item.new(21991, "Heavy Netherweave Bandage")
@@ -59,14 +79,54 @@ function ham.getBandages()
       ham.linenBandage,
     }
 
-    -- When inside a PvP instance (e.g., Alterac Valley), prioritize the Alterac-only bandage
+    -- When inside a PvP instance, prioritize battleground-specific bandages
     local inInstance, instanceType = IsInInstance()
     if inInstance and instanceType == "pvp" then
-        if C_Map.GetBestMapForUnit("player") == 1459 then
-          if ham.alteracHeavyRuneclothBandage.getCount() > 0 then
-            table.insert(list, 1, ham.alteracHeavyRuneclothBandage)
+      local mapId = C_Map.GetBestMapForUnit("player")
+      -- Alterac Valley
+      if mapId == ham.MAP_ID_ALTERAC_VALLEY then
+        if ham.alteracHeavyRuneclothBandage.getCount() > 0 then
+          table.insert(list, 1, ham.alteracHeavyRuneclothBandage)
+        end
+      end
+      -- Warsong Gulch
+      if mapId == ham.MAP_ID_WARSONG_GULCH then
+        -- Highest to lowest: Runecloth > Mageweave > Silk
+        if ham.wsgRuneclothBandage.getCount() > 0 then
+          table.insert(list, 1, ham.wsgRuneclothBandage)
+        elseif ham.wsgMageweaveBandage.getCount() > 0 then
+          table.insert(list, 1, ham.wsgMageweaveBandage)
+        elseif ham.wsgSilkBandage.getCount() > 0 then
+          table.insert(list, 1, ham.wsgSilkBandage)
+        end
+      end
+      -- Arathi Basin
+      if mapId == ham.MAP_ID_ARATHI_BASIN then
+        local faction = UnitFactionGroup("player")
+        -- Build AB-specific priority (runecloth > mageweave > silk), faction first then neutral
+        local abPriority = {}
+        if faction == "Alliance" then
+          table.insert(abPriority, ham.highlandersRuneclothBandage)
+          table.insert(abPriority, ham.abRuneclothBandage)
+          table.insert(abPriority, ham.highlandersMageweaveBandage)
+          table.insert(abPriority, ham.abMageweaveBandage)
+          table.insert(abPriority, ham.highlandersSilkBandage)
+          table.insert(abPriority, ham.abSilkBandage)
+        else
+          table.insert(abPriority, ham.defilersRuneclothBandage)
+          table.insert(abPriority, ham.abRuneclothBandage)
+          table.insert(abPriority, ham.defilersMageweaveBandage)
+          table.insert(abPriority, ham.abMageweaveBandage)
+          table.insert(abPriority, ham.defilersSilkBandage)
+          table.insert(abPriority, ham.abSilkBandage)
+        end
+        for _, bandage in ipairs(abPriority) do
+          if bandage.getCount() > 0 then
+            table.insert(list, 1, bandage)
+            break
           end
         end
+      end
     end
 
     return list
