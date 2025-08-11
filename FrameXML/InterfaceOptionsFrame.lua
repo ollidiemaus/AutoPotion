@@ -21,6 +21,13 @@ local positionx = 0
 local currentPrioTitle = nil
 local lastStaticElement = nil
 
+-- Bandage priority UI state
+local bandageFrames = {}
+local bandageTextures = {}
+local bandageFirstIcon = nil
+local bandagePositionX = 0
+local bandagePrioTitle = nil
+
 function ham.settingsFrame:updateConfig(option, value)
 	if ham.options[option] ~= nil then
 		ham.options[option] = value -- Update in-memory
@@ -33,6 +40,7 @@ function ham.settingsFrame:updateConfig(option, value)
 	ham.updateHeals()
 	ham.updateMacro()
 	self:updatePrio()
+	self:updateBandagePrio()
 end
 
 function ham.settingsFrame:OnEvent(event, addOnName)
@@ -51,6 +59,7 @@ function ham.settingsFrame:OnEvent(event, addOnName)
 		ham.updateHeals()
 		ham.updateMacro()
 		self:updatePrio()
+		self:updateBandagePrio()
 	end
 end
 
@@ -94,6 +103,39 @@ function ham.settingsFrame:createPrioFrame(id, iconTexture, positionx, isSpell, 
 	table.insert(prioTextures, texture)
 	prioFramesCounter = prioFramesCounter + 1
 	return icon
+end
+
+-- Create a bandage priority icon frame
+function ham.settingsFrame:createBandagePrioFrame(id, iconTexture, positionx)
+    local icon = CreateFrame("Frame", nil, self.content, UIParent)
+    icon:SetFrameStrata("MEDIUM")
+    icon:SetWidth(ICON_SIZE)
+    icon:SetHeight(ICON_SIZE)
+    icon:HookScript("OnEnter", function(_, btn, down)
+        GameTooltip:SetOwner(icon, "ANCHOR_TOPRIGHT")
+        GameTooltip:SetItemByID(id)
+        GameTooltip:Show()
+    end)
+    icon:HookScript("OnLeave", function(_, btn, down)
+        GameTooltip:Hide()
+    end)
+    local texture = icon:CreateTexture(nil, "BACKGROUND")
+    texture:SetTexture(iconTexture)
+    texture:SetAllPoints(icon)
+    ---@diagnostic disable-next-line: inject-field
+    icon.texture = texture
+
+    if bandageFirstIcon == nil then
+        -- Place the bandage row slightly above the current priority row
+        icon:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY + (ICON_SIZE - 10))
+        bandageFirstIcon = icon
+    else
+        icon:SetPoint("TOPLEFT", bandageFirstIcon, positionx, 0)
+    end
+    icon:Show()
+    table.insert(bandageFrames, icon)
+    table.insert(bandageTextures, texture)
+    return icon
 end
 
 function ham.settingsFrame:updatePrio()
@@ -187,6 +229,51 @@ function ham.settingsFrame:updatePrio()
 			itemCounter = itemCounter + 1
 		end
 	end
+end
+
+-- Update the Bandage Priority section
+function ham.settingsFrame:updateBandagePrio()
+    -- hide existing
+    for _, frame in pairs(bandageFrames) do
+        frame:Hide()
+    end
+
+    bandagePositionX = 0
+
+    -- Build the prioritized bandage list for the current context
+    if ham.getBandages then
+        local bandages = ham.getBandages()
+        local shown = 0
+        for _, item in ipairs(bandages) do
+            if item.getCount and item.getCount() > 0 then
+                local id = item.getId()
+                local _, _, _, _, _, _, _, _, _, iconTexture = C_Item.GetItemInfo(id)
+                local idx = shown + 1
+                local currentFrame = bandageFrames[idx]
+                local currentTexture = bandageTextures[idx]
+                if currentFrame ~= nil then
+                    currentFrame:SetScript("OnEnter", nil)
+                    currentFrame:SetScript("OnLeave", nil)
+                    currentFrame:HookScript("OnEnter", function(_, btn, down)
+                        GameTooltip:SetOwner(currentFrame, "ANCHOR_TOPRIGHT")
+                        GameTooltip:SetItemByID(id)
+                        GameTooltip:Show()
+                    end)
+                    currentFrame:HookScript("OnLeave", function(_, btn, down)
+                        GameTooltip:Hide()
+                    end)
+                    currentTexture:SetTexture(iconTexture)
+                    currentTexture:SetAllPoints(currentFrame)
+                    currentFrame.texture = currentTexture
+                    currentFrame:Show()
+                else
+                    self:createBandagePrioFrame(id, iconTexture, bandagePositionX)
+                    bandagePositionX = bandagePositionX + (ICON_SIZE + (ICON_SIZE / 2))
+                end
+                shown = shown + 1
+            end
+        end
+    end
 end
 
 function ham.settingsFrame:InitializeOptions()
@@ -372,6 +459,11 @@ function ham.settingsFrame:InitializeOptions()
 	currentPrioTitle:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY)
 	currentPrioTitle:SetText(L["Current Priority"])
 
+	-- Bandage Priority title
+	bandagePrioTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+	bandagePrioTitle:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY + ICON_SIZE + 50)
+	bandagePrioTitle:SetText(L["Bandage Priority"])
+
 
 	-------------  RESET BUTTON  -------------
 	local btn = CreateFrame("Button", nil, self.content, "UIPanelButtonTemplate")
@@ -398,6 +490,7 @@ function ham.settingsFrame:InitializeOptions()
 		ham.updateHeals()
 		ham.updateMacro()
 		self:updatePrio()
+		self:updateBandagePrio()
 		print(L["Reset successful!"])
 	end)
 end
