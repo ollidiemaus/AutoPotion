@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 local L = LibStub("AceLocale-3.0"):GetLocale("AutoPotion")
 local addonName, ham = ...
 local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
@@ -8,10 +9,9 @@ local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 ---@class Frame
 ham.settingsFrame = CreateFrame("Frame")
 local ICON_SIZE = 50
-local PADDING_CATERGORY = 60
-local PADDING = 30
-local PADDING_HORIZONTAL = 200
-local PADDING_PRIO_CATEGORY = 130
+local PADDING_CATERGORY = 45
+local PADDING = 25
+local PADDING_HORIZONTAL = 220
 local classButtons = {}
 local prioFrames = {}
 local prioTextures = {}
@@ -19,6 +19,7 @@ local prioFramesCounter = 0
 local firstIcon = nil
 local positionx = 0
 local currentPrioTitle = nil
+local myClassTitle = nil
 local lastStaticElement = nil
 
 -- Bandage priority UI state
@@ -55,7 +56,7 @@ function ham.settingsFrame:OnEvent(event, addOnName)
 		end
 	end
 	if event == "PLAYER_LOGIN" then
-		self:InitializeClassSpells(lastStaticElement)
+		self:InitializeClassSpells(myClassTitle)
 		ham.updateHeals()
 		ham.updateMacro()
 		self:updatePrio()
@@ -93,7 +94,7 @@ function ham.settingsFrame:createPrioFrame(id, iconTexture, positionx, isSpell, 
 	icon.texture = texture
 
 	if firstIcon == nil then
-		icon:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY - PADDING * 2)
+		icon:SetPoint("TOPLEFT", currentPrioTitle, 0, -PADDING)
 		firstIcon = icon
 	else
 		icon:SetPoint("TOPLEFT", firstIcon, positionx, 0)
@@ -126,8 +127,7 @@ function ham.settingsFrame:createBandagePrioFrame(id, iconTexture, positionx)
 	icon.texture = texture
 
 	if bandageFirstIcon == nil then
-		-- Place the bandage row slightly above the current priority row
-		icon:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY + (ICON_SIZE - 10))
+		icon:SetPoint("TOPLEFT", bandagePrioTitle, 0, -PADDING)
 		bandageFirstIcon = icon
 	else
 		icon:SetPoint("TOPLEFT", bandageFirstIcon, positionx, 0)
@@ -307,7 +307,7 @@ function ham.settingsFrame:InitializeOptions()
 
 	-- behavior title
 	local behaviourTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
-	behaviourTitle:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 0, -30)
+	behaviourTitle:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 0, -PADDING)
 	behaviourTitle:SetText(L["Addon Behaviour"])
 
 	-------------  Stop Casting  -------------	
@@ -394,7 +394,7 @@ function ham.settingsFrame:InitializeOptions()
 
 		---Withering Dreams Potion---
 		witheringDreamsPotionButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-		witheringDreamsPotionButton:SetPoint("TOPLEFT", itemsTitle, 220, -PADDING)
+		witheringDreamsPotionButton:SetPoint("TOPLEFT", itemsTitle, PADDING_HORIZONTAL, -PADDING)
 		---@diagnostic disable-next-line: undefined-field
 		witheringDreamsPotionButton.Text:SetText(L["Potion of Withering Dreams"])
 		witheringDreamsPotionButton:HookScript("OnClick", function(_, btn, down)
@@ -413,7 +413,7 @@ function ham.settingsFrame:InitializeOptions()
 
 		---Cavedwellers Delight---
 		cavedwellerDelightButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-		cavedwellerDelightButton:SetPoint("TOPLEFT", itemsTitle, 440, -PADDING)
+		cavedwellerDelightButton:SetPoint("TOPLEFT", itemsTitle, PADDING_HORIZONTAL * 2, -PADDING)
 		---@diagnostic disable-next-line: undefined-field
 		cavedwellerDelightButton.Text:SetText(L["Cavedweller's Delight"])
 		cavedwellerDelightButton:HookScript("OnClick", function(_, btn, down)
@@ -432,7 +432,8 @@ function ham.settingsFrame:InitializeOptions()
 
 		---Heartseeking Health Injector---
 		heartseekingButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-		heartseekingButton:SetPoint("TOPLEFT", itemsTitle, 0, -60)
+		--Padding*2 because its a new Row
+		heartseekingButton:SetPoint("TOPLEFT", itemsTitle, 0, -PADDING * 2)
 		---@diagnostic disable-next-line: undefined-field
 		heartseekingButton.Text:SetText(L["Heartseeking Health Injector (tinker)"])
 		heartseekingButton:HookScript("OnClick", function(_, btn, down)
@@ -454,21 +455,25 @@ function ham.settingsFrame:InitializeOptions()
 		lastStaticElement = heartseekingButton
 	end
 
+	-------------  CLASS / RACIALS  -------------
+	myClassTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+	myClassTitle:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING_CATERGORY)
+	myClassTitle:SetText(L["Class/Racial Spells"])
 
 	-------------  CURRENT PRIORITY  -------------
 	currentPrioTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-	currentPrioTitle:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY)
+	currentPrioTitle:SetPoint("TOPLEFT", myClassTitle, 0, -PADDING_CATERGORY - PADDING)
 	currentPrioTitle:SetText(L["Current Priority"])
 
-	-- Bandage Priority title
+	-------------  BANDAGE PRIORITY  -------------
 	bandagePrioTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-	bandagePrioTitle:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY - ICON_SIZE - 50)
+	bandagePrioTitle:SetPoint("TOPLEFT", currentPrioTitle, 0, -PADDING_CATERGORY - ICON_SIZE)
 	bandagePrioTitle:SetText(L["Bandage Priority"])
 
 
 	-------------  RESET BUTTON  -------------
 	local btn = CreateFrame("Button", nil, self.content, "UIPanelButtonTemplate")
-	btn:SetPoint("BOTTOMLEFT", 1, 3)
+	btn:SetPoint("BOTTOMLEFT", 1, 0)
 	btn:SetText(L["Reset to Default"])
 	btn:SetWidth(120)
 	btn:SetScript("OnClick", function()
@@ -484,8 +489,11 @@ function ham.settingsFrame:InitializeOptions()
 		cdResetButton:SetChecked(HAMDB.cdReset)
 		raidStoneButton:SetChecked(HAMDB.raidStone)
 		if isRetail then
+			---@diagnostic disable-next-line: need-check-nil
 			witheringPotionButton:SetChecked(HAMDB.witheringPotion)
+			---@diagnostic disable-next-line: need-check-nil
 			witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
+			---@diagnostic disable-next-line: need-check-nil
 			cavedwellerDelightButton:SetChecked(HAMDB.cavedwellerDelight)
 		end
 		ham.updateHeals()
@@ -497,11 +505,6 @@ function ham.settingsFrame:InitializeOptions()
 end
 
 function ham.settingsFrame:InitializeClassSpells(relativeTo)
-	-------------  CLASS / RACIALS  -------------
-	local myClassTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-	myClassTitle:SetPoint("TOPLEFT", relativeTo, 0, -PADDING_CATERGORY)
-	myClassTitle:SetText(L["Class/Racial Spells"])
-
 	local lastbutton = nil
 	local posy = -PADDING
 	if next(ham.supportedSpells) ~= nil then
@@ -519,7 +522,7 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 				if lastbutton ~= nil then
 					button:SetPoint("TOPLEFT", lastbutton, PADDING_HORIZONTAL, 0)
 				else
-					button:SetPoint("TOPLEFT", myClassTitle, 0, posy)
+					button:SetPoint("TOPLEFT", relativeTo, 0, posy)
 				end
 				---@diagnostic disable-next-line: undefined-field
 				button.Text:SetText(name)
