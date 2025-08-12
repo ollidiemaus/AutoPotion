@@ -147,13 +147,15 @@ function ham.settingsFrame:updatePrio()
 	end
 
 	-- Add spells to priority frames
-	if next(ham.spellIDs) ~= nil then
-		for i, id in ipairs(ham.spellIDs) do
+	--if next(ham.spellIDs) ~= nil then
+	if next(ham.mySpells) ~= nil then
+		--for i, id in ipairs(ham.spellIDs) do
+		for i, spell in ipairs(ham.mySpells) do
 			local iconTexture, originalIconTexture
 			if isRetail == true then
-				iconTexture, originalIconTexture = C_Spell.GetSpellTexture(id)
+				iconTexture, originalIconTexture = C_Spell.GetSpellTexture(spell.getId())
 			else
-				iconTexture = GetSpellTexture(id)
+				iconTexture = GetSpellTexture(spell.getId())
 			end
 			local currentFrame = prioFrames[i]
 			local currentTexture = prioTextures[i]
@@ -162,7 +164,7 @@ function ham.settingsFrame:updatePrio()
 				currentFrame:SetScript("OnLeave", nil)
 				currentFrame:HookScript("OnEnter", function(_, btn, down)
 					GameTooltip:SetOwner(currentFrame, "ANCHOR_TOPRIGHT")
-					GameTooltip:SetSpellByID(id)
+					GameTooltip:SetSpellByID(spell.getId())
 					GameTooltip:Show()
 				end)
 				currentFrame:HookScript("OnLeave", function(_, btn, down)
@@ -510,8 +512,7 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 	if next(ham.supportedSpells) ~= nil then
 		local count = 0
 		for i, spell in ipairs(ham.supportedSpells) do
-			if IsSpellKnown(spell) or IsSpellKnown(spell, true) then
-				local name = C_Spell.GetSpellName(spell)
+			if spell.isKnown() then
 				local button = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 
 				if count == 3 then
@@ -525,12 +526,12 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 					button:SetPoint("TOPLEFT", relativeTo, 0, posy)
 				end
 				---@diagnostic disable-next-line: undefined-field
-				button.Text:SetText(name)
+				button.Text:SetText(spell.getName())
 				button:HookScript("OnClick", function(_, btn, down)
 					if button:GetChecked() then
-						ham.insertIntoDB(spell)
+						ham.insertIntoDB(spell.getId())
 					else
-						ham.removeFromDB(spell)
+						ham.removeFromDB(spell.getId())
 					end
 					ham.updateHeals()
 					ham.updateMacro()
@@ -539,14 +540,14 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 				button:HookScript("OnEnter", function(_, btn, down)
 					---@diagnostic disable-next-line: param-type-mismatch
 					GameTooltip:SetOwner(button, "ANCHOR_TOPRIGHT")
-					GameTooltip:SetSpellByID(spell);
+					GameTooltip:SetSpellByID(spell.getId());
 					GameTooltip:Show()
 				end)
 				button:HookScript("OnLeave", function(_, btn, down)
 					GameTooltip:Hide()
 				end)
-				button:SetChecked(ham.dbContains(spell))
-				table.insert(classButtons, spell, button)
+				button:SetChecked(ham.dbContains(spell.getId()))
+				table.insert(classButtons, spell.getId(), button)
 				lastbutton = button
 				count = count + 1
 			end

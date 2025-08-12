@@ -120,7 +120,8 @@ end
 
 function ham.updateHeals()
   ham.itemIdList = {}
-  ham.spellIDs = ham.myPlayer.getHealingSpells()
+  --ham.spellIDs = ham.myPlayer.getHealingSpells()
+  ham.mySpells = ham.myPlayer.getHealingSpells()
 
   -- Priority 1: Add player items, including tinkers
   addPlayerHealingItemIfAvailable()
@@ -192,25 +193,26 @@ end
 local function buildSpellMacroString()
   spellsMacroString = ''
 
-  if next(ham.spellIDs) ~= nil then
-    for i, spell in ipairs(ham.spellIDs) do
-      local name
-      if isRetail == true then
-        name = C_Spell.GetSpellName(spell)
+  if next(ham.mySpells) ~= nil then
+    local spellCounter = 1
+    for i, spell in ipairs(ham.mySpells) do
+      local name = ''
+      if spell.getId() == ham.recuperate.getId() then
+        --we don't want to add recuperate because even thought its a spell its only usable out of combat
       else
-        name = GetSpellInfo(spell)
-      end
+        name = spell.getName();
+        setShortestSpellCD(spell.getId())
 
-      setShortestSpellCD(spell)
-
-      --TODO HEALING Elixir Twice because it has two charges ?! kinda janky but will work for now
-      if spell == ham.healingElixir then
-        name = name .. ", " .. name
-      end
-      if i == 1 then
-        spellsMacroString = name;
-      else
-        spellsMacroString = spellsMacroString .. ", " .. name;
+        --TODO HEALING Elixir Twice because it has two charges ?! kinda janky but will work for now
+        if spell.getId() == ham.healingElixir.getId() then
+          name = spell.getName() .. ", " .. spell.getName()
+        end
+        if spellCounter == 1 then
+          spellsMacroString = name;
+        else
+          spellsMacroString = spellsMacroString .. ", " .. name;
+        end
+        spellCounter = spellCounter + 1
       end
     end
   end
@@ -339,7 +341,8 @@ function ham.checkTinker()
 end
 
 function ham.updateMacro()
-  if next(ham.itemIdList) == nil and next(ham.spellIDs) == nil then
+  --if next(ham.itemIdList) == nil and next(ham.spellIDs) == nil then
+  if next(ham.itemIdList) == nil and next(ham.mySpells) == nil then
     macroStr = "#showtooltip"
     if ham.options.stopCast then
       macroStr = macroStr .. "\n/stopcasting \n"
@@ -353,6 +356,11 @@ function ham.updateMacro()
     if ham.options.stopCast then
       macroStr = macroStr .. "/stopcasting \n"
     end
+    --recuperate
+    if isRetail and ham.dbContains(ham.recuperate.getId()) and ham.recuperate.isKnown() then
+      macroStr = macroStr .. "/cast [nocombat] " .. ham.recuperate.getName() .. "\n"
+    end
+
     macroStr = macroStr .. "/castsequence [@player] reset=" .. resetType .. " "
     if spellsMacroString ~= "" then
       macroStr = macroStr .. spellsMacroString
