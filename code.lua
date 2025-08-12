@@ -255,7 +255,8 @@ local function UpdateMegaMacroByName(name, newCode)
       return true
     end
   end
-  print("|cffff0000AutoPotion Error:|r Missing global '" .. tostring(name) .. "' macro in MegaMacro. Please create it then reload your game.")
+  print("|cffff0000AutoPotion Error:|r Missing global '" ..
+    tostring(name) .. "' macro in MegaMacro. Please create it then reload your game.")
   return false
 end
 
@@ -386,6 +387,21 @@ function ham.updateMacro()
   end
 end
 
+function ham.updateBandageMacro()
+  local bandageMacroStr = buildBandageMacroString()
+  if megaMacro.installed and megaMacro.loaded then
+    UpdateMegaMacroByName(bandageMacroName, bandageMacroStr)
+  else
+    createBandageMacroIfMissing()
+    local success, err = pcall(function()
+      EditMacro(bandageMacroName, bandageMacroName, nil, bandageMacroStr)
+    end)
+    if success then
+      log('Bandage macro updated.')
+    end
+  end
+end
+
 local function MakeMacro()
   -- dont attempt to create macro until MegaMacro addon is checked
   if not megaMacro.checked then
@@ -411,20 +427,10 @@ local function MakeMacro()
   ham.checkTinker()
   ham.updateHeals()
   ham.updateMacro()
-  -- also update bandage macro
-  local bandageMacroStr = buildBandageMacroString()
-  if megaMacro.installed and megaMacro.loaded then
-    UpdateMegaMacroByName(bandageMacroName, bandageMacroStr)
-  else
-    createBandageMacroIfMissing()
-    local success, err = pcall(function()
-      EditMacro(bandageMacroName, bandageMacroName, nil, bandageMacroStr)
-    end)
-    if success then
-      log('Bandage macro updated.')
-    end
-  end
+  ham.updateBandageMacro()
+
   ham.settingsFrame:updatePrio()
+  ham.settingsFrame:updateBandagePrio()
 end
 
 -- debounce handler for BAG_UPDATE events which can fire very rapidly
