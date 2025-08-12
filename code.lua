@@ -158,6 +158,7 @@ local function createMacroIfMissing()
 end
 
 local function createBandageMacroIfMissing()
+  -- dont create macro if MegaMacro is installed and loaded
   if megaMacro.installed and megaMacro.loaded then
     return
   end
