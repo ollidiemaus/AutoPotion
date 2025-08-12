@@ -31,7 +31,7 @@ local bandagePrioTitle = nil
 function ham.settingsFrame:updateConfig(option, value)
 	if ham.options[option] ~= nil then
 		ham.options[option] = value -- Update in-memory
-		HAMDB[option] = value       -- Persist to DB
+		HAMDB[option] = value -- Persist to DB
 	else
 		print(L["Invalid option: "] .. tostring(option))
 	end
@@ -107,35 +107,35 @@ end
 
 -- Create a bandage priority icon frame
 function ham.settingsFrame:createBandagePrioFrame(id, iconTexture, positionx)
-    local icon = CreateFrame("Frame", nil, self.content, UIParent)
-    icon:SetFrameStrata("MEDIUM")
-    icon:SetWidth(ICON_SIZE)
-    icon:SetHeight(ICON_SIZE)
-    icon:HookScript("OnEnter", function(_, btn, down)
-        GameTooltip:SetOwner(icon, "ANCHOR_TOPRIGHT")
-        GameTooltip:SetItemByID(id)
-        GameTooltip:Show()
-    end)
-    icon:HookScript("OnLeave", function(_, btn, down)
-        GameTooltip:Hide()
-    end)
-    local texture = icon:CreateTexture(nil, "BACKGROUND")
-    texture:SetTexture(iconTexture)
-    texture:SetAllPoints(icon)
-    ---@diagnostic disable-next-line: inject-field
-    icon.texture = texture
+	local icon = CreateFrame("Frame", nil, self.content, UIParent)
+	icon:SetFrameStrata("MEDIUM")
+	icon:SetWidth(ICON_SIZE)
+	icon:SetHeight(ICON_SIZE)
+	icon:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(icon, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetItemByID(id)
+		GameTooltip:Show()
+	end)
+	icon:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	local texture = icon:CreateTexture(nil, "BACKGROUND")
+	texture:SetTexture(iconTexture)
+	texture:SetAllPoints(icon)
+	---@diagnostic disable-next-line: inject-field
+	icon.texture = texture
 
-    if bandageFirstIcon == nil then
-        -- Place the bandage row slightly above the current priority row
-        icon:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY + (ICON_SIZE - 10))
-        bandageFirstIcon = icon
-    else
-        icon:SetPoint("TOPLEFT", bandageFirstIcon, positionx, 0)
-    end
-    icon:Show()
-    table.insert(bandageFrames, icon)
-    table.insert(bandageTextures, texture)
-    return icon
+	if bandageFirstIcon == nil then
+		-- Place the bandage row slightly above the current priority row
+		icon:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY + (ICON_SIZE - 10))
+		bandageFirstIcon = icon
+	else
+		icon:SetPoint("TOPLEFT", bandageFirstIcon, positionx, 0)
+	end
+	icon:Show()
+	table.insert(bandageFrames, icon)
+	table.insert(bandageTextures, texture)
+	return icon
 end
 
 function ham.settingsFrame:updatePrio()
@@ -233,47 +233,47 @@ end
 
 -- Update the Bandage Priority section
 function ham.settingsFrame:updateBandagePrio()
-    -- hide existing
-    for _, frame in pairs(bandageFrames) do
-        frame:Hide()
-    end
+	-- hide existing
+	for _, frame in pairs(bandageFrames) do
+		frame:Hide()
+	end
 
-    bandagePositionX = 0
+	bandagePositionX = 0
 
-    -- Build the prioritized bandage list for the current context
-    if ham.getBandages then
-        local bandages = ham.getBandages()
-        local shown = 0
-        for _, item in ipairs(bandages) do
-            if item.getCount and item.getCount() > 0 then
-                local id = item.getId()
-                local _, _, _, _, _, _, _, _, _, iconTexture = C_Item.GetItemInfo(id)
-                local idx = shown + 1
-                local currentFrame = bandageFrames[idx]
-                local currentTexture = bandageTextures[idx]
-                if currentFrame ~= nil then
-                    currentFrame:SetScript("OnEnter", nil)
-                    currentFrame:SetScript("OnLeave", nil)
-                    currentFrame:HookScript("OnEnter", function(_, btn, down)
-                        GameTooltip:SetOwner(currentFrame, "ANCHOR_TOPRIGHT")
-                        GameTooltip:SetItemByID(id)
-                        GameTooltip:Show()
-                    end)
-                    currentFrame:HookScript("OnLeave", function(_, btn, down)
-                        GameTooltip:Hide()
-                    end)
-                    currentTexture:SetTexture(iconTexture)
-                    currentTexture:SetAllPoints(currentFrame)
-                    currentFrame.texture = currentTexture
-                    currentFrame:Show()
-                else
-                    self:createBandagePrioFrame(id, iconTexture, bandagePositionX)
-                    bandagePositionX = bandagePositionX + (ICON_SIZE + (ICON_SIZE / 2))
-                end
-                shown = shown + 1
-            end
-        end
-    end
+	-- Build the prioritized bandage list for the current context
+	if ham.getBandages then
+		local bandages = ham.getBandages()
+		local shown = 0
+		for _, item in ipairs(bandages) do
+			if item.getCount and item.getCount() > 0 then
+				local id = item.getId()
+				local _, _, _, _, _, _, _, _, _, iconTexture = C_Item.GetItemInfo(id)
+				local idx = shown + 1
+				local currentFrame = bandageFrames[idx]
+				local currentTexture = bandageTextures[idx]
+				if currentFrame ~= nil then
+					currentFrame:SetScript("OnEnter", nil)
+					currentFrame:SetScript("OnLeave", nil)
+					currentFrame:HookScript("OnEnter", function(_, btn, down)
+						GameTooltip:SetOwner(currentFrame, "ANCHOR_TOPRIGHT")
+						GameTooltip:SetItemByID(id)
+						GameTooltip:Show()
+					end)
+					currentFrame:HookScript("OnLeave", function(_, btn, down)
+						GameTooltip:Hide()
+					end)
+					currentTexture:SetTexture(iconTexture)
+					currentTexture:SetAllPoints(currentFrame)
+					currentFrame.texture = currentTexture
+					currentFrame:Show()
+				else
+					self:createBandagePrioFrame(id, iconTexture, bandagePositionX)
+					bandagePositionX = bandagePositionX + (ICON_SIZE + (ICON_SIZE / 2))
+				end
+				shown = shown + 1
+			end
+		end
+	end
 end
 
 function ham.settingsFrame:InitializeOptions()
@@ -334,7 +334,8 @@ function ham.settingsFrame:InitializeOptions()
 	local cdResetButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 	cdResetButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
 	---@diagnostic disable-next-line: undefined-field
-	cdResetButton.Text:SetText(L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"])
+	cdResetButton.Text:SetText(L
+		["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"])
 	cdResetButton:HookScript("OnClick", function(_, btn, down)
 		ham.settingsFrame:updateConfig("cdReset", cdResetButton:GetChecked())
 	end)
@@ -461,13 +462,13 @@ function ham.settingsFrame:InitializeOptions()
 
 	-- Bandage Priority title
 	bandagePrioTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-	bandagePrioTitle:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY + ICON_SIZE + 50)
+	bandagePrioTitle:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY - ICON_SIZE - 50)
 	bandagePrioTitle:SetText(L["Bandage Priority"])
 
 
 	-------------  RESET BUTTON  -------------
 	local btn = CreateFrame("Button", nil, self.content, "UIPanelButtonTemplate")
-	btn:SetPoint("BOTTOMLEFT", 2, 3)
+	btn:SetPoint("BOTTOMLEFT", 1, 3)
 	btn:SetText(L["Reset to Default"])
 	btn:SetWidth(120)
 	btn:SetScript("OnClick", function()
