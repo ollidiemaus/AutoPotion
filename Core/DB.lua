@@ -17,28 +17,28 @@ ham.defaults = {
 
 
 function ham.dbContains(id)
-    local found = false
-    for _, v in pairs(HAMDB.activatedSpells) do
+    if not HAMDB or not HAMDB.activatedSpells then return false end
+    for _, v in ipairs(HAMDB.activatedSpells) do
         if v == id then
-            found = true
+            return true
         end
     end
-    return found
+    return false
 end
 
 function ham.removeFromDB(id)
-    local backup = {}
-    if ham.dbContains(id) then
-        for _, v in pairs(HAMDB.activatedSpells) do
-            if v ~= id then
-                table.insert(backup, v)
-            end
+    if not HAMDB or not HAMDB.activatedSpells then return end
+    for i = #HAMDB.activatedSpells, 1, -1 do
+        if HAMDB.activatedSpells[i] == id then
+            table.remove(HAMDB.activatedSpells, i)
         end
     end
-
-    HAMDB.activatedSpells = CopyTable(backup)
 end
 
 function ham.insertIntoDB(id)
-    table.insert(HAMDB.activatedSpells, id)
+    if not HAMDB then return end
+    HAMDB.activatedSpells = HAMDB.activatedSpells or {}
+    if not ham.dbContains(id) then
+        table.insert(HAMDB.activatedSpells, id)
+    end
 end

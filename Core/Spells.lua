@@ -1,5 +1,5 @@
 local addonName, ham = ...
-local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
+local env = ham.env
 
 
 ham.crimsonVialSpell = 185311
@@ -28,29 +28,30 @@ ham.giftOfTheNaaruWarrior = 28880
 
 ham.bagOfTricks = 312411
 
-ham.supportedSpells = {}
-table.insert(ham.supportedSpells, ham.crimsonVialSpell)
-table.insert(ham.supportedSpells, ham.renewal)
-table.insert(ham.supportedSpells, ham.exhilaration)
-table.insert(ham.supportedSpells, ham.fortitudeOfTheBear)
-table.insert(ham.supportedSpells, ham.lastStand)
-table.insert(ham.supportedSpells, ham.bitterImmunity)
-table.insert(ham.supportedSpells, ham.desperatePrayer)
-table.insert(ham.supportedSpells, ham.expelHarm)
-table.insert(ham.supportedSpells, ham.healingElixir)
-table.insert(ham.supportedSpells, ham.darkPact)
-table.insert(ham.supportedSpells, ham.vampiricBlood)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruDK)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruHunter)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruMage)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruMageWarlock)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruMonk)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruPaladin)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruPriest)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruRogue)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruShaman)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruWarrior)
-table.insert(ham.supportedSpells, ham.bagOfTricks)
+ham.supportedSpells = {
+  ham.crimsonVialSpell,
+  ham.renewal,
+  ham.exhilaration,
+  ham.fortitudeOfTheBear,
+  ham.lastStand,
+  ham.bitterImmunity,
+  ham.desperatePrayer,
+  ham.expelHarm,
+  ham.healingElixir,
+  ham.darkPact,
+  ham.vampiricBlood,
+  ham.giftOfTheNaaruDK,
+  ham.giftOfTheNaaruHunter,
+  ham.giftOfTheNaaruMage,
+  ham.giftOfTheNaaruMageWarlock,
+  ham.giftOfTheNaaruMonk,
+  ham.giftOfTheNaaruPaladin,
+  ham.giftOfTheNaaruPriest,
+  ham.giftOfTheNaaruRogue,
+  ham.giftOfTheNaaruShaman,
+  ham.giftOfTheNaaruWarrior,
+  ham.bagOfTricks,
+}
 
 
 ham.Spell = {}
@@ -60,7 +61,7 @@ ham.Spell.new = function(id, name)
 
     self.id = id
     self.name = name
-    if isRetail == true then
+    if env and env.isRetail == true then
         self.cd = C_Spell.GetSpellCooldown(id).duration
     else
         self.cd = GetSpellBaseCooldown(id)
@@ -80,4 +81,31 @@ ham.Spell.new = function(id, name)
     end
 
     return self
+end
+
+-- Return localized spell name for both retail and classic clients
+function ham.getSpellName(spellId)
+  if env and env.isRetail == true then
+    return C_Spell.GetSpellName(spellId)
+  else
+    local name = GetSpellInfo(spellId)
+    return name
+  end
+end
+
+-- Return base cooldown in seconds (0 if none)
+function ham.getSpellBaseCooldownSeconds(spellId)
+  local ms = GetSpellBaseCooldown(spellId)
+  if not ms or ms <= 0 then return 0 end
+  return ms / 1000
+end
+
+-- Return spell icon texture id/path unified across clients
+function ham.getSpellTexture(spellId)
+  if env and env.isRetail == true then
+    local iconTexture = C_Spell.GetSpellTexture(spellId)
+    return iconTexture
+  else
+    return GetSpellTexture(spellId)
+  end
 end
