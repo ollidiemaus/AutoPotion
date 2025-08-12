@@ -7,17 +7,14 @@ ham.Player.new = function()
 
   self.localizedClass, self.englishClass, self.classIndex = UnitClass("player");
 
-  function self.getHealingItems()
-    local healingItems = {}
-    return healingItems
-  end
-
   function self.getHealingSpells()
-    local mySpells = {}
-    for i, id in ipairs(HAMDB.activatedSpells) do
-      local currentSpell = ham.Spell.new(id)
-      if currentSpell.isKnown() then
-        table.insert(mySpells, currentSpell)
+    local spells = {}
+    local activated = (type(HAMDB) == "table" and HAMDB.activatedSpells)
+        or (ham.defaults and ham.defaults.activatedSpells)
+        or {}
+    for i, spell in ipairs(activated) do
+      if IsSpellKnown(spell) or IsSpellKnown(spell, true) then
+        table.insert(spells, spell)
       end
     end
     return mySpells
