@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 local addonName, ham = ...
 local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
@@ -16,9 +17,9 @@ ham.mageweaveBandage = ham.Item.new(8544, "Mageweave Bandage")
 ham.heavyMageweaveBandage = ham.Item.new(8545, "Heavy Mageweave Bandage")
 ham.runeclothBandage = ham.Item.new(14529, "Runecloth Bandage")
 ham.heavyRuneclothBandage = ham.Item.new(14530, "Heavy Runecloth Bandage")
-  
-  -- Alterac Valley (Classic-only)
-  ham.alteracHeavyRuneclothBandage = ham.Item.new(19307, "Alterac Heavy Runecloth Bandage")
+
+-- Alterac Valley (Classic-only)
+ham.alteracHeavyRuneclothBandage = ham.Item.new(19307, "Alterac Heavy Runecloth Bandage")
 
 -- Warsong Gulch (Classic-only)
 ham.wsgRuneclothBandage = ham.Item.new(19066, "Warsong Gulch Runecloth Bandage")
@@ -225,5 +226,3 @@ function ham.getBandages()
     ham.linenBandage,
   }
 end
-
-
