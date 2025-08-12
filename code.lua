@@ -110,7 +110,8 @@ end
 function ham.updateHeals()
   shortestCD = nil
   ham.itemIdList = {}
-  ham.spellIDs = ham.myPlayer.getHealingSpells()
+  --ham.spellIDs = ham.myPlayer.getHealingSpells()
+  ham.mySpells = ham.myPlayer.getHealingSpells()
 
   -- Priority 1: Add player items, including tinkers
   addPlayerHealingItemIfAvailable()
@@ -249,6 +250,11 @@ function ham.buildMacro()
     if ham.options.stopCast then
       macroStr = macroStr .. "/stopcasting \n"
     end
+    --recuperate
+    if isRetail and ham.dbContains(ham.recuperate.getId()) and ham.recuperate.isKnown() then
+      macroStr = macroStr .. "/cast [nocombat] " .. ham.recuperate.getName() .. "\n"
+    end
+
     macroStr = macroStr .. "/castsequence [@player] reset=" .. resetType .. " "
     if spellsMacroString ~= "" then
       macroStr = macroStr .. spellsMacroString

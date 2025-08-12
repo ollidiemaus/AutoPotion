@@ -418,12 +418,12 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 					button:SetPoint("TOPLEFT", relativeTo, 0, posy)
 				end
 				---@diagnostic disable-next-line: undefined-field
-				button.Text:SetText(name)
+				button.Text:SetText(spell.getName())
 				button:HookScript("OnClick", function(_, btn, down)
 					if button:GetChecked() then
-						ham.insertIntoDB(spell)
+						ham.insertIntoDB(spell.getId())
 					else
-						ham.removeFromDB(spell)
+						ham.removeFromDB(spell.getId())
 					end
 					ham.updateHeals()
 					ham.updateMacro()
@@ -432,14 +432,14 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 				button:HookScript("OnEnter", function(_, btn, down)
 					---@diagnostic disable-next-line: param-type-mismatch
 					GameTooltip:SetOwner(button, "ANCHOR_TOPRIGHT")
-					GameTooltip:SetSpellByID(spell);
+					GameTooltip:SetSpellByID(spell.getId());
 					GameTooltip:Show()
 				end)
 				button:HookScript("OnLeave", function(_, btn, down)
 					GameTooltip:Hide()
 				end)
-				button:SetChecked(ham.dbContains(spell))
-				table.insert(classButtons, spell, button)
+				button:SetChecked(ham.dbContains(spell.getId()))
+				table.insert(classButtons, spell.getId(), button)
 				lastbutton = button
 				count = count + 1
 			end

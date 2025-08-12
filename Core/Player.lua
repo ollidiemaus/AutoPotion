@@ -17,8 +17,7 @@ ham.Player.new = function()
         table.insert(spells, spell)
       end
     end
-
-    return spells
+    return mySpells
   end
 
   return self
