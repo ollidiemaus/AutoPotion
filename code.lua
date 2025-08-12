@@ -1,6 +1,7 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("AutoPotion")
 local addonName, ham = ...
 local macroName = L["AutoPotion"]
+local bandageMacroName = L["AutoBandage"] or "AutoBandage"
 local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
@@ -156,6 +157,17 @@ local function createMacroIfMissing()
   end
 end
 
+local function createBandageMacroIfMissing()
+  -- dont create macro if MegaMacro is installed and loaded
+  if megaMacro.installed and megaMacro.loaded then
+    return
+  end
+  local name = GetMacroInfo(bandageMacroName)
+  if name == nil then
+    CreateMacro(bandageMacroName, "INV_Misc_QuestionMark")
+  end
+end
+
 local function setShortestSpellCD(newSpell)
   if ham.options.cdReset then
     local cd
@@ -236,6 +248,19 @@ local function UpdateMegaMacro(newCode)
     "|cffff0000AutoPotion Error:|r Missing global 'AutoPotion' macro in MegaMacro. Please create it then reload your game.")
 end
 
+local function UpdateMegaMacroByName(name, newCode)
+  for _, macro in pairs(MegaMacroGlobalData.Macros) do
+    if macro.DisplayName == name then
+      MegaMacro.UpdateCode(macro, newCode)
+      log("MegaMacro updated (" .. name .. ") with: " .. newCode)
+      return true
+    end
+  end
+  print("|cffff0000AutoPotion Error:|r Missing global '" ..
+    tostring(name) .. "' macro in MegaMacro. Please create it then reload your game.")
+  return false
+end
+
 local function checkMegaMacroAddon()
   -- MegaMacro is only available for retail
   if not isRetail then
@@ -267,6 +292,23 @@ local function checkMegaMacroAddon()
   else
     megaMacro.checked = true
   end
+end
+
+-- Build bandage macro string (highest available bandage first)
+local function buildBandageMacroString()
+  local sequence = {}
+  local bandages = ham.getBandages()
+  for _, item in ipairs(bandages) do
+    if item.getCount() > 0 then
+      table.insert(sequence, "item:" .. tostring(item.getId()))
+      break
+    end
+  end
+
+  if #sequence == 0 then
+    return "#showtooltip"
+  end
+  return "#showtooltip\n/use [@player] " .. sequence[1]
 end
 
 -- check if player has the engineering tinker: Heartseeking Health Injector
@@ -346,6 +388,21 @@ function ham.updateMacro()
   end
 end
 
+function ham.updateBandageMacro()
+  local bandageMacroStr = buildBandageMacroString()
+  if megaMacro.installed and megaMacro.loaded then
+    UpdateMegaMacroByName(bandageMacroName, bandageMacroStr)
+  else
+    createBandageMacroIfMissing()
+    local success, err = pcall(function()
+      EditMacro(bandageMacroName, bandageMacroName, nil, bandageMacroStr)
+    end)
+    if success then
+      log('Bandage macro updated.')
+    end
+  end
+end
+
 local function MakeMacro()
   -- dont attempt to create macro until MegaMacro addon is checked
   if not megaMacro.checked then
@@ -371,7 +428,10 @@ local function MakeMacro()
   ham.checkTinker()
   ham.updateHeals()
   ham.updateMacro()
+  ham.updateBandageMacro()
+
   ham.settingsFrame:updatePrio()
+  ham.settingsFrame:updateBandagePrio()
 end
 
 -- debounce handler for BAG_UPDATE events which can fire very rapidly

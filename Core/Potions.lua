@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 local addonName, ham = ...
 local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
@@ -72,9 +73,9 @@ ham.superior = ham.Item.new(3928, "Superior Healing Potion")
 ham.minor = ham.Item.new(118, "Minor Healing Potion")
 ham.greater = ham.Item.new(1710, "Greater Healing Potion")
 ham.healingPotion = ham.Item.new(929, "Healing Potion")
-  -- Classic PvP battleground-only draughts
-  ham.majorHealingDraught = ham.Item.new(17348, "Major Healing Draught")
-  ham.superiorHealingDraught = ham.Item.new(17349, "Superior Healing Draught")
+-- Classic PvP battleground-only draughts
+ham.majorHealingDraught = ham.Item.new(17348, "Major Healing Draught")
+ham.superiorHealingDraught = ham.Item.new(17349, "Superior Healing Draught")
 
 ------Healthstones for Classic------
 ham.minor0 = ham.Item.new(5512, "Minor Healthstone")
