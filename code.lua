@@ -357,11 +357,14 @@ function ham.updateMacro()
       macroStr = macroStr .. "/stopcasting \n"
     end
     --recuperate
+    --this condition is needed because if not used the castsequence will use off gcd heals direclty after recuperate
+    local combatCondition=''
     if isRetail and ham.dbContains(ham.recuperate.getId()) and ham.recuperate.isKnown() then
+      combatCondition = ',combat'
       macroStr = macroStr .. "/cast [nocombat] " .. ham.recuperate.getName() .. "\n"
     end
 
-    macroStr = macroStr .. "/castsequence [@player] reset=" .. resetType .. " "
+    macroStr = macroStr .. "/castsequence [@player"..combatCondition.."] reset=" .. resetType .. " "
     if spellsMacroString ~= "" then
       macroStr = macroStr .. spellsMacroString
     end
