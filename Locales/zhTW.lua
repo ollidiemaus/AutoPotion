@@ -8,7 +8,7 @@ L["Cavedweller's Delight"] = "穴居者之喜"
 L["Class/Racial Spells"] = "職業/種族技能"
 L["Configure the behavior of the addon. IE: if you want to include class spells"] = "這裡可以調整插件的功能，例如也能使用職業法術。"
 L["Current Priority"] = "目前的優先順序"
-L["Bandage Priority"] = "Bandage Priority"
+L["Bandage Priority"] = "繃帶優先"
 L["Heartseeking Health Injector (tinker)"] = "覓心生命注射器 (裝置)"
 L["Include /stopcasting in the macro"] = "包含 /在巨集中的停止施法"
 L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"] =
@@ -26,3 +26,4 @@ L["Useful for casters."] = "對於施法者是很有用的。"
 
 -- code
 L["AutoPotion"] = "自動藥水"
+
