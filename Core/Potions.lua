@@ -1,10 +1,6 @@
 ---@diagnostic disable: undefined-global
 local addonName, ham = ...
-local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
-local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
-local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
-local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
-local isMop = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
+local env = ham.env
 
 ham.healthstone = ham.Item.new(5512, "Healthstone")
 ham.demonicHealthstone = ham.Item.new(224464, "Demonic Healthstone") ---1 Minute CD due to Pact of Gluttony
@@ -108,6 +104,130 @@ ham.fel1 = ham.Item.new(36893, "Fel Healthstone")
 ham.fel2 = ham.Item.new(36894, "Fel Healthstone")
 ------Healthstones for Cata------
 
+-- Determine environment key
+local getEnvKey = ham.getEnvKey
+local copyList = ham.copyList
+
+-- Consolidated potion lists per environment
+local POTIONS_BY_ENV = {
+  retail = {
+    ham.fleetingInvigoratingHealingPotionR3,
+    ham.invigoratingHealingPotionR3,
+    ham.fleetingInvigoratingHealingPotionR2,
+    ham.invigoratingHealingPotionR2,
+    ham.fleetingInvigoratingHealingPotionR1,
+    ham.invigoratingHealingPotionR1,
+    ham.fleetingAlgariHealingPotionR3,
+    ham.algariHealingPotionR3,
+    ham.fleetingAlgariHealingPotionR2,
+    ham.algariHealingPotionR2,
+    ham.fleetingAlgariHealingPotionR1,
+    ham.algariHealingPotionR1,
+    ham.thirdWind,
+    ham.survivalistsHealingPotion,
+    ham.witheringDreamsR3,
+    ham.witheringDreamsR2,
+    ham.witheringDreamsR1,
+    ham.dreamR3,
+    ham.dreamsR2,
+    ham.dreamR1,
+    ham.witheringR3,
+    ham.witheringR2,
+    ham.witheringR1,
+    ham.refreshingR3,
+    ham.refreshingR2,
+    ham.refreshingR1,
+    ham.cosmic,
+    ham.spiritual,
+    ham.soulful,
+    ham.ashran,
+    ham.abyssal,
+    ham.astral,
+    ham.coastal,
+    ham.ancient,
+    ham.aged,
+    ham.tonic,
+    ham.master,
+    ham.mythical,
+    ham.runic,
+    ham.resurgent,
+    ham.super,
+    ham.major,
+    ham.lesser,
+    ham.superior,
+    ham.minor,
+    ham.greater,
+    ham.healingPotion
+  },
+  classic = {
+    ham.major,
+    ham.combat,
+    ham.superior,
+    ham.greater,
+    ham.healingPotion,
+    ham.lesser,
+    ham.minor
+  },
+  wrath = {
+    ham.crazy_alch,
+    ham.runic_inject,
+    ham.runic,
+    ham.superreju,
+    ham.endless,
+    ham.injector,
+    ham.resurgent,
+    ham.super,
+    ham.argent,
+    ham.auchenai,
+    ham.major,
+    ham.superior,
+    ham.greater,
+    ham.healingPotion,
+    ham.lesser,
+    ham.minor
+  },
+  cata = {
+    ham.roguesDraught,
+    ham.mythical,
+    ham.crazy_alch,
+    ham.runic_inject,
+    ham.runic,
+    ham.superreju,
+    ham.endless,
+    ham.injector,
+    ham.resurgent,
+    ham.super,
+    ham.argent,
+    ham.auchenai,
+    ham.major,
+    ham.superior,
+    ham.greater,
+    ham.healingPotion,
+    ham.lesser,
+    ham.minor
+  },
+  mop = {
+    ham.master,
+    ham.roguesDraught,
+    ham.mythical,
+    ham.crazy_alch,
+    ham.runic_inject,
+    ham.runic,
+    ham.superreju,
+    ham.endless,
+    ham.injector,
+    ham.resurgent,
+    ham.super,
+    ham.argent,
+    ham.auchenai,
+    ham.major,
+    ham.superior,
+    ham.greater,
+    ham.healingPotion,
+    ham.lesser,
+    ham.minor
+  }
+}
 function RemoveFromList(list, itemToRemove)
   for i = #list, 1, -1 do
     if list[i] == itemToRemove then
@@ -117,294 +237,96 @@ function RemoveFromList(list, itemToRemove)
 end
 
 function ham.getDelightPots()
-  if isRetail then
-    return {
-      ham.cavedwellersDelightR3,
-      ham.cavedwellersDelightR2,
-      ham.cavedwellersDelightR1,
-      ham.fleetingCavedwellersDelightR3,
-      ham.fleetingCavedwellersDelightR2,
-      ham.fleetingCavedwellersDelightR1,
-    }
-  end
-  return {}
+  if getEnvKey() ~= "retail" then return {} end
+  return {
+    ham.cavedwellersDelightR3,
+    ham.cavedwellersDelightR2,
+    ham.cavedwellersDelightR1,
+    ham.fleetingCavedwellersDelightR3,
+    ham.fleetingCavedwellersDelightR2,
+    ham.fleetingCavedwellersDelightR1,
+  }
 end
 
 function ham.getPots()
-  if isRetail then
-    local pots = {
-      ham.fleetingInvigoratingHealingPotionR3,
-      ham.invigoratingHealingPotionR3,
-      ham.fleetingInvigoratingHealingPotionR2,
-      ham.invigoratingHealingPotionR2,
-      ham.fleetingInvigoratingHealingPotionR1,
-      ham.invigoratingHealingPotionR1,
-      ham.fleetingAlgariHealingPotionR3,
-      ham.algariHealingPotionR3,
-      ham.fleetingAlgariHealingPotionR2,
-      ham.algariHealingPotionR2,
-      ham.fleetingAlgariHealingPotionR1,
-      ham.algariHealingPotionR1,
-      ham.thirdWind,
-      ham.survivalistsHealingPotion,
-      ham.witheringDreamsR3,
-      ham.witheringDreamsR2,
-      ham.witheringDreamsR1,
-      ham.dreamR3,
-      ham.dreamsR2,
-      ham.dreamR1,
-      ham.witheringR3,
-      ham.witheringR2,
-      ham.witheringR1,
-      ham.refreshingR3,
-      ham.refreshingR2,
-      ham.refreshingR1,
-      ham.cosmic,
-      ham.spiritual,
-      ham.soulful,
-      ham.ashran,
-      ham.abyssal,
-      ham.astral,
-      ham.coastal,
-      ham.ancient,
-      ham.aged,
-      ham.tonic,
-      ham.master,
-      ham.mythical,
-      ham.runic,
-      ham.resurgent,
-      ham.super,
-      ham.major,
-      ham.lesser,
-      ham.superior,
-      ham.minor,
-      ham.greater,
-      ham.healingPotion
-    }
+  local key = getEnvKey()
+  local base = POTIONS_BY_ENV[key]
+  if not base then return {} end
+  local pots = copyList(base)
 
-
+  if key == "retail" then
     local isUnratedBattleground = C_PvP.IsBattleground() and not C_PvP.IsRatedBattleground()
-    if not isUnratedBattleground then
-      RemoveFromList(pots, ham.thirdWind)
-    end
+    if not isUnratedBattleground then RemoveFromList(pots, ham.thirdWind) end
 
-    if not HAMDB.witheringPotion then
+    if not ham.options.witheringPotion then
       RemoveFromList(pots, ham.witheringR1)
       RemoveFromList(pots, ham.witheringR2)
       RemoveFromList(pots, ham.witheringR3)
     end
-
-    if not HAMDB.witheringDreamsPotion then
+    if not ham.options.witheringDreamsPotion then
       RemoveFromList(pots, ham.witheringDreamsR1)
       RemoveFromList(pots, ham.witheringDreamsR2)
       RemoveFromList(pots, ham.witheringDreamsR3)
     end
-
-    return pots
-  end
-  if isClassic then
-    -- Base Classic potions list
-    local pots = {
-      ham.major,
-      ham.combat,
-      ham.superior,
-      ham.greater,
-      ham.healingPotion,
-      ham.lesser,
-      ham.minor
-    }
-
-    -- If in a PvP battleground, prioritize battleground draughts
+  elseif key == "classic" then
     local inInstance, instanceType = IsInInstance()
     local isInBattleground = inInstance and instanceType == "pvp"
     if isInBattleground then
-      -- Insert in reverse order so final priority is Major then Superior
       table.insert(pots, 1, ham.superiorHealingDraught)
       table.insert(pots, 1, ham.majorHealingDraught)
     end
-
-    return pots
   end
-
-  if isWrath then
-    return {
-      ham.crazy_alch,
-      ham.runic_inject,
-      ham.runic,
-      ham.superreju,
-      ham.endless,
-      ham.injector,
-      ham.resurgent,
-      ham.super,
-      ham.argent,
-      ham.auchenai,
-      ham.major,
-      ham.superior,
-      ham.greater,
-      ham.healingPotion,
-      ham.lesser,
-      ham.minor
-    }
-  end
-
-  if isCata then
-    return {
-      ham.roguesDraught,
-      ham.mythical,
-      ham.crazy_alch,
-      ham.runic_inject,
-      ham.runic,
-      ham.superreju,
-      ham.endless,
-      ham.injector,
-      ham.resurgent,
-      ham.super,
-      ham.argent,
-      ham.auchenai,
-      ham.major,
-      ham.superior,
-      ham.greater,
-      ham.healingPotion,
-      ham.lesser,
-      ham.minor
-    }
-  end
-
-  if isMop then
-    return {
-      ham.master,
-      ham.roguesDraught,
-      ham.mythical,
-      ham.crazy_alch,
-      ham.runic_inject,
-      ham.runic,
-      ham.superreju,
-      ham.endless,
-      ham.injector,
-      ham.resurgent,
-      ham.super,
-      ham.argent,
-      ham.auchenai,
-      ham.major,
-      ham.superior,
-      ham.greater,
-      ham.healingPotion,
-      ham.lesser,
-      ham.minor
-    }
-  end
+  return pots
 end
 
+-- Consolidated healthstone lists by environment
+local HEALTHSTONES_BY_ENV = {
+  classic = {
+    ham.major2, ham.major1, ham.major0,
+    ham.greater2, ham.greater1, ham.greater0,
+    ham.wipperRootTuber,
+    ham.healtsthone2, ham.healtsthone1,
+    ham.lilyRoot,
+    ham.healtsthone0,
+    ham.crystalFlakeThroatLozenge,
+    ham.lesser2, ham.lesser1, ham.lesser0,
+    ham.minor2, ham.minor1, ham.minor0,
+  },
+  wrath = {
+    ham.fel2, ham.fel1, ham.fel0,
+    ham.demonicWotLK2, ham.demonicWotLK1, ham.demonicWotLK0,
+    ham.master2, ham.master1, ham.master0,
+    ham.major2, ham.major1, ham.major0,
+    ham.greater2, ham.greater1, ham.greater0,
+    ham.healtsthone2, ham.healtsthone1, ham.healtsthone0,
+    ham.lesser2, ham.lesser1, ham.lesser0,
+    ham.minor2, ham.minor1, ham.minor0,
+  },
+  cata = {
+    ham.fel2, ham.fel1, ham.fel0,
+    ham.demonicWotLK2, ham.demonicWotLK1, ham.demonicWotLK0,
+    ham.master2, ham.master1, ham.master0,
+    ham.major2, ham.major1, ham.major0,
+    ham.greater2, ham.greater1, ham.greater0,
+    ham.healtsthone2, ham.healtsthone1, ham.healtsthone0,
+    ham.lesser2, ham.lesser1, ham.lesser0,
+    ham.minor2, ham.minor1, ham.minor0,
+  },
+  mop = {
+    ham.healthstone,
+    -- legacy
+    ham.fel2, ham.fel1, ham.fel0,
+    ham.demonicWotLK2, ham.demonicWotLK1, ham.demonicWotLK0,
+    ham.master2, ham.master1, ham.master0,
+    ham.major2, ham.major1, ham.major0,
+    ham.greater2, ham.greater1, ham.greater0,
+    ham.healtsthone2, ham.healtsthone1, ham.healtsthone0,
+    ham.lesser2, ham.lesser1, ham.lesser0,
+    ham.minor2, ham.minor1, ham.minor0,
+  },
+}
+
 function ham.getHealthstonesClassic()
-  if isClassic then
-    return {
-      ham.major2,
-      ham.major1,
-      ham.major0,
-      ham.greater2,
-      ham.greater1,
-      ham.greater0,
-      ham.wipperRootTuber,
-      ham.healtsthone2,
-      ham.healtsthone1,
-      ham.lilyRoot,
-      ham.healtsthone0,
-      ham.crystalFlakeThroatLozenge,
-      ham.lesser2,
-      ham.lesser1,
-      ham.lesser0,
-      ham.minor2,
-      ham.minor1,
-      ham.minor0
-    }
-  end
-
-  if isWrath then
-    return {
-      ham.fel2,
-      ham.fel1,
-      ham.fel0,
-      ham.demonicWotLK2,
-      ham.demonicWotLK1,
-      ham.demonicWotLK0,
-      ham.master2,
-      ham.master1,
-      ham.master0,
-      ham.major2,
-      ham.major1,
-      ham.major0,
-      ham.greater2,
-      ham.greater1,
-      ham.greater0,
-      ham.healtsthone2,
-      ham.healtsthone1,
-      ham.healtsthone0,
-      ham.lesser2,
-      ham.lesser1,
-      ham.lesser0,
-      ham.minor2,
-      ham.minor1,
-      ham.minor0
-    }
-  end
-
-  if isCata then
-    return {
-      ham.fel2,
-      ham.fel1,
-      ham.fel0,
-      ham.demonicWotLK2,
-      ham.demonicWotLK1,
-      ham.demonicWotLK0,
-      ham.master2,
-      ham.master1,
-      ham.master0,
-      ham.major2,
-      ham.major1,
-      ham.major0,
-      ham.greater2,
-      ham.greater1,
-      ham.greater0,
-      ham.healtsthone2,
-      ham.healtsthone1,
-      ham.healtsthone0,
-      ham.lesser2,
-      ham.lesser1,
-      ham.lesser0,
-      ham.minor2,
-      ham.minor1,
-      ham.minor0
-    }
-  end
-
-  if isMop then
-    return {
-      ham.healthstone,
-      --probably remove the stuff below since there should only be one healtsthone left with MoP
-      ham.fel2,
-      ham.fel1,
-      ham.fel0,
-      ham.demonicWotLK2,
-      ham.demonicWotLK1,
-      ham.demonicWotLK0,
-      ham.master2,
-      ham.master1,
-      ham.master0,
-      ham.major2,
-      ham.major1,
-      ham.major0,
-      ham.greater2,
-      ham.greater1,
-      ham.greater0,
-      ham.healtsthone2,
-      ham.healtsthone1,
-      ham.healtsthone0,
-      ham.lesser2,
-      ham.lesser1,
-      ham.lesser0,
-      ham.minor2,
-      ham.minor1,
-      ham.minor0
-    }
-  end
+  local key = getEnvKey()
+  return HEALTHSTONES_BY_ENV[key] or {}
 end

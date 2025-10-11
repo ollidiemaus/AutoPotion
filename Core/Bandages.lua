@@ -1,10 +1,6 @@
 ---@diagnostic disable: undefined-global
 local addonName, ham = ...
-local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
-local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
-local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
-local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
-local isMop = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
+local env = ham.env
 
 -- Classic bandages
 ham.linenBandage = ham.Item.new(1251, "Linen Bandage")
@@ -62,25 +58,111 @@ ham.heavyWindwoolBandage = ham.Item.new(72986, "Heavy Windwool Bandage")
 ham.wilderclothBandage = ham.Item.new(194041, "Wildercloth Bandage")
 ham.denseWilderclothBandage = ham.Item.new(194207, "Dense Wildercloth Bandage")
 
+-- Determine environment key
+local getEnvKey = ham.getEnvKey
+local copyList = ham.copyList
+
+-- Consolidated base bandage lists per environment
+local BANDAGES_BY_ENV = {
+  classic = {
+    ham.heavyRuneclothBandage,
+    ham.runeclothBandage,
+    ham.heavyMageweaveBandage,
+    ham.mageweaveBandage,
+    ham.heavySilkBandage,
+    ham.silkBandage,
+    ham.heavyWoolBandage,
+    ham.woolBandage,
+    ham.heavyLinenBandage,
+    ham.linenBandage,
+  },
+  wrath = {
+    ham.heavyFrostweaveBandage,
+    ham.frostweaveBandage,
+    ham.heavyNetherweaveBandage,
+    ham.netherweaveBandage,
+    ham.heavyRuneclothBandage,
+    ham.runeclothBandage,
+    ham.heavyMageweaveBandage,
+    ham.mageweaveBandage,
+    ham.heavySilkBandage,
+    ham.silkBandage,
+    ham.heavyWoolBandage,
+    ham.woolBandage,
+    ham.heavyLinenBandage,
+    ham.linenBandage,
+  },
+  cata = {
+    ham.denseEmbersilkBandage,
+    ham.heavyEmbersilkBandage,
+    ham.embersilkBandage,
+    ham.heavyFrostweaveBandage,
+    ham.frostweaveBandage,
+    ham.heavyNetherweaveBandage,
+    ham.netherweaveBandage,
+    ham.heavyRuneclothBandage,
+    ham.runeclothBandage,
+    ham.heavyMageweaveBandage,
+    ham.mageweaveBandage,
+    ham.heavySilkBandage,
+    ham.silkBandage,
+    ham.heavyWoolBandage,
+    ham.woolBandage,
+    ham.heavyLinenBandage,
+    ham.linenBandage,
+  },
+  mop = {
+    ham.heavyWindwoolBandage,
+    ham.windwoolBandage,
+    ham.denseEmbersilkBandage,
+    ham.heavyEmbersilkBandage,
+    ham.embersilkBandage,
+    ham.heavyFrostweaveBandage,
+    ham.frostweaveBandage,
+    ham.heavyNetherweaveBandage,
+    ham.netherweaveBandage,
+    ham.heavyRuneclothBandage,
+    ham.runeclothBandage,
+    ham.heavyMageweaveBandage,
+    ham.mageweaveBandage,
+    ham.heavySilkBandage,
+    ham.silkBandage,
+    ham.heavyWoolBandage,
+    ham.woolBandage,
+    ham.heavyLinenBandage,
+    ham.linenBandage,
+  },
+  retail = {
+    ham.denseWilderclothBandage,
+    ham.wilderclothBandage,
+    ham.heavyWindwoolBandage,
+    ham.windwoolBandage,
+    ham.denseEmbersilkBandage,
+    ham.heavyEmbersilkBandage,
+    ham.embersilkBandage,
+    ham.heavyFrostweaveBandage,
+    ham.frostweaveBandage,
+    ham.heavyNetherweaveBandage,
+    ham.netherweaveBandage,
+    ham.heavyRuneclothBandage,
+    ham.runeclothBandage,
+    ham.heavyMageweaveBandage,
+    ham.mageweaveBandage,
+    ham.heavySilkBandage,
+    ham.silkBandage,
+    ham.heavyWoolBandage,
+    ham.woolBandage,
+    ham.heavyLinenBandage,
+    ham.linenBandage,
+  },
+}
+
 -- Return a prioritized list of bandage items for the current client
 function ham.getBandages()
-  -- Classic Era only has classic bandages
-  if isClassic then
-    -- Base priority list for Classic
-    local list = {
-      ham.heavyRuneclothBandage,
-      ham.runeclothBandage,
-      ham.heavyMageweaveBandage,
-      ham.mageweaveBandage,
-      ham.heavySilkBandage,
-      ham.silkBandage,
-      ham.heavyWoolBandage,
-      ham.woolBandage,
-      ham.heavyLinenBandage,
-      ham.linenBandage,
-    }
+  local key = getEnvKey()
+  local list = copyList(BANDAGES_BY_ENV[key] or {})
 
-    -- When inside a PvP instance, prioritize battleground-specific bandages
+  if key == "classic" then
     local inInstance, instanceType = IsInInstance()
     if inInstance and instanceType == "pvp" then
       local mapId = C_Map.GetBestMapForUnit("player")
@@ -90,9 +172,8 @@ function ham.getBandages()
           table.insert(list, 1, ham.alteracHeavyRuneclothBandage)
         end
       end
-      -- Warsong Gulch
+      -- Warsong Gulch (prefer runecloth > mageweave > silk)
       if mapId == ham.MAP_ID_WARSONG_GULCH then
-        -- Highest to lowest: Runecloth > Mageweave > Silk
         if ham.wsgRuneclothBandage.getCount() > 0 then
           table.insert(list, 1, ham.wsgRuneclothBandage)
         elseif ham.wsgMageweaveBandage.getCount() > 0 then
@@ -101,10 +182,9 @@ function ham.getBandages()
           table.insert(list, 1, ham.wsgSilkBandage)
         end
       end
-      -- Arathi Basin
+      -- Arathi Basin (faction + neutral, runecloth > mageweave > silk)
       if mapId == ham.MAP_ID_ARATHI_BASIN then
         local faction = UnitFactionGroup("player")
-        -- Build AB-specific priority (runecloth > mageweave > silk), faction first then neutral
         local abPriority = {}
         if faction == "Alliance" then
           table.insert(abPriority, ham.highlandersRuneclothBandage)
@@ -129,100 +209,7 @@ function ham.getBandages()
         end
       end
     end
-
-    return list
   end
 
-  -- Wrath Classic
-  if isWrath then
-    return {
-      ham.heavyFrostweaveBandage,
-      ham.frostweaveBandage,
-      ham.heavyNetherweaveBandage,
-      ham.netherweaveBandage,
-      ham.heavyRuneclothBandage,
-      ham.runeclothBandage,
-      ham.heavyMageweaveBandage,
-      ham.mageweaveBandage,
-      ham.heavySilkBandage,
-      ham.silkBandage,
-      ham.heavyWoolBandage,
-      ham.woolBandage,
-      ham.heavyLinenBandage,
-      ham.linenBandage,
-    }
-  end
-
-  -- Cataclysm Classic
-  if isCata then
-    return {
-      ham.denseEmbersilkBandage,
-      ham.heavyEmbersilkBandage,
-      ham.embersilkBandage,
-      ham.heavyFrostweaveBandage,
-      ham.frostweaveBandage,
-      ham.heavyNetherweaveBandage,
-      ham.netherweaveBandage,
-      ham.heavyRuneclothBandage,
-      ham.runeclothBandage,
-      ham.heavyMageweaveBandage,
-      ham.mageweaveBandage,
-      ham.heavySilkBandage,
-      ham.silkBandage,
-      ham.heavyWoolBandage,
-      ham.woolBandage,
-      ham.heavyLinenBandage,
-      ham.linenBandage,
-    }
-  end
-
-  -- Mists Classic
-  if isMop then
-    return {
-      ham.heavyWindwoolBandage,
-      ham.windwoolBandage,
-      ham.denseEmbersilkBandage,
-      ham.heavyEmbersilkBandage,
-      ham.embersilkBandage,
-      ham.heavyFrostweaveBandage,
-      ham.frostweaveBandage,
-      ham.heavyNetherweaveBandage,
-      ham.netherweaveBandage,
-      ham.heavyRuneclothBandage,
-      ham.runeclothBandage,
-      ham.heavyMageweaveBandage,
-      ham.mageweaveBandage,
-      ham.heavySilkBandage,
-      ham.silkBandage,
-      ham.heavyWoolBandage,
-      ham.woolBandage,
-      ham.heavyLinenBandage,
-      ham.linenBandage,
-    }
-  end
-
-  -- Retail (include modern first, then legacy in case they exist)
-  return {
-    ham.denseWilderclothBandage,
-    ham.wilderclothBandage,
-    ham.heavyWindwoolBandage,
-    ham.windwoolBandage,
-    ham.denseEmbersilkBandage,
-    ham.heavyEmbersilkBandage,
-    ham.embersilkBandage,
-    ham.heavyFrostweaveBandage,
-    ham.frostweaveBandage,
-    ham.heavyNetherweaveBandage,
-    ham.netherweaveBandage,
-    ham.heavyRuneclothBandage,
-    ham.runeclothBandage,
-    ham.heavyMageweaveBandage,
-    ham.mageweaveBandage,
-    ham.heavySilkBandage,
-    ham.silkBandage,
-    ham.heavyWoolBandage,
-    ham.woolBandage,
-    ham.heavyLinenBandage,
-    ham.linenBandage,
-  }
+  return list
 end
