@@ -1,10 +1,7 @@
 ---@diagnostic disable: undefined-global
 local L = LibStub("AceLocale-3.0"):GetLocale("AutoPotion")
 local addonName, ham = ...
-local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
-local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
-local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
-local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
+local env = ham.env
 
 ---@class Frame
 ham.settingsFrame = CreateFrame("Frame")
@@ -29,6 +26,9 @@ local bandageFirstIcon = nil
 local bandagePositionX = 0
 local bandagePrioTitle = nil
 
+-- Keep references to generated option checkboxes
+local optionButtons = {}
+
 function ham.settingsFrame:updateConfig(option, value)
 	if ham.options[option] ~= nil then
 		ham.options[option] = value -- Update in-memory
@@ -45,17 +45,19 @@ function ham.settingsFrame:updateConfig(option, value)
 end
 
 function ham.settingsFrame:OnEvent(event, addOnName)
-	if addOnName == "AutoPotion" then
-		if event == "ADDON_LOADED" then
+    if addOnName == "AutoPotion" then
+        if event == ham.EVT_ADDON_LOADED then
 			HAMDB = HAMDB or CopyTable(ham.defaults)
+            ham.refreshOptions()
 			if HAMDB.activatedSpells == nil then
 				print(L["The Settings of AutoPotion were reset due to breaking changes."])
 				HAMDB = CopyTable(ham.defaults)
+                ham.refreshOptions()
 			end
 			self:InitializeOptions()
 		end
 	end
-	if event == "PLAYER_LOGIN" then
+    if event == ham.EVT_PLAYER_LOGIN then
 		self:InitializeClassSpells(myClassTitle)
 		ham.updateHeals()
 		ham.updateMacro()
@@ -64,29 +66,23 @@ function ham.settingsFrame:OnEvent(event, addOnName)
 	end
 end
 
-ham.settingsFrame:RegisterEvent("PLAYER_LOGIN")
-ham.settingsFrame:RegisterEvent("ADDON_LOADED")
+ham.settingsFrame:RegisterEvent(ham.EVT_PLAYER_LOGIN)
+ham.settingsFrame:RegisterEvent(ham.EVT_ADDON_LOADED)
 ham.settingsFrame:SetScript("OnEvent", ham.settingsFrame.OnEvent)
 
 function ham.settingsFrame:createPrioFrame(id, iconTexture, positionx, isSpell, isTinker)
-	local icon = CreateFrame("Frame", nil, self.content, UIParent)
+    if not self or not self.content or not currentPrioTitle then return nil end
+    local icon = CreateFrame("Frame", nil, self.content)
 	icon:SetFrameStrata("MEDIUM")
 	icon:SetWidth(ICON_SIZE)
 	icon:SetHeight(ICON_SIZE)
-	icon:HookScript("OnEnter", function(_, btn, down)
-		GameTooltip:SetOwner(icon, "ANCHOR_TOPRIGHT")
-		if isSpell == true then
-			GameTooltip:SetSpellByID(id)
-		elseif isTinker then
-			GameTooltip:SetInventoryItem("player", id)
-		else
-			GameTooltip:SetItemByID(id)
-		end
-		GameTooltip:Show()
-	end)
-	icon:HookScript("OnLeave", function(_, btn, down)
-		GameTooltip:Hide()
-	end)
+    if isSpell == true then
+        ham.ui.attachSpellTooltip(icon, id)
+    elseif isTinker then
+        ham.ui.attachInventoryTooltip(icon, id)
+    else
+        ham.ui.attachItemTooltip(icon, id)
+    end
 	local texture = icon:CreateTexture(nil, "BACKGROUND")
 	texture:SetTexture(iconTexture)
 	texture:SetAllPoints(icon)
@@ -99,7 +95,7 @@ function ham.settingsFrame:createPrioFrame(id, iconTexture, positionx, isSpell, 
 	else
 		icon:SetPoint("TOPLEFT", firstIcon, positionx, 0)
 	end
-	icon:Show()
+    icon:Show()
 	table.insert(prioFrames, icon)
 	table.insert(prioTextures, texture)
 	prioFramesCounter = prioFramesCounter + 1
@@ -108,18 +104,12 @@ end
 
 -- Create a bandage priority icon frame
 function ham.settingsFrame:createBandagePrioFrame(id, iconTexture, positionx)
-	local icon = CreateFrame("Frame", nil, self.content, UIParent)
+    if not self or not self.content or not bandagePrioTitle then return nil end
+    local icon = CreateFrame("Frame", nil, self.content)
 	icon:SetFrameStrata("MEDIUM")
 	icon:SetWidth(ICON_SIZE)
 	icon:SetHeight(ICON_SIZE)
-	icon:HookScript("OnEnter", function(_, btn, down)
-		GameTooltip:SetOwner(icon, "ANCHOR_TOPRIGHT")
-		GameTooltip:SetItemByID(id)
-		GameTooltip:Show()
-	end)
-	icon:HookScript("OnLeave", function(_, btn, down)
-		GameTooltip:Hide()
-	end)
+    ham.ui.attachItemTooltip(icon, id)
 	local texture = icon:CreateTexture(nil, "BACKGROUND")
 	texture:SetTexture(iconTexture)
 	texture:SetAllPoints(icon)
@@ -132,13 +122,14 @@ function ham.settingsFrame:createBandagePrioFrame(id, iconTexture, positionx)
 	else
 		icon:SetPoint("TOPLEFT", bandageFirstIcon, positionx, 0)
 	end
-	icon:Show()
+    icon:Show()
 	table.insert(bandageFrames, icon)
 	table.insert(bandageTextures, texture)
 	return icon
 end
 
 function ham.settingsFrame:updatePrio()
+    if not self or not self.content or not currentPrioTitle then return end
 	local spellCounter = 0
 	local itemCounter = 0
 
@@ -147,29 +138,15 @@ function ham.settingsFrame:updatePrio()
 	end
 
 	-- Add spells to priority frames
-	--if next(ham.spellIDs) ~= nil then
-	if next(ham.mySpells) ~= nil then
-		--for i, id in ipairs(ham.spellIDs) do
-		for i, spell in ipairs(ham.mySpells) do
-			local iconTexture, originalIconTexture
-			if isRetail == true then
-				iconTexture, originalIconTexture = C_Spell.GetSpellTexture(spell.getId())
-			else
-				iconTexture = GetSpellTexture(spell.getId())
-			end
+	if next(ham.spellIDs) ~= nil then
+		for i, id in ipairs(ham.spellIDs) do
+            local iconTexture = ham.getSpellTexture and ham.getSpellTexture(id) or GetSpellTexture(id)
 			local currentFrame = prioFrames[i]
 			local currentTexture = prioTextures[i]
 			if currentFrame ~= nil then
-				currentFrame:SetScript("OnEnter", nil)
-				currentFrame:SetScript("OnLeave", nil)
-				currentFrame:HookScript("OnEnter", function(_, btn, down)
-					GameTooltip:SetOwner(currentFrame, "ANCHOR_TOPRIGHT")
-					GameTooltip:SetSpellByID(spell.getId())
-					GameTooltip:Show()
-				end)
-				currentFrame:HookScript("OnLeave", function(_, btn, down)
-					GameTooltip:Hide()
-				end)
+                currentFrame:SetScript("OnEnter", nil)
+                currentFrame:SetScript("OnLeave", nil)
+                ham.ui.attachSpellTooltip(currentFrame, id)
 				currentTexture:SetTexture(iconTexture)
 				currentTexture:SetAllPoints(currentFrame)
 				currentFrame.texture = currentTexture
@@ -190,36 +167,28 @@ function ham.settingsFrame:updatePrio()
 			local isTinker = false
 
 			-- if the entry is a gear slot (ie: tinker)
-			if type(id) == "string" and id:match("^slot:") then
-				local slot = assert(tonumber(id:sub(6)), "Invalid slot number")
+            if type(id) == "string" and id:match("^" .. ham.SLOT_PREFIX) then
+                local slot = assert(tonumber(id:sub(#ham.SLOT_PREFIX + 1)), "Invalid slot number")
 				entry = GetInventoryItemID("player", slot)
 				iconTexture = GetInventoryItemTexture("player", slot)
 				isTinker = true
 				-- otherwise its a normal item id
-			else
-				local _, _, _, _, _, _, _, _, _, tmpTexture = C_Item.GetItemInfo(id)
-				entry = id
-				iconTexture = tmpTexture
+            else
+                entry = id
+                iconTexture = ham.getItemIcon and ham.getItemIcon(id)
 			end
 
 			local currentFrame = prioFrames[i + spellCounter]
 			local currentTexture = prioTextures[i + spellCounter]
 
 			if currentFrame ~= nil then
-				currentFrame:SetScript("OnEnter", nil)
-				currentFrame:SetScript("OnLeave", nil)
-				currentFrame:HookScript("OnEnter", function(_, btn, down)
-					GameTooltip:SetOwner(currentFrame, "ANCHOR_TOPRIGHT")
-					if isTinker then
-						GameTooltip:SetInventoryItem("player", ham.tinkerSlot)
-					else
-						GameTooltip:SetItemByID(id)
-					end
-					GameTooltip:Show()
-				end)
-				currentFrame:HookScript("OnLeave", function(_, btn, down)
-					GameTooltip:Hide()
-				end)
+                currentFrame:SetScript("OnEnter", nil)
+                currentFrame:SetScript("OnLeave", nil)
+                if isTinker then
+                    ham.ui.attachInventoryTooltip(currentFrame, ham.tinkerSlot)
+                else
+                    ham.ui.attachItemTooltip(currentFrame, id)
+                end
 				currentTexture:SetTexture(iconTexture)
 				currentTexture:SetAllPoints(currentFrame)
 				currentFrame.texture = currentTexture
@@ -235,6 +204,7 @@ end
 
 -- Update the Bandage Priority section
 function ham.settingsFrame:updateBandagePrio()
+    if not self or not self.content or not bandagePrioTitle then return end
 	-- hide existing
 	for _, frame in pairs(bandageFrames) do
 		frame:Hide()
@@ -248,22 +218,15 @@ function ham.settingsFrame:updateBandagePrio()
 		local shown = 0
 		for _, item in ipairs(bandages) do
 			if item.getCount and item.getCount() > 0 then
-				local id = item.getId()
-				local _, _, _, _, _, _, _, _, _, iconTexture = C_Item.GetItemInfo(id)
+                local id = item.getId()
+                local iconTexture = ham.getItemIcon and ham.getItemIcon(id)
 				local idx = shown + 1
 				local currentFrame = bandageFrames[idx]
 				local currentTexture = bandageTextures[idx]
 				if currentFrame ~= nil then
-					currentFrame:SetScript("OnEnter", nil)
-					currentFrame:SetScript("OnLeave", nil)
-					currentFrame:HookScript("OnEnter", function(_, btn, down)
-						GameTooltip:SetOwner(currentFrame, "ANCHOR_TOPRIGHT")
-						GameTooltip:SetItemByID(id)
-						GameTooltip:Show()
-					end)
-					currentFrame:HookScript("OnLeave", function(_, btn, down)
-						GameTooltip:Hide()
-					end)
+                currentFrame:SetScript("OnEnter", nil)
+                currentFrame:SetScript("OnLeave", nil)
+                ham.ui.attachItemTooltip(currentFrame, id)
 					currentTexture:SetTexture(iconTexture)
 					currentTexture:SetAllPoints(currentFrame)
 					currentFrame.texture = currentTexture
@@ -312,57 +275,52 @@ function ham.settingsFrame:InitializeOptions()
 	behaviourTitle:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 0, -PADDING)
 	behaviourTitle:SetText(L["Addon Behaviour"])
 
-	-------------  Stop Casting  -------------	
-	local stopCastButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-	stopCastButton:SetPoint("TOPLEFT", behaviourTitle, 0, -PADDING)
-	---@diagnostic disable-next-line: undefined-field
-	stopCastButton.Text:SetText(L["Include /stopcasting in the macro"])
-	stopCastButton:HookScript("OnClick", function(_, btn, down)
-		ham.settingsFrame:updateConfig("stopCast", stopCastButton:GetChecked())
-	end)
-	stopCastButton:HookScript("OnEnter", function(_, btn, down)
-		---@diagnostic disable-next-line: param-type-mismatch
-		GameTooltip:SetOwner(stopCastButton, "ANCHOR_TOPRIGHT")
-		GameTooltip:SetText(L["Useful for casters."])
-		GameTooltip:Show()
-	end)
-	stopCastButton:HookScript("OnLeave", function(_, btn, down)
-		GameTooltip:Hide()
-	end)
-	stopCastButton:SetChecked(HAMDB.stopCast)
-	lastStaticElement = stopCastButton
+    -- Helper to create a checkbox based on a schema spec
+    local function createOption(spec, anchorTo)
+        local btn = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
+        -- Position: either relative to given anchor or using grid (row/col) under the provided anchor
+        if spec.anchor == "grid" and anchorTo then
+            local x = (spec.col or 0) * PADDING_HORIZONTAL
+            local y = - (spec.row or 1) * PADDING
+            btn:SetPoint("TOPLEFT", anchorTo, x, y)
+        else
+            btn:SetPoint("TOPLEFT", anchorTo or behaviourTitle, spec.offsetX or 0, - (spec.offsetY or PADDING))
+        end
+        ---@diagnostic disable-next-line: undefined-field
+        btn.Text:SetText(spec.label)
+        btn:HookScript("OnClick", function()
+            ham.settingsFrame:updateConfig(spec.key, btn:GetChecked())
+        end)
+        if spec.onEnter then
+            btn:HookScript("OnEnter", function() spec.onEnter(btn) end)
+            btn:HookScript("OnLeave", function() GameTooltip:Hide() end)
+        elseif spec.tooltip then
+            btn:HookScript("OnEnter", function()
+                GameTooltip:SetOwner(btn, "ANCHOR_TOPRIGHT")
+                GameTooltip:SetText(spec.tooltip)
+                GameTooltip:Show()
+            end)
+            btn:HookScript("OnLeave", function() GameTooltip:Hide() end)
+        end
+        btn:SetChecked(ham.options[spec.key])
+        optionButtons[spec.key] = btn
+        return btn
+    end
 
-	-------------  Shortest Cooldown  -------------	
-	local cdResetButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-	cdResetButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
-	---@diagnostic disable-next-line: undefined-field
-	cdResetButton.Text:SetText(L
-		["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"])
-	cdResetButton:HookScript("OnClick", function(_, btn, down)
-		ham.settingsFrame:updateConfig("cdReset", cdResetButton:GetChecked())
-	end)
-	cdResetButton:SetChecked(HAMDB.cdReset)
-	lastStaticElement = cdResetButton
+    -- Behavior options
+    local behaviorSchema = {
+        { key = "stopCast", label = L["Include /stopcasting in the macro"], tooltip = L["Useful for casters."], offsetX = 0, offsetY = PADDING },
+        { key = "cdReset", label = L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"], offsetX = 0, offsetY = PADDING },
+        { key = "raidStone", label = L["Low Priority Healthstones"], onEnter = function(btn)
+            GameTooltip:SetOwner(btn, "ANCHOR_TOPRIGHT"); GameTooltip:SetText(L["Prioritize health potions over a healthstone."]); GameTooltip:Show()
+        end, offsetX = 0, offsetY = PADDING },
+    }
 
-	-------------  Healthstone Priority  -------------	
-	local raidStoneButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-	raidStoneButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
-	---@diagnostic disable-next-line: undefined-field
-	raidStoneButton.Text:SetText(L["Low Priority Healthstones"])
-	raidStoneButton:HookScript("OnClick", function(_, btn, down)
-		ham.settingsFrame:updateConfig("raidStone", raidStoneButton:GetChecked())
-	end)
-	raidStoneButton:HookScript("OnEnter", function(_, btn, down)
-		---@diagnostic disable-next-line: param-type-mismatch
-		GameTooltip:SetOwner(raidStoneButton, "ANCHOR_TOPRIGHT")
-		GameTooltip:SetText(L["Prioritize health potions over a healthstone."])
-		GameTooltip:Show()
-	end)
-	raidStoneButton:HookScript("OnLeave", function(_, btn, down)
-		GameTooltip:Hide()
-	end)
-	raidStoneButton:SetChecked(HAMDB.raidStone)
-	lastStaticElement = raidStoneButton
+    local last = behaviourTitle
+    for _, spec in ipairs(behaviorSchema) do
+        last = createOption(spec, last)
+    end
+    lastStaticElement = last
 
 
 	-------------  ITEMS  -------------
@@ -370,92 +328,32 @@ function ham.settingsFrame:InitializeOptions()
 	local witheringDreamsPotionButton = nil
 	local cavedwellerDelightButton = nil
 	local heartseekingButton = nil
-	if isRetail then
-		local itemsTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-		itemsTitle:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING_CATERGORY)
-		itemsTitle:SetText(L["Items"])
+            if env and env.isRetail then
+        local itemsTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+        itemsTitle:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING_CATERGORY)
+        itemsTitle:SetText(L["Items"])
 
-		---Withering Potion---
-		witheringPotionButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-		witheringPotionButton:SetPoint("TOPLEFT", itemsTitle, 0, -PADDING)
-		---@diagnostic disable-next-line: undefined-field
-		witheringPotionButton.Text:SetText(L["Potion of Withering Vitality"])
-		witheringPotionButton:HookScript("OnClick", function(_, btn, down)
-			ham.settingsFrame:updateConfig("witheringPotion", witheringPotionButton:GetChecked())
-		end)
-		witheringPotionButton:HookScript("OnEnter", function(_, btn, down)
-			---@diagnostic disable-next-line: param-type-mismatch
-			GameTooltip:SetOwner(witheringPotionButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetItemByID(ham.witheringR3.getId())
-			GameTooltip:Show()
-		end)
-		witheringPotionButton:HookScript("OnLeave", function(_, btn, down)
-			GameTooltip:Hide()
-		end)
-		witheringPotionButton:SetChecked(HAMDB.witheringPotion)
+        local itemSchema = {
+            { key = "witheringPotion", label = L["Potion of Withering Vitality"], anchor = "grid", row = 1, col = 0, onEnter = function(btn)
+                GameTooltip:SetOwner(btn, "ANCHOR_TOPRIGHT"); GameTooltip:SetItemByID(ham.witheringR3.getId()); GameTooltip:Show()
+            end },
+            { key = "witheringDreamsPotion", label = L["Potion of Withering Dreams"], anchor = "grid", row = 1, col = 1, onEnter = function(btn)
+                GameTooltip:SetOwner(btn, "ANCHOR_TOPRIGHT"); GameTooltip:SetItemByID(ham.witheringDreamsR3.getId()); GameTooltip:Show()
+            end },
+            { key = "cavedwellerDelight", label = L["Cavedweller's Delight"], anchor = "grid", row = 1, col = 2, onEnter = function(btn)
+                GameTooltip:SetOwner(btn, "ANCHOR_TOPRIGHT"); GameTooltip:SetItemByID(ham.cavedwellersDelightR3.getId()); GameTooltip:Show()
+            end },
+            { key = "heartseekingInjector", label = L["Heartseeking Health Injector (tinker)"], anchor = "grid", row = 2, col = 0, onEnter = function(btn)
+                if ham.tinkerSlot then GameTooltip:SetOwner(btn, "ANCHOR_TOPRIGHT"); GameTooltip:SetInventoryItem("player", ham.tinkerSlot); GameTooltip:Show() end
+            end },
+        }
 
-		---Withering Dreams Potion---
-		witheringDreamsPotionButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-		witheringDreamsPotionButton:SetPoint("TOPLEFT", itemsTitle, PADDING_HORIZONTAL, -PADDING)
-		---@diagnostic disable-next-line: undefined-field
-		witheringDreamsPotionButton.Text:SetText(L["Potion of Withering Dreams"])
-		witheringDreamsPotionButton:HookScript("OnClick", function(_, btn, down)
-			ham.settingsFrame:updateConfig("witheringDreamsPotion", witheringDreamsPotionButton:GetChecked())
-		end)
-		witheringDreamsPotionButton:HookScript("OnEnter", function(_, btn, down)
-			---@diagnostic disable-next-line: param-type-mismatch
-			GameTooltip:SetOwner(witheringDreamsPotionButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetItemByID(ham.witheringDreamsR3.getId())
-			GameTooltip:Show()
-		end)
-		witheringDreamsPotionButton:HookScript("OnLeave", function(_, btn, down)
-			GameTooltip:Hide()
-		end)
-		witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
-
-		---Cavedwellers Delight---
-		cavedwellerDelightButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-		cavedwellerDelightButton:SetPoint("TOPLEFT", itemsTitle, PADDING_HORIZONTAL * 2, -PADDING)
-		---@diagnostic disable-next-line: undefined-field
-		cavedwellerDelightButton.Text:SetText(L["Cavedweller's Delight"])
-		cavedwellerDelightButton:HookScript("OnClick", function(_, btn, down)
-			ham.settingsFrame:updateConfig("cavedwellerDelight", cavedwellerDelightButton:GetChecked())
-		end)
-		cavedwellerDelightButton:HookScript("OnEnter", function(_, btn, down)
-			---@diagnostic disable-next-line: param-type-mismatch
-			GameTooltip:SetOwner(cavedwellerDelightButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetItemByID(ham.cavedwellersDelightR3.getId())
-			GameTooltip:Show()
-		end)
-		cavedwellerDelightButton:HookScript("OnLeave", function(_, btn, down)
-			GameTooltip:Hide()
-		end)
-		cavedwellerDelightButton:SetChecked(HAMDB.cavedwellerDelight)
-
-		---Heartseeking Health Injector---
-		heartseekingButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-		--Padding*2 because its a new Row
-		heartseekingButton:SetPoint("TOPLEFT", itemsTitle, 0, -PADDING * 2)
-		---@diagnostic disable-next-line: undefined-field
-		heartseekingButton.Text:SetText(L["Heartseeking Health Injector (tinker)"])
-		heartseekingButton:HookScript("OnClick", function(_, btn, down)
-			ham.settingsFrame:updateConfig("heartseekingInjector", heartseekingButton:GetChecked())
-		end)
-		heartseekingButton:HookScript("OnEnter", function(_, btn, down)
-			---@diagnostic disable-next-line: param-type-mismatch
-			if ham.tinkerSlot then
-				GameTooltip:SetOwner(heartseekingButton, "ANCHOR_TOPRIGHT")
-				GameTooltip:SetInventoryItem("player", ham.tinkerSlot)
-				GameTooltip:Show()
-			end
-		end)
-		heartseekingButton:HookScript("OnLeave", function(_, btn, down)
-			GameTooltip:Hide()
-		end)
-		heartseekingButton:SetChecked(HAMDB.heartseekingInjector)
-
-		lastStaticElement = heartseekingButton
-	end
+        local lastItem
+        for _, spec in ipairs(itemSchema) do
+            lastItem = createOption(spec, itemsTitle)
+        end
+        lastStaticElement = lastItem or itemsTitle
+    end
 
 	-------------  CLASS / RACIALS  -------------
 	myClassTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
@@ -488,16 +386,9 @@ function ham.settingsFrame:InitializeOptions()
 				button:SetChecked(false)
 			end
 		end
-		cdResetButton:SetChecked(HAMDB.cdReset)
-		raidStoneButton:SetChecked(HAMDB.raidStone)
-		if isRetail then
-			---@diagnostic disable-next-line: need-check-nil
-			witheringPotionButton:SetChecked(HAMDB.witheringPotion)
-			---@diagnostic disable-next-line: need-check-nil
-			witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
-			---@diagnostic disable-next-line: need-check-nil
-			cavedwellerDelightButton:SetChecked(HAMDB.cavedwellerDelight)
-		end
+        for key, btn in pairs(optionButtons) do
+            if btn and btn.SetChecked then btn:SetChecked(ham.options[key]) end
+        end
 		ham.updateHeals()
 		ham.updateMacro()
 		self:updatePrio()
@@ -512,7 +403,8 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 	if next(ham.supportedSpells) ~= nil then
 		local count = 0
 		for i, spell in ipairs(ham.supportedSpells) do
-			if spell.isKnown() then
+			if IsSpellKnown(spell) or IsSpellKnown(spell, true) then
+				local name = ham.getSpellName(spell)
 				local button = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 
 				if count == 3 then

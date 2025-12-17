@@ -8,12 +8,7 @@ ham.Item.new = function(id, name)
   self.id = id
   self.name = name
 
-  local function setName()
-    local itemInfoName = C_Item.GetItemInfo(self.id)
-    if itemInfoName ~= nil then
-      self.name = itemInfoName
-    end
-  end
+  local function setName() end
 
   function self.getId()
     return self.id
