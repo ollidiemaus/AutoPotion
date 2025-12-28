@@ -3,7 +3,7 @@ if not L then return end
 
 -- InterfaceOptionsFrame
 L["Addon Behaviour"] = "Addon Verhalten"
-L["Auto Potion Settings"] = "Auto Potion Einstellungen"
+L["Auto Potion Settings"] = "AutoPotion Einstellungen"
 L["Cavedweller's Delight"] = "Höhlenbewohnerschmaus"
 L["Class/Racial Spells"] = "Klassen-/Volkszauber"
 L["Configure the behavior of the addon. IE: if you want to include class spells"] = "Konfiguriert das Verhalten des Addons. Z.B.: wenn du Klassenzauber einbeziehen möchtest"
