@@ -9,7 +9,7 @@ L["Class/Racial Spells"] = "Классовые/расовые заклинани
 L["Configure the behavior of the addon. IE: if you want to include class spells"] =
 "Настройте поведение аддона. То есть: если вы хотите включить классовые заклинания"
 L["Current Priority"] = "Текущий приоритет"
-L["Bandage Priority"] = "Bandage Priority"
+L["Bandage Priority"] = "Приоритет при перевязке"
 L["Heartseeking Health Injector (tinker)"] = "Сердечный инжектор здоровья (гаджет)"
 L["Include /stopcasting in the macro"] = "Включить /stopcasting в макрос"
 L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"] =
@@ -28,3 +28,4 @@ L["Useful for casters."] = "Полезно для кастеров."
 
 -- code
 L["AutoPotion"] = "AutoPotion"
+
