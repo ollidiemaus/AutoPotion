@@ -4,6 +4,7 @@ local macroName = L["AutoPotion"]
 local bandageMacroName = L["AutoBandage"] or "AutoBandage"
 local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+local isTBC = (WOW_PROJECT_ID == 5) -- TBC Anniversary / BCC
 local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 local isMop = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
@@ -78,7 +79,7 @@ local function addPlayerHealingItemIfAvailable()
 end
 
 local function addHealthstoneIfAvailable()
-  if isClassic == true or isWrath == true or isCata == true or isMop == true then
+  if isClassic == true or isTBC == true or isWrath == true or isCata == true or isMop == true then
     for i, value in ipairs(ham.getHealthstonesClassic()) do
       if value.getCount() > 0 then
         table.insert(ham.itemIdList, value.getId())
@@ -358,13 +359,13 @@ function ham.updateMacro()
     end
     --recuperate
     --this condition is needed because if not used the castsequence will use off gcd heals direclty after recuperate
-    local combatCondition=''
+    local combatCondition = ''
     if isRetail and ham.dbContains(ham.recuperate.getId()) and ham.recuperate.isKnown() then
       combatCondition = ',combat'
       macroStr = macroStr .. "/cast [nocombat] " .. ham.recuperate.getName() .. "\n"
     end
 
-    macroStr = macroStr .. "/castsequence [@player"..combatCondition.."] reset=" .. resetType .. " "
+    macroStr = macroStr .. "/castsequence [@player" .. combatCondition .. "] reset=" .. resetType .. " "
     if spellsMacroString ~= "" then
       macroStr = macroStr .. spellsMacroString
     end

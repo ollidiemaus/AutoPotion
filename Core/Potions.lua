@@ -350,6 +350,30 @@ function ham.getHealthstonesClassic()
     }
   end
 
+  if isTBC then
+    -- TBC uses the same healthstones as Classic
+    return {
+      ham.major2,
+      ham.major1,
+      ham.major0,
+      ham.greater2,
+      ham.greater1,
+      ham.greater0,
+      ham.wipperRootTuber,
+      ham.healtsthone2,
+      ham.healtsthone1,
+      ham.lilyRoot,
+      ham.healtsthone0,
+      ham.crystalFlakeThroatLozenge,
+      ham.lesser2,
+      ham.lesser1,
+      ham.lesser0,
+      ham.minor2,
+      ham.minor1,
+      ham.minor0
+    }
+  end
+
   if isWrath then
     return {
       ham.fel2,
@@ -430,30 +454,6 @@ function ham.getHealthstonesClassic()
       ham.healtsthone2,
       ham.healtsthone1,
       ham.healtsthone0,
-      ham.lesser2,
-      ham.lesser1,
-      ham.lesser0,
-      ham.minor2,
-      ham.minor1,
-      ham.minor0
-    }
-  end
-
-  if isTBC then
-    -- TBC uses the same healthstones as Classic
-    return {
-      ham.major2,
-      ham.major1,
-      ham.major0,
-      ham.greater2,
-      ham.greater1,
-      ham.greater0,
-      ham.wipperRootTuber,
-      ham.healtsthone2,
-      ham.healtsthone1,
-      ham.lilyRoot,
-      ham.healtsthone0,
-      ham.crystalFlakeThroatLozenge,
       ham.lesser2,
       ham.lesser1,
       ham.lesser0,
