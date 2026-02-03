@@ -9,6 +9,13 @@ local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 local isMop = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
 
+local function isInInstancedPvP()
+  if not isRetail then return false end
+  local inInstance, instanceType = IsInInstance()
+  return inInstance and (instanceType == "pvp" or instanceType == "arena")
+end
+ham.isInInstancedPvP = isInInstancedPvP
+
 -- Configuration options
 -- Use in-memory options as HAMDB updates are not persisted instantly.
 -- We'll also use lazy initialization to prevent early access issues.
@@ -132,14 +139,16 @@ function ham.updateHeals()
     addHealthstoneIfAvailable()
   end
 
-  -- Priority 3: Add Health Pots if available, and Heartseeking is NOT available or enabled
-  if not ham.options.heartseekingInjector or not ham.tinkerSlot then
-    addPotIfAvailable()
-  end
+  -- Priority 3: Add Health Pots (skip in instanced PvP - not allowed)
+  if not isInInstancedPvP() then
+    if not ham.options.heartseekingInjector or not ham.tinkerSlot then
+      addPotIfAvailable()
+    end
 
-  -- Priority 4: Add Cavedweller's Delight if enabled
-  if ham.options.cavedwellerDelight then
-    addPotIfAvailable(true)
+    -- Priority 4: Add Cavedweller's Delight if enabled
+    if ham.options.cavedwellerDelight then
+      addPotIfAvailable(true)
+    end
   end
 
   -- Priority 5: Add Healthstone if set to lower priority
@@ -357,10 +366,10 @@ function ham.updateMacro()
     if ham.options.stopCast then
       macroStr = macroStr .. "/stopcasting \n"
     end
-    --recuperate
-    --this condition is needed because if not used the castsequence will use off gcd heals direclty after recuperate
+    -- Recuperate: not in instanced PvP (not allowed) and out-of-combat only
+    -- this condition is needed because if not used the castsequence will use off gcd heals direclty after recuperate
     local combatCondition = ''
-    if isRetail and ham.dbContains(ham.recuperate.getId()) and ham.recuperate.isKnown() then
+    if isRetail and not isInInstancedPvP() and ham.dbContains(ham.recuperate.getId()) and ham.recuperate.isKnown() then
       combatCondition = ',combat'
       macroStr = macroStr .. "/cast [nocombat] " .. ham.recuperate.getName() .. "\n"
     end
