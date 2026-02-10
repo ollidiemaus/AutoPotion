@@ -22,6 +22,3 @@ if not L then return end
 --L["Reset to Default"] = "Reset to Default"
 --L["The Settings of AutoPotion were reset due to breaking changes."] = "The Settings of AutoPotion were reset due to breaking changes."
 --L["Useful for casters."] = "Useful for casters."
-
--- code
---L["AutoPotion"] = "AutoPotion"

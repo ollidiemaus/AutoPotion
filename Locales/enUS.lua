@@ -25,6 +25,6 @@ L["The Settings of AutoPotion were reset due to breaking changes."] =
 "The Settings of AutoPotion were reset due to breaking changes."
 L["Useful for casters."] = "Useful for casters."
 
--- code
-L["AutoPotion"] = "AutoPotion"
-L["AutoBandage"] = "AutoBandage"
+-- DO NOT TRANSLATE
+L["AutoPotion"] = "AutoPotion"   -- DO NOT TRANSLATE
+L["AutoBandage"] = "AutoBandage" -- DO NOT TRANSLATE

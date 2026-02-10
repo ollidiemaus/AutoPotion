@@ -25,7 +25,3 @@ L["Reset to Default"] = "Сброс"
 L["The Settings of AutoPotion were reset due to breaking changes."] =
 "Настройки AutoPotion были сброшены из-за критических изменений."
 L["Useful for casters."] = "Полезно для кастеров."
-
--- code
-L["AutoPotion"] = "AutoPotion"
-

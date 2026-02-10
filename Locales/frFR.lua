@@ -2,26 +2,27 @@ local L = LibStub("AceLocale-3.0"):NewLocale("AutoPotion", "frFR")
 if not L then return end
 
 -- InterfaceOptionsFrame
---L["Addon Behaviour"] = "Addon Behaviour"
---L["Auto Potion Settings"] = "Auto Potion Settings"
---L["Cavedweller's Delight"] = "Cavedweller's Delight"
---L["Class/Racial Spells"] = "Class/Racial Spells"
---L["Configure the behavior of the addon. IE: if you want to include class spells"] = "Configure the behavior of the addon. IE: if you want to include class spells"
---L["Current Priority"] = "Current Priority"
---L["Bandage Priority"] = "Bandage Priority"
---L["Heartseeking Health Injector (tinker)"] = "Heartseeking Health Injector (tinker)"
---L["Include /stopcasting in the macro"] = "Include /stopcasting in the macro"
---L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"] = "Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"
---L["Invalid option: "] = "Invalid option: "
---L["Items"] = "Items"
---L["Low Priority Healthstones"] = "Low Priority Healthstones"
---L["Potion of Withering Dreams"] = "Potion of Withering Dreams"
---L["Potion of Withering Vitality"] = "Potion of Withering Vitality"
---L["Prioritize health potions over a healthstone."] = "Prioritize health potions over a healthstone."
---L["Reset successful!"] = "Reset successful!"
---L["Reset to Default"] = "Reset to Default"
---L["The Settings of AutoPotion were reset due to breaking changes."] = "The Settings of AutoPotion were reset due to breaking changes."
---L["Useful for casters."] = "Useful for casters."
-
--- code
---L["AutoPotion"] = "AutoPotion"
+L["Addon Behaviour"] = "Comportement de l'addon"
+L["Paramètres d'Auto Potion"] = "Paramètres d'Auto Potion"
+L["Délice du troglodyte"] = "Délice du troglodyte"
+L["Sorts de classe/raciaux"] = "Sorts de classe/raciaux"
+L["Configurez le comportement de l'addon. Par exemple : si vous souhaitez inclure des sorts de classe"] =
+"Configurez le comportement de l'addon. Par exemple : si vous souhaitez inclure des sorts de classe"
+L["Priorité actuelle"] = "Priorité actuelle"
+L["Priorité des bandages"] = "Priorité des bandages"
+L["Injecteur de santé cherche-cœur (bricolage)"] = "Injecteur de santé cherche-cœur (bricolage)"
+L["Inclure /stopcasting dans la macro"] = "Inclure /stopcasting dans la macro"
+L["Inclut le temps de recharge le plus court dans la condition de réinitialisation de Castsequence. !!À UTILISER AVEC PRÉCAUTION!!"] =
+"Inclut le temps de recharge le plus court dans la condition de réinitialisation de Castsequence. !!À UTILISER AVEC PRÉCAUTION!!"
+L["Option invalide : "] = "Option invalide : "
+L["Objets"] = "Objets"
+L["Pierres de soins de faible priorité"] = "Pierres de soins de faible priorité"
+L["Potion des rêves flétrissants"] = "Potion des rêves flétrissants"
+L["Potion de vitalité flétrissante"] = "Potion de vitalité flétrissante"
+L["Prioriser les potions de santé par rapport à une pierre de soins."] =
+"Prioriser les potions de santé par rapport à une pierre de soins."
+L["Réinitialisation réussie !"] = "Réinitialisation réussie !"
+L["Réinitialiser par défaut"] = "Réinitialiser par défaut"
+L["Les paramètres d'AutoPotion ont été réinitialisés en raison de modifications importantes."] =
+"Les paramètres d'AutoPotion ont été réinitialisés en raison de modifications importantes."
+L["Utile pour les lanceurs de sorts."] = "Utile pour les lanceurs de sorts."
