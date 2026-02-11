@@ -98,10 +98,11 @@ ham.greater2 = ham.Item.new(19011, "Greater Healthstone")
 ham.major0 = ham.Item.new(9421, "Major Healthstone")
 ham.major1 = ham.Item.new(19012, "Major Healthstone")
 ham.major2 = ham.Item.new(19013, "Major Healthstone")
-------Healthstones for WotLK------
+------Healthstones for TBC------
 ham.master0 = ham.Item.new(22103, "Master Healthstone")
 ham.master1 = ham.Item.new(22104, "Master Healthstone")
 ham.master2 = ham.Item.new(22105, "Master Healthstone")
+------Healthstones for WotLK------
 ham.demonicWotLK0 = ham.Item.new(36889, "Demonic Healthstone")
 ham.demonicWotLK1 = ham.Item.new(36890, "Demonic Healthstone")
 ham.demonicWotLK2 = ham.Item.new(36891, "Demonic Healthstone")
@@ -351,8 +352,10 @@ function ham.getHealthstonesClassic()
   end
 
   if isTBC then
-    -- TBC uses the same healthstones as Classic
     return {
+      ham.master2,
+      ham.master1,
+      ham.master0,
       ham.major2,
       ham.major1,
       ham.major0,
