@@ -25,7 +25,3 @@ L["Reset to Default"] = "Redefinir para Padrão"
 L["The Settings of AutoPotion were reset due to breaking changes."] =
 "As configurações do AutoPotion foram redefinidas devido a mudanças significativas."
 L["Useful for casters."] = "Útil para conjuradores."
-
--- DO NOT TRANSLATE
-L["AutoPotion"] = "AutoPotion"   -- DO NOT TRANSLATE
-L["AutoBandage"] = "AutoBandage" -- DO NOT TRANSLATE
