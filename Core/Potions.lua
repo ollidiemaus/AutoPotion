@@ -231,6 +231,7 @@ function ham.getPots()
 
   if isTBC then
     local pots = {
+      ham.injector,
       ham.superreju,
       ham.auchenai,
       ham.super,
