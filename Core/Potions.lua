@@ -126,8 +126,8 @@ end
 function ham.getDelightPots()
   if isRetail then
     return {
-	    ham.refreshingSerumR2,
-	    ham.refreshingSerumR1,      
+	  ham.refreshingSerumR2,
+	  ham.refreshingSerumR1,      
       ham.cavedwellersDelightR3,
       ham.cavedwellersDelightR2,
       ham.cavedwellersDelightR1,
