@@ -5,6 +5,7 @@ if not L then return end
 L["Addon Behaviour"] = "Поведение аддона"
 L["Auto Potion Settings"] = "Настройки автоматического зелья"
 L["Cavedweller's Delight"] = "Упоение обитателя пещер"
+L["Refreshing Serum"] = "Освежающая сыворотка"
 L["Class/Racial Spells"] = "Классовые/расовые заклинания"
 L["Configure the behavior of the addon. IE: if you want to include class spells"] =
 "Настройте поведение аддона. То есть: если вы хотите включить классовые заклинания"

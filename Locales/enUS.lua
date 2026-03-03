@@ -4,6 +4,7 @@ local L = LibStub("AceLocale-3.0"):NewLocale("AutoPotion", "enUS", true)
 L["Addon Behaviour"] = "Addon Behaviour"
 L["Auto Potion Settings"] = "Auto Potion Settings"
 L["Cavedweller's Delight"] = "Cavedweller's Delight"
+L["Refreshing Serum"] = "Refreshing Serum"
 L["Class/Racial Spells"] = "Class/Racial Spells"
 L["Configure the behavior of the addon. IE: if you want to include class spells"] =
 "Configure the behavior of the addon. IE: if you want to include class spells"

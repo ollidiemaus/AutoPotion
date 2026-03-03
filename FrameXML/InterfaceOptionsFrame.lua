@@ -424,18 +424,18 @@ function ham.settingsFrame:InitializeOptions()
 		end)
 		witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
 
-		---Cavedwellers Delight---
+		---Refreshing Serum buttons could be renamed---
 		cavedwellerDelightButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 		cavedwellerDelightButton:SetPoint("TOPLEFT", itemsTitle, PADDING_HORIZONTAL * 2, -PADDING)
 		---@diagnostic disable-next-line: undefined-field
-		cavedwellerDelightButton.Text:SetText(L["Cavedweller's Delight"])
+		cavedwellerDelightButton.Text:SetText(L["Refreshing Serum"])
 		cavedwellerDelightButton:HookScript("OnClick", function(_, btn, down)
 			ham.settingsFrame:updateConfig("cavedwellerDelight", cavedwellerDelightButton:GetChecked())
 		end)
 		cavedwellerDelightButton:HookScript("OnEnter", function(_, btn, down)
 			---@diagnostic disable-next-line: param-type-mismatch
 			GameTooltip:SetOwner(cavedwellerDelightButton, "ANCHOR_TOPRIGHT")
-			GameTooltip:SetItemByID(ham.cavedwellersDelightR3.getId())
+			GameTooltip:SetItemByID(ham.refreshingSerumR2.getId())
 			GameTooltip:Show()
 		end)
 		cavedwellerDelightButton:HookScript("OnLeave", function(_, btn, down)
