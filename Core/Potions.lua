@@ -10,6 +10,7 @@ local isMop = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
 ham.healthstone = ham.Item.new(5512, "Healthstone")
 ham.demonicHealthstone = ham.Item.new(224464, "Demonic Healthstone") ---1 Minute CD due to Pact of Gluttony
 --Midnight
+ham.potent = ham.Item.new(258138, "Potent Healing Potion")           -- 50% -healing
 ham.silvermoonPotion2 = ham.Item.new(241304, "Silvermoon Health Potion")
 ham.silvermoonPotion1 = ham.Item.new(241305, "Silvermoon Health Potion")
 ham.refreshingSerumR2 = ham.Item.new(241306, "Refreshing Serum")
@@ -144,6 +145,7 @@ end
 function ham.getPots()
   if isRetail then
     local pots = {
+      ham.potent,
       ham.silvermoonPotion2,
       ham.silvermoonPotion1,
       ham.fleetingInvigoratingHealingPotionR3,
