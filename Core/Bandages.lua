@@ -68,6 +68,10 @@ ham.weaverclothBandageR3 = ham.Item.new(224442, "Weavercloth Bandage")
 ham.weaverclothBandageR2 = ham.Item.new(224441, "Weavercloth Bandage")
 ham.weaverclothBandageR1 = ham.Item.new(224440, "Weavercloth Bandage")
 
+-- Midnight
+ham.brightlinenBandageR2 = ham.Item.new(239713, "Bright Linen Bandage")
+ham.brightlinenBandageR1 = ham.Item.new(239711, "Bright Linen Bandage")
+
 -- Return a prioritized list of bandage items for the current client
 function ham.getBandages()
   -- Classic Era only has classic bandages
@@ -209,6 +213,8 @@ function ham.getBandages()
 
   -- Retail (include modern first, then legacy in case they exist)
   return {
+    ham.brightlinenBandageR2,
+    ham.brightlinenBandageR1,
     ham.weaverclothBandageR3,
     ham.weaverclothBandageR2,
     ham.weaverclothBandageR1,
