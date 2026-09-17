@@ -72,6 +72,7 @@ function ham.getBandages()
   if ham.isWrath and ham.getBandagesForWrath then return ham.getBandagesForWrath() end
   if ham.isCata and ham.getBandagesForCata then return ham.getBandagesForCata() end
   if ham.isMop and ham.getBandagesForMists then return ham.getBandagesForMists() end
+  if ham.isForever and ham.getBandagesForForever then return ham.getBandagesForForever() end
 
   -- Everything else (Retail, and any other flavor without a dedicated list) falls back to Retail's list
   if ham.getBandagesForRetail then return ham.getBandagesForRetail() end

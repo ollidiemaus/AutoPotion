@@ -9,6 +9,10 @@ ham.isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 ham.isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 ham.isMop = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
 
+-- WOW_PROJECT_ID has no documented constant for WoW Forever yet, so detect via interface number instead (16xxx).
+local _, _, _, tocVersion = GetBuildInfo()
+ham.isForever = (tocVersion and tocVersion >= 160000 and tocVersion < 170000) or false
+
 -- Classic battleground UI Map IDs
 -- Exposed on `ham` for use across modules (bandages, potions, etc.)
 ham.MAP_ID_ALTERAC_VALLEY = 1459

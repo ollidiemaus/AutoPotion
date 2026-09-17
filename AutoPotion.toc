@@ -4,6 +4,7 @@
 ## Interface-WOTLKC: 30405
 ## Interface-Cata: 40402
 ## Interface-Mists: 50504
+## Interface-Forever: 16001
 ## Version: 3.12.21
 ## Title: Auto Potion
 ## Author: ollidiemaus
@@ -36,6 +37,7 @@ Core/Spells/TBC.lua
 Core/Spells/Wrath.lua
 Core/Spells/Cata.lua
 Core/Spells/Mists.lua
+Core/Spells/Forever.lua
 Core/Item.lua
 Core/DB.lua
 Core/Potions.lua
@@ -45,12 +47,14 @@ Core/Potions/TBC.lua
 Core/Potions/Wrath.lua
 Core/Potions/Cata.lua
 Core/Potions/Mists.lua
+Core/Potions/Forever.lua
 Core/Bandages.lua
 Core/Bandages/Retail.lua
 Core/Bandages/Classic.lua
 Core/Bandages/Wrath.lua
 Core/Bandages/Cata.lua
 Core/Bandages/Mists.lua
+Core/Bandages/Forever.lua
 Core/Player.lua
 code.lua
 Bindings.lua

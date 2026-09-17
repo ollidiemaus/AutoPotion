@@ -137,6 +137,7 @@ function ham.getPots()
   if ham.isWrath and ham.getPotsForWrath then return ham.getPotsForWrath() end
   if ham.isCata and ham.getPotsForCata then return ham.getPotsForCata() end
   if ham.isMop and ham.getPotsForMists then return ham.getPotsForMists() end
+  if ham.isForever and ham.getPotsForForever then return ham.getPotsForForever() end
 
   -- Fallback: return empty table if no version matches
   return {}
@@ -148,6 +149,7 @@ function ham.getHealthstonesClassic()
   if ham.isWrath and ham.getHealthstonesForWrath then return ham.getHealthstonesForWrath() end
   if ham.isCata and ham.getHealthstonesForCata then return ham.getHealthstonesForCata() end
   if ham.isMop and ham.getHealthstonesForMists then return ham.getHealthstonesForMists() end
+  if ham.isForever and ham.getHealthstonesForForever then return ham.getHealthstonesForForever() end
 
   -- Fallback: return empty table if no version matches
   return {}
