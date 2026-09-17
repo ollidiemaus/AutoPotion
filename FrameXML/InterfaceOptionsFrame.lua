@@ -1,10 +1,6 @@
 ---@diagnostic disable: undefined-global
 local L = LibStub("AceLocale-3.0"):GetLocale("AutoPotion")
 local addonName, ham = ...
-local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
-local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
-local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
-local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 
 ---@class Frame
 ham.settingsFrame = CreateFrame("Frame")
@@ -153,7 +149,7 @@ function ham.settingsFrame:updatePrio()
 				-- Recuperate not shown in instanced PvP
 			else
 				local iconTexture, originalIconTexture
-				if isRetail == true then
+				if ham.isRetail == true then
 					iconTexture, originalIconTexture = C_Spell.GetSpellTexture(spell.getId())
 				else
 					iconTexture = GetSpellTexture(spell.getId())
@@ -381,7 +377,7 @@ function ham.settingsFrame:InitializeOptions()
 	local witheringDreamsPotionButton = nil
 	local cavedwellerDelightButton = nil
 	local heartseekingButton = nil
-	if isRetail then
+	if ham.isRetail then
 		local itemsTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
 		itemsTitle:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING_CATERGORY)
 		itemsTitle:SetText(L["Items"])
@@ -501,7 +497,7 @@ function ham.settingsFrame:InitializeOptions()
 		end
 		cdResetButton:SetChecked(HAMDB.cdReset)
 		raidStoneButton:SetChecked(HAMDB.raidStone)
-		if isRetail then
+		if ham.isRetail then
 			---@diagnostic disable-next-line: need-check-nil
 			witheringPotionButton:SetChecked(HAMDB.witheringPotion)
 			---@diagnostic disable-next-line: need-check-nil

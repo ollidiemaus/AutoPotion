@@ -1,11 +1,4 @@
----@diagnostic disable: undefined-global
 local addonName, ham = ...
-local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
-local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
-local isTBC = (WOW_PROJECT_ID == 5) -- TBC Anniversary / BCC
-local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
-local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
-local isMop = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
 
 ham.healthstone = ham.Item.new(5512, "Healthstone")
 ham.demonicHealthstone = ham.Item.new(224464, "Demonic Healthstone") ---1 Minute CD due to Pact of Gluttony
@@ -131,30 +124,30 @@ function RemoveFromList(list, itemToRemove)
 end
 
 function ham.getDelightPots()
-  if isRetail and ham.getDelightPotsForRetail then
+  if ham.isRetail and ham.getDelightPotsForRetail then
     return ham.getDelightPotsForRetail()
   end
   return {}
 end
 
 function ham.getPots()
-  if isRetail and ham.getPotsForRetail then return ham.getPotsForRetail() end
-  if isClassic and ham.getPotsForClassic then return ham.getPotsForClassic() end
-  if isTBC and ham.getPotsForTBC then return ham.getPotsForTBC() end
-  if isWrath and ham.getPotsForWrath then return ham.getPotsForWrath() end
-  if isCata and ham.getPotsForCata then return ham.getPotsForCata() end
-  if isMop and ham.getPotsForMists then return ham.getPotsForMists() end
+  if ham.isRetail and ham.getPotsForRetail then return ham.getPotsForRetail() end
+  if ham.isClassic and ham.getPotsForClassic then return ham.getPotsForClassic() end
+  if ham.isTBC and ham.getPotsForTBC then return ham.getPotsForTBC() end
+  if ham.isWrath and ham.getPotsForWrath then return ham.getPotsForWrath() end
+  if ham.isCata and ham.getPotsForCata then return ham.getPotsForCata() end
+  if ham.isMop and ham.getPotsForMists then return ham.getPotsForMists() end
 
   -- Fallback: return empty table if no version matches
   return {}
 end
 
 function ham.getHealthstonesClassic()
-  if isClassic and ham.getHealthstonesForClassic then return ham.getHealthstonesForClassic() end
-  if isTBC and ham.getHealthstonesForTBC then return ham.getHealthstonesForTBC() end
-  if isWrath and ham.getHealthstonesForWrath then return ham.getHealthstonesForWrath() end
-  if isCata and ham.getHealthstonesForCata then return ham.getHealthstonesForCata() end
-  if isMop and ham.getHealthstonesForMists then return ham.getHealthstonesForMists() end
+  if ham.isClassic and ham.getHealthstonesForClassic then return ham.getHealthstonesForClassic() end
+  if ham.isTBC and ham.getHealthstonesForTBC then return ham.getHealthstonesForTBC() end
+  if ham.isWrath and ham.getHealthstonesForWrath then return ham.getHealthstonesForWrath() end
+  if ham.isCata and ham.getHealthstonesForCata then return ham.getHealthstonesForCata() end
+  if ham.isMop and ham.getHealthstonesForMists then return ham.getHealthstonesForMists() end
 
   -- Fallback: return empty table if no version matches
   return {}

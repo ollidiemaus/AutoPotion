@@ -1,5 +1,4 @@
 local addonName, ham = ...
-local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 
 ham.Spell = {}
 
@@ -7,7 +6,7 @@ ham.Spell.new = function(id)
     local self = {}
 
     self.id = id
-    if isRetail == true then
+    if ham.isRetail == true then
         self.cd = C_Spell.GetSpellCooldown(id).duration
         self.name = C_Spell.GetSpellName(id)
     else

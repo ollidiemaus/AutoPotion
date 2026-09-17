@@ -1,10 +1,4 @@
----@diagnostic disable: undefined-global
 local addonName, ham = ...
-local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
-local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
-local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
-local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
-local isMop = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
 
 -- Classic bandages
 ham.linenBandage = ham.Item.new(1251, "Linen Bandage")
@@ -74,10 +68,10 @@ ham.brightlinenBandageR1 = ham.Item.new(239711, "Bright Linen Bandage")
 
 -- Return a prioritized list of bandage items for the current client
 function ham.getBandages()
-  if isClassic and ham.getBandagesForClassic then return ham.getBandagesForClassic() end
-  if isWrath and ham.getBandagesForWrath then return ham.getBandagesForWrath() end
-  if isCata and ham.getBandagesForCata then return ham.getBandagesForCata() end
-  if isMop and ham.getBandagesForMists then return ham.getBandagesForMists() end
+  if ham.isClassic and ham.getBandagesForClassic then return ham.getBandagesForClassic() end
+  if ham.isWrath and ham.getBandagesForWrath then return ham.getBandagesForWrath() end
+  if ham.isCata and ham.getBandagesForCata then return ham.getBandagesForCata() end
+  if ham.isMop and ham.getBandagesForMists then return ham.getBandagesForMists() end
 
   -- Everything else (Retail, and any other flavor without a dedicated list) falls back to Retail's list
   if ham.getBandagesForRetail then return ham.getBandagesForRetail() end
