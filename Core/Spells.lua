@@ -1,4 +1,11 @@
+---@diagnostic disable: undefined-global
 local addonName, ham = ...
+local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
+local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+local isTBC = (WOW_PROJECT_ID == 5) -- TBC Anniversary / BCC
+local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
+local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
+local isMop = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
 
 ham.crimsonVialSpell = ham.Spell.new(185311)
 ham.renewal = ham.Spell.new(108238)
