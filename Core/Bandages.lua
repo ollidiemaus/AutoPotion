@@ -52,6 +52,18 @@ ham.denseEmbersilkBandage = ham.Item.new(53051, "Dense Embersilk Bandage")
 ham.windwoolBandage = ham.Item.new(72985, "Windwool Bandage")
 ham.heavyWindwoolBandage = ham.Item.new(72986, "Heavy Windwool Bandage")
 
+-- Legion
+ham.silkweaveBandage = ham.Item.new(133940, "Silkweave Bandage")
+ham.silkweaveSplint = ham.Item.new(133942, "Silkweave Splint")
+
+-- Battle for Azeroth
+ham.tidesprayLinenBandage = ham.Item.new(158381, "Tidespray Linen Bandage")
+ham.deepSeaBandage = ham.Item.new(158382, "Deep Sea Bandage")
+
+-- Shadowlands
+ham.shroudedClothBandage = ham.Item.new(173192, "Shrouded Cloth Bandage")
+ham.heavyShroudedClothBandage = ham.Item.new(173191, "Heavy Shrouded Cloth Bandage")
+
 -- Dragonflight
 ham.wilderclothBandageR3 = ham.Item.new(194050, "Wildercloth Bandage")
 ham.wilderclothBandageR2 = ham.Item.new(194049, "Wildercloth Bandage")
@@ -69,6 +81,7 @@ ham.brightlinenBandageR1 = ham.Item.new(239711, "Bright Linen Bandage")
 -- Return a prioritized list of bandage items for the current client
 function ham.getBandages()
   if ham.isClassic and ham.getBandagesForClassic then return ham.getBandagesForClassic() end
+  if ham.isTBC and ham.getBandagesForTBC then return ham.getBandagesForTBC() end
   if ham.isWrath and ham.getBandagesForWrath then return ham.getBandagesForWrath() end
   if ham.isCata and ham.getBandagesForCata then return ham.getBandagesForCata() end
   if ham.isMop and ham.getBandagesForMists then return ham.getBandagesForMists() end
