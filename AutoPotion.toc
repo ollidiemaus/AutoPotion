@@ -48,6 +48,7 @@ Core/Potions/Mists.lua
 Core/Bandages.lua
 Core/Bandages/Retail.lua
 Core/Bandages/Classic.lua
+Core/Bandages/TBC.lua
 Core/Bandages/Wrath.lua
 Core/Bandages/Cata.lua
 Core/Bandages/Mists.lua
