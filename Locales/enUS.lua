@@ -17,6 +17,7 @@ L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE 
 L["Invalid option: "] = "Invalid option: "
 L["Items"] = "Items"
 L["Low Priority Healthstones"] = "Low Priority Healthstones"
+L["Other / Racial"] = "Other / Racial"
 L["Potion of Withering Dreams"] = "Potion of Withering Dreams"
 L["Potion of Withering Vitality"] = "Potion of Withering Vitality"
 L["Prioritize health potions over a healthstone."] = "Prioritize health potions over a healthstone."

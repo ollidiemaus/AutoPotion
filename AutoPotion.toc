@@ -5,7 +5,7 @@
 ## Interface-Cata: 40402
 ## Interface-Mists: 50504
 ## Interface-Forever: 16001
-## Version: 3.12.21
+## Version: 3.13.0
 ## Title: Auto Potion
 ## Author: ollidiemaus
 ## Notes: Updates the Macro AutoPotion to use either Healthstone or the highest Potion found in Bags 
@@ -30,6 +30,7 @@ Locales\Locales.xml
 
 Core/Constants.lua
 Core/Spell.lua
+Core/SpellGroup.lua
 Core/Spells.lua
 Core/Spells/Retail.lua
 Core/Spells/Classic.lua
