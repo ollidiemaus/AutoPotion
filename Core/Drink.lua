@@ -59,6 +59,30 @@ ham.starsSorrow = ham.Item.new(43236, "Star's Sorrow")
 ham.sweetenedGoatsMilk = ham.Item.new(35954, "Sweetened Goat's Milk")
 ham.yetiMilk = ham.Item.new(41731, "Yeti Milk")
 
+-- Cata - plain drink (mana restore, no stats), reskins of the same mechanic
+ham.briarootBrew = ham.Item.new(49365, "Briaroot Brew")
+ham.earlBlackTea = ham.Item.new(49602, "Earl Black Tea")
+ham.filteredBilgeWater = ham.Item.new(49398, "Filtered Bilge Water")
+ham.freshWater = ham.Item.new(58274, "Fresh Water")
+ham.fungusSqueezings = ham.Item.new(59230, "Fungus Squeezings")
+ham.garrsLimeade = ham.Item.new(61382, "Garr's Limeade")
+ham.gilneasSpringWater = ham.Item.new(49360, "Gilneas Spring Water")
+ham.greasyWhaleMilk = ham.Item.new(59029, "Greasy Whale Milk")
+ham.highlandSpringWater = ham.Item.new(58257, "Highland Spring Water")
+ham.invigoratingPineapplePunch = ham.Item.new(68140, "Invigorating Pineapple Punch")
+ham.meisMasterfulBrew = ham.Item.new(63251, "Mei's Masterful Brew")
+ham.murkyWater = ham.Item.new(59229, "Murky Water")
+ham.refreshingPineapplePunch = ham.Item.new(63530, "Refreshing Pineapple Punch")
+ham.sasparillaSinker = ham.Item.new(74822, "Sasparilla Sinker")
+ham.southIslandIcedTea = ham.Item.new(62672, "South Island Iced Tea")
+ham.sparklingOasisWater = ham.Item.new(58256, "Sparkling Oasis Water")
+ham.starfireEspresso = ham.Item.new(62675, "Starfire Espresso")
+ham.stormwindSurprise = ham.Item.new(75028, "Stormwind Surprise")
+ham.sweetTea = ham.Item.new(63023, "Sweet Tea")
+ham.tarpCollectedDew = ham.Item.new(49254, "Tarp Collected Dew")
+ham.volcanicSpringWater = ham.Item.new(49601, "Volcanic Spring Water")
+ham.wellWater = ham.Item.new(60269, "Well Water")
+
 -- Return a prioritized list of drink items for the current client.
 -- Retail food restores both health and mana in a single item, so there is no
 -- separate AutoDrink macro/list there.
