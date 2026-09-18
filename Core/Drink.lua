@@ -1,5 +1,9 @@
 local addonName, ham = ...
 
+-- Retail - Mage-conjured drink (mana only; the health-restoring counterpart, Conjured
+-- Souffle/Cinnamon Roll/Croissant, is declared in Core/Food.lua).
+ham.conjuredTea = ham.Item.new(265099, "Conjured Tea", { conjured = true })
+
 -- Retail - plain drink (mana restore, no stats). Wowhead's Food & Drinks category lists
 -- dozens of cosmetic name/icon reskins of the same restore-only mechanic per zone; these
 -- are the confirmed drink-type items, included individually for coverage.
@@ -29,6 +33,10 @@ ham.dawnmosa = ham.Item.new(264985, "Dawnmosa")
 ham.magistersMead = ham.Item.new(264987, "Magister's Mead")
 ham.dragonhawkFlight = ham.Item.new(264989, "Dragonhawk Flight")
 ham.fairbreezeFranciacorta = ham.Item.new(264990, "Fairbreeze Franciacorta")
+ham.buddingLight = ham.Item.new(265664, "Budding Light")
+ham.chanterelleShandy = ham.Item.new(265665, "Chanterelle Shandy")
+ham.worldRootBeer = ham.Item.new(265666, "World Root Beer")
+ham.brightClaw = ham.Item.new(265667, "Bright Claw")
 
 -- Retail - "Relaxed" drink: mana restore plus a secondary-stat buff, situational,
 -- opt-in via HAMDB.includeBuffFood (the same toggle used for Well Fed food).

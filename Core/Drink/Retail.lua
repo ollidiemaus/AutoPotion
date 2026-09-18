@@ -3,9 +3,10 @@ local addonName, ham = ...
 
 function ham.getDrinkForRetail()
   return {
-    -- Conjured first: free and doesn't consume bag space or gold (dual restore,
-    -- shared with Core/Food/Retail.lua's list)
+    -- Conjured first: free and doesn't consume bag space or gold. Conjured Mana Bun is
+    -- dual restore, shared with Core/Food/Retail.lua's list; Conjured Tea is mana-only.
     ham.conjuredManaBun,
+    ham.conjuredTea,
     -- "Relaxed" drink (mana restore plus a secondary stat), opt-in via includeBuffFood
     ham.argentleafTea,
     ham.sanguithornTea,
@@ -37,5 +38,9 @@ function ham.getDrinkForRetail()
     ham.magistersMead,
     ham.dragonhawkFlight,
     ham.fairbreezeFranciacorta,
+    ham.buddingLight,
+    ham.chanterelleShandy,
+    ham.worldRootBeer,
+    ham.brightClaw,
   }
 end

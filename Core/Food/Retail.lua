@@ -5,6 +5,9 @@ function ham.getFoodForRetail()
   return {
     -- Conjured first: free and doesn't consume bag space or gold
     ham.conjuredManaBun,
+    ham.conjuredSouffle,
+    ham.conjuredCinnamonRoll2,
+    ham.conjuredCroissant2,
     -- Communal feast (dual resource, shareable), highest crafting quality first
     ham.heartyFeastOfKnowledge,
     ham.feastOfKnowledge,
@@ -13,6 +16,10 @@ function ham.getFoodForRetail()
     ham.royalRoast,
     -- Other current-tier Well Fed food (communal feast or personal, primary or secondary
     -- stat) - cosmetic reskins of the same mechanics, order among them doesn't matter
+    ham.beledarsBounty,
+    ham.heartyAuthenticUndermineClamChowder,
+    ham.pocketPizza,
+    ham.incontinentalTakeout,
     ham.amaniCornucopia,
     ham.arcanoCutlets,
     ham.bakedLuckyLoa,
@@ -135,6 +142,7 @@ function ham.getFoodForRetail()
     ham.stirFriedSaptorSirloin,
     ham.sunBastedCeviche,
     ham.sweetsawSurprise,
+    ham.tastyMeat,
     ham.voidfarersRespite,
     ham.worldRootsBanquet,
   }

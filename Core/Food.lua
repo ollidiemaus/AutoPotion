@@ -3,6 +3,12 @@ local addonName, ham = ...
 -- Retail - Mage-conjured (restores both health and mana)
 ham.conjuredManaBun = ham.Item.new(113509, "Conjured Mana Bun", { conjured = true })
 
+-- Retail - Mage-conjured food (health only; the mana-restoring counterpart, Conjured Tea,
+-- is declared in Core/Drink.lua). Reskins of the same conjured mechanic.
+ham.conjuredSouffle = ham.Item.new(265096, "Conjured Souffle", { conjured = true })
+ham.conjuredCinnamonRoll2 = ham.Item.new(265097, "Conjured Cinnamon Roll", { conjured = true })
+ham.conjuredCroissant2 = ham.Item.new(265098, "Conjured Croissant", { conjured = true })
+
 -- Retail - communal feast: Well Fed with a secondary stat, restores both health and mana.
 -- "Hearty" is the same recipe at a higher crafting quality (Hearty Well Fed also persists through death).
 ham.heartyFeastOfKnowledge = ham.Item.new(275269, "Hearty Feast of Knowledge", { buffFood = true })
@@ -16,8 +22,12 @@ ham.royalRoast = ham.Item.new(242275, "Royal Roast", { buffFood = true })
 -- secondary stat). Wowhead's Food & Drinks category lists dozens of cosmetic name/icon reskins
 -- of the same few mechanics at the current level cap; these are the confirmed Well Fed ones,
 -- included individually since a given player only ever owns one specific reskin.
--- TODO: verify Beledar's Bounty (222728), Hearty Authentic Undermine Clam Chowder (235853),
--- Spirit Sprouts (280422) - Wowhead rate-limited before these could be checked.
+-- (Spirit Sprouts (280422) was checked and excluded: it restores spirit while dead, not
+-- health/mana, so it's a different mechanic entirely and out of scope for this macro.)
+ham.beledarsBounty = ham.Item.new(222728, "Beledar's Bounty", { buffFood = true })
+ham.heartyAuthenticUndermineClamChowder = ham.Item.new(235853, "Hearty Authentic Undermine Clam Chowder", { buffFood = true })
+ham.pocketPizza = ham.Item.new(233062, "Pocket Pizza", { buffFood = true })
+ham.incontinentalTakeout = ham.Item.new(233118, "Incontinental Takeout", { buffFood = true })
 ham.amaniCornucopia = ham.Item.new(275264, "Amani Cornucopia", { buffFood = true })
 ham.arcanoCutlets = ham.Item.new(242287, "Arcano Cutlets", { buffFood = true })
 ham.bakedLuckyLoa = ham.Item.new(242279, "Baked Lucky Loa", { buffFood = true })
@@ -142,6 +152,7 @@ ham.steamedHexxalorLobster = ham.Item.new(260267, "Steamed Hexx'alor Lobster")
 ham.stirFriedSaptorSirloin = ham.Item.new(260281, "Stir-Fried Saptor Sirloin")
 ham.sunBastedCeviche = ham.Item.new(246383, "Sun-Basted Ceviche")
 ham.sweetsawSurprise = ham.Item.new(280184, "Sweetsaw Surprise")
+ham.tastyMeat = ham.Item.new(265674, "Tasty Meat")
 ham.voidfarersRespite = ham.Item.new(260297, "Voidfarer's Respite")
 ham.worldRootsBanquet = ham.Item.new(260287, "World Roots Banquet")
 
