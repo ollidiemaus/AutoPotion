@@ -1,8 +1,19 @@
 local addonName, ham = ...
 
--- Retail (combined food+mana restore items)
+-- Retail - Mage-conjured (restores both health and mana)
 ham.conjuredManaBun = ham.Item.new(113509, "Conjured Mana Bun", { conjured = true })
+
+-- Retail - communal feast: Well Fed with a secondary stat, restores both health and mana.
+-- "Hearty" is the same recipe at a higher crafting quality (Hearty Well Fed also persists through death).
+ham.heartyFeastOfKnowledge = ham.Item.new(275269, "Hearty Feast of Knowledge", { buffFood = true })
 ham.feastOfKnowledge = ham.Item.new(275266, "Feast of Knowledge", { buffFood = true })
+
+-- Retail - personal Well Fed food: flat primary stat, restores health only.
+ham.heartyRoyalRoast = ham.Item.new(242747, "Hearty Royal Roast", { buffFood = true })
+ham.royalRoast = ham.Item.new(242275, "Royal Roast", { buffFood = true })
+
+-- Retail - plain vendor food (no stats), restores health only.
+ham.bloodKnightBurger = ham.Item.new(264992, "Blood Knight Burger")
 
 -- Classic - vendor/cooked food (no stats)
 ham.toughJerky = ham.Item.new(117, "Tough Jerky")
