@@ -33,28 +33,18 @@ ham.giftOfTheNaaruWarrior = ham.Spell.new(28880, "WARRIOR")
 -- Vulpera racial, not tied to a class
 ham.bagOfTricks = ham.Spell.new(312411)
 
+-- NOTE: every ham.xxx spell object above is always created, regardless of flavor -
+-- Core/DB.lua and code.lua reference some of these globals unconditionally (e.g.
+-- ham.recuperate.getId()), so removing the object itself on non-retail flavors would
+-- crash the addon there. What varies per flavor is only which spells are *offered* in
+-- the settings UI, via membership in ham.supportedSpells below.
+--
+-- Only spells confirmed available since Classic Era go in the shared list here; every
+-- other spell here today (Legion/Cata/MoP/Dragonflight+ abilities, classes that don't
+-- exist pre-Wrath/pre-Mists, retail-only racials) is added to ham.supportedSpells from
+-- Core/Spells/Retail.lua instead, so Classic/TBC/Wrath/Cata/Mists don't list spells
+-- their client can't actually cast. Add spells to the matching Core/Spells/<Flavor>.lua
+-- file as their real per-flavor availability gets verified.
 ham.supportedSpells = {}
-table.insert(ham.supportedSpells, ham.recuperate)
-table.insert(ham.supportedSpells, ham.crimsonVialSpell)
-table.insert(ham.supportedSpells, ham.renewal)
-table.insert(ham.supportedSpells, ham.exhilaration)
-table.insert(ham.supportedSpells, ham.fortitudeOfTheBear)
 table.insert(ham.supportedSpells, ham.lastStand)
-table.insert(ham.supportedSpells, ham.bitterImmunity)
 table.insert(ham.supportedSpells, ham.desperatePrayer)
-table.insert(ham.supportedSpells, ham.expelHarm)
-table.insert(ham.supportedSpells, ham.healingElixir)
-table.insert(ham.supportedSpells, ham.darkPact)
-table.insert(ham.supportedSpells, ham.vampiricBlood)
-table.insert(ham.supportedSpells, ham.deathPact)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruDK)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruHunter)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruMage)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruMageWarlock)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruMonk)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruPaladin)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruPriest)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruRogue)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruShaman)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruWarrior)
-table.insert(ham.supportedSpells, ham.bagOfTricks)
