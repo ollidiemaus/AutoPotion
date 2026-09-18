@@ -556,16 +556,26 @@ function ham.settingsFrame:InitializeOptions()
 end
 
 -- Create one class/racial-spell checkbox, anchored (offsetX, offsetY) from `relativeTo`.
+-- `spell` is either a plain ham.Spell (single db entry) or a ham.SpellGroup (toggles
+-- every member together as one unit - see Core/SpellGroup.lua).
 local function createSpellButton(parent, relativeTo, offsetX, offsetY, spell)
 	local button = CreateFrame("CheckButton", nil, parent, "InterfaceOptionsCheckButtonTemplate")
 	button:SetPoint("TOPLEFT", relativeTo, offsetX, offsetY)
 	---@diagnostic disable-next-line: undefined-field
 	button.Text:SetText(spell.getName())
 	button:HookScript("OnClick", function(_, btn, down)
-		if button:GetChecked() then
-			ham.insertIntoDB(spell.getId())
+		if spell.isGroup then
+			if button:GetChecked() then
+				spell.activate()
+			else
+				spell.deactivate()
+			end
 		else
-			ham.removeFromDB(spell.getId())
+			if button:GetChecked() then
+				ham.insertIntoDB(spell.getId())
+			else
+				ham.removeFromDB(spell.getId())
+			end
 		end
 		ham.updateHeals()
 		ham.updateMacro()
@@ -580,7 +590,11 @@ local function createSpellButton(parent, relativeTo, offsetX, offsetY, spell)
 	button:HookScript("OnLeave", function(_, btn, down)
 		GameTooltip:Hide()
 	end)
-	button:SetChecked(ham.dbContains(spell.getId()))
+	if spell.isGroup then
+		button:SetChecked(spell.isActive())
+	else
+		button:SetChecked(ham.dbContains(spell.getId()))
+	end
 	classButtons[spell.getId()] = button
 	return button
 end

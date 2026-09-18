@@ -9,14 +9,14 @@ table.insert(ham.supportedSpells, ham.renewal)
 table.insert(ham.supportedSpells, ham.exhilaration)
 table.insert(ham.supportedSpells, ham.vampiricBlood)
 table.insert(ham.supportedSpells, ham.deathPact)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruDK)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruHunter)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruMage)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruMonk)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruPaladin)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruPriest)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruShaman)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruWarrior)
+
+-- One row for "Gift of the Naaru" instead of one per class - Rogue isn't playable
+-- yet on this flavor, so it's left out of the group here.
+table.insert(ham.supportedSpells, ham.SpellGroup.new({
+	ham.giftOfTheNaaruDK, ham.giftOfTheNaaruHunter, ham.giftOfTheNaaruMage,
+	ham.giftOfTheNaaruMonk, ham.giftOfTheNaaruPaladin, ham.giftOfTheNaaruPriest,
+	ham.giftOfTheNaaruShaman, ham.giftOfTheNaaruWarrior,
+}))
 
 -- ham.darkPact (108416): the OLD "Dark Pact" (drained the Warlock's own pet's mana) was
 -- removed in the Cata 4.0.1 pre-patch and never came back. This id is a different,

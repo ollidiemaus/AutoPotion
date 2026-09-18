@@ -17,20 +17,23 @@ ham.deathPact = ham.Spell.new(48743, "DEATHKNIGHT")
 -- Recuperate is only usable out of combat; not tied to a class (Undermine'd consumable/environment effect)
 ham.recuperate = ham.Spell.new(1231411)
 
--- Racials WTF These are all seperate Spells - left classless (nil) on purpose even
--- though each one is class-restricted in-game: these are grouped into the "Other /
--- Racial" section in the settings UI rather than under their class's header, since
--- that's where players actually expect to find a racial trait.
-ham.giftOfTheNaaruDK = ham.Spell.new(59545)
-ham.giftOfTheNaaruHunter = ham.Spell.new(59543)
-ham.giftOfTheNaaruMage = ham.Spell.new(59548)
+-- Racials WTF These are all seperate Spells. Each keeps its real class tag (needed so
+-- ham.SpellGroup can pick the variant matching the player's own class for its tooltip/
+-- name) but none of them are inserted into ham.supportedSpells individually - per-flavor
+-- files bundle the ones valid for that flavor into a single ham.SpellGroup instead, so
+-- the settings UI shows one "Gift of the Naaru" row in Other/Racial rather than one per
+-- class variant.
+ham.giftOfTheNaaruDK = ham.Spell.new(59545, "DEATHKNIGHT")
+ham.giftOfTheNaaruHunter = ham.Spell.new(59543, "HUNTER")
+ham.giftOfTheNaaruMage = ham.Spell.new(59548, "MAGE")
+-- Shared Mage/Warlock id: no single class fits, left classless.
 ham.giftOfTheNaaruMageWarlock = ham.Spell.new(416250)
-ham.giftOfTheNaaruMonk = ham.Spell.new(121093)
-ham.giftOfTheNaaruPaladin = ham.Spell.new(59542)
-ham.giftOfTheNaaruPriest = ham.Spell.new(59544)
-ham.giftOfTheNaaruRogue = ham.Spell.new(370626)
-ham.giftOfTheNaaruShaman = ham.Spell.new(59547)
-ham.giftOfTheNaaruWarrior = ham.Spell.new(28880)
+ham.giftOfTheNaaruMonk = ham.Spell.new(121093, "MONK")
+ham.giftOfTheNaaruPaladin = ham.Spell.new(59542, "PALADIN")
+ham.giftOfTheNaaruPriest = ham.Spell.new(59544, "PRIEST")
+ham.giftOfTheNaaruRogue = ham.Spell.new(370626, "ROGUE")
+ham.giftOfTheNaaruShaman = ham.Spell.new(59547, "SHAMAN")
+ham.giftOfTheNaaruWarrior = ham.Spell.new(28880, "WARRIOR")
 
 -- Vulpera racial, not tied to a class
 ham.bagOfTricks = ham.Spell.new(312411)

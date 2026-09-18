@@ -15,17 +15,16 @@ table.insert(ham.supportedSpells, ham.darkPact)
 table.insert(ham.supportedSpells, ham.vampiricBlood)
 table.insert(ham.supportedSpells, ham.deathPact)
 table.insert(ham.supportedSpells, ham.recuperate)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruDK)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruHunter)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruMage)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruMageWarlock)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruMonk)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruPaladin)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruPriest)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruRogue)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruShaman)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruWarrior)
 table.insert(ham.supportedSpells, ham.bagOfTricks)
+
+-- One row for every class's "Gift of the Naaru" id, instead of listing the same racial
+-- ten times over - all confirmed valid on retail.
+table.insert(ham.supportedSpells, ham.SpellGroup.new({
+	ham.giftOfTheNaaruDK, ham.giftOfTheNaaruHunter, ham.giftOfTheNaaruMage,
+	ham.giftOfTheNaaruMageWarlock, ham.giftOfTheNaaruMonk, ham.giftOfTheNaaruPaladin,
+	ham.giftOfTheNaaruPriest, ham.giftOfTheNaaruRogue, ham.giftOfTheNaaruShaman,
+	ham.giftOfTheNaaruWarrior,
+}))
 
 -- More retail-only spells go here, e.g.:
 -- ham.someRetailOnlySpell = ham.Spell.new(123456, "WARRIOR") -- class token, or omit for non-class spells

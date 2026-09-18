@@ -6,13 +6,14 @@ if not ham.isWrath then return end
 -- Wowhead and confirmed to resolve to the class ham.<name> already implies.
 table.insert(ham.supportedSpells, ham.vampiricBlood)
 table.insert(ham.supportedSpells, ham.deathPact)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruDK)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruHunter)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruMage)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruPaladin)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruPriest)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruShaman)
-table.insert(ham.supportedSpells, ham.giftOfTheNaaruWarrior)
+
+-- One row for "Gift of the Naaru" instead of one per class - Monk/Rogue aren't
+-- playable yet on this flavor, so they're left out of the group here.
+table.insert(ham.supportedSpells, ham.SpellGroup.new({
+	ham.giftOfTheNaaruDK, ham.giftOfTheNaaruHunter, ham.giftOfTheNaaruMage,
+	ham.giftOfTheNaaruPaladin, ham.giftOfTheNaaruPriest, ham.giftOfTheNaaruShaman,
+	ham.giftOfTheNaaruWarrior,
+}))
 
 -- More Wrath-only spells go here. Either add a spell already created in
 -- Core/Spells.lua to the settings list for this flavor:
