@@ -16,7 +16,18 @@ local firstIcon = nil
 local positionx = 0
 local currentPrioTitle = nil
 local lastStaticElement = nil
-local RESET_AREA_HEIGHT = 40
+
+-- The "Current Priority" title + icon row and the Reset button live in a fixed-height
+-- footer anchored to the panel itself (not the scrollable content), so they stay visible
+-- no matter how far the settings above have been scrolled.
+local FOOTER_TOP_PADDING = 12
+local FOOTER_TITLE_HEIGHT = 24
+local FOOTER_ICON_GAP = PADDING -- gap between the title and the icon row below it
+local FOOTER_BUTTON_GAP = 16
+local FOOTER_BUTTON_HEIGHT = 22
+local FOOTER_BOTTOM_PADDING = 16
+local FOOTER_HEIGHT = FOOTER_TOP_PADDING + FOOTER_TITLE_HEIGHT + FOOTER_ICON_GAP + ICON_SIZE +
+	FOOTER_BUTTON_GAP + FOOTER_BUTTON_HEIGHT + FOOTER_BOTTOM_PADDING
 
 local CLASS_ORDER = {
 	"WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST", "DEATHKNIGHT",
@@ -80,7 +91,6 @@ function ham.settingsFrame:recalculateContentHeight()
 		end
 	end
 
-	for _, frame in pairs(prioFrames) do considerBottom(frame) end
 	for _, button in pairs(classButtons) do considerBottom(button) end
 
 	if lowest ~= nil then
@@ -89,7 +99,7 @@ function ham.settingsFrame:recalculateContentHeight()
 end
 
 function ham.settingsFrame:createPrioFrame(id, iconTexture, positionx, isSpell, isTinker)
-	local icon = CreateFrame("Frame", nil, self.content, UIParent)
+	local icon = CreateFrame("Frame", nil, self.priorityFooter, UIParent)
 	icon:SetFrameStrata("MEDIUM")
 	icon:SetWidth(ICON_SIZE)
 	icon:SetHeight(ICON_SIZE)
@@ -221,7 +231,6 @@ function ham.settingsFrame:updatePrio()
 			itemCounter = itemCounter + 1
 		end
 	end
-	self:recalculateContentHeight()
 end
 
 function ham.settingsFrame:InitializeOptions()
@@ -248,10 +257,31 @@ function ham.settingsFrame:InitializeOptions()
 		ham.settingsFrame:recalculateContentHeight()
 	end)
 
+	-------------  FIXED FOOTER (Current Priority + Reset button)  -------------
+	-- Anchored to the panel itself (not the scrollable content) so both stay visible
+	-- no matter how far the settings above have been scrolled.
+	self.priorityFooter = CreateFrame("Frame", nil, self.panel)
+	self.priorityFooter:SetPoint("BOTTOMLEFT", self.panel, "BOTTOMLEFT", 0, 0)
+	self.priorityFooter:SetPoint("BOTTOMRIGHT", self.panel, "BOTTOMRIGHT", 0, 0)
+	self.priorityFooter:SetHeight(FOOTER_HEIGHT)
+
+	currentPrioTitle = self.priorityFooter:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
+	currentPrioTitle:SetPoint("TOPLEFT", self.priorityFooter, "TOPLEFT", 16, -FOOTER_TOP_PADDING)
+	currentPrioTitle:SetText(L["Current Priority"])
+
+	local btn = CreateFrame("Button", nil, self.priorityFooter, "UIPanelButtonTemplate")
+	btn:SetPoint("BOTTOMLEFT", self.priorityFooter, "BOTTOMLEFT", 17, FOOTER_BOTTOM_PADDING)
+	btn:SetText(L["Reset to Default"])
+	-- Size to the localized text instead of a fixed width, so longer translations
+	-- (e.g. German "Auf Standard zurücksetzen") don't clip past the button's edges.
+	local BUTTON_TEXT_PADDING = 20
+	local MIN_BUTTON_WIDTH = 120
+	btn:SetWidth(math.max(MIN_BUTTON_WIDTH, btn:GetFontString():GetStringWidth() + BUTTON_TEXT_PADDING))
+
 	-- scrollable area so the panel stays usable once it has more rows than fit on screen
 	self.scrollFrame = CreateFrame("ScrollFrame", addonName .. "ScrollFrame", self.panel, "UIPanelScrollFrameTemplate")
 	self.scrollFrame:SetPoint("TOPLEFT", self.panel, "TOPLEFT", 16, -16)
-	self.scrollFrame:SetPoint("BOTTOMRIGHT", self.panel, "BOTTOMRIGHT", -28, 16 + RESET_AREA_HEIGHT)
+	self.scrollFrame:SetPoint("BOTTOMRIGHT", self.panel, "BOTTOMRIGHT", -28, FOOTER_HEIGHT)
 	self.scrollFrame:EnableMouseWheel(true)
 	self.scrollFrame:SetScript("OnMouseWheel", function(sf, delta)
 		local newScroll = sf:GetVerticalScroll() - delta * 40
@@ -427,20 +457,11 @@ function ham.settingsFrame:InitializeOptions()
 		lastStaticElement = heartseekingButton
 	end
 
-	-- Class/racial spell groups and the "Current Priority" title are all created
-	-- dynamically in InitializeClassSpells, since class headers depend on which
-	-- classes actually have spells and that section's height varies with how many show up.
+	-- Class/racial spell groups are created dynamically in InitializeClassSpells, since
+	-- class headers depend on which classes actually have spells and that section's
+	-- height varies with how many show up.
 
 	-------------  RESET BUTTON  -------------
-	-- Anchored to the panel itself (not the scrollable content) so it's always visible.
-	local btn = CreateFrame("Button", nil, self.panel, "UIPanelButtonTemplate")
-	btn:SetPoint("BOTTOMLEFT", self.panel, "BOTTOMLEFT", 17, 16)
-	btn:SetText(L["Reset to Default"])
-	-- Size to the localized text instead of a fixed width, so longer translations
-	-- (e.g. German "Auf Standard zurücksetzen") don't clip past the button's edges.
-	local BUTTON_TEXT_PADDING = 20
-	local MIN_BUTTON_WIDTH = 120
-	btn:SetWidth(math.max(MIN_BUTTON_WIDTH, btn:GetFontString():GetStringWidth() + BUTTON_TEXT_PADDING))
 	btn:SetScript("OnClick", function()
 		HAMDB = CopyTable(ham.defaults)
 
@@ -568,11 +589,6 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 		layoutGroup(className, buckets[classToken] or {})
 	end
 	layoutGroup(L["Other / Racial"], otherBucket)
-
-	-------------  CURRENT PRIORITY  -------------
-	currentPrioTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
-	currentPrioTitle:SetPoint("TOPLEFT", lastAnchor, 0, -PADDING_CATERGORY)
-	currentPrioTitle:SetText(L["Current Priority"])
 
 	self:recalculateContentHeight()
 end
