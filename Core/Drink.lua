@@ -27,6 +27,23 @@ ham.conjuredMineralWater = ham.Item.new(8077, "Conjured Mineral Water", { conjur
 ham.conjuredSparklingWater = ham.Item.new(8078, "Conjured Sparkling Water", { conjured = true })
 ham.conjuredCrystalWater = ham.Item.new(8079, "Conjured Crystal Water", { conjured = true })
 
+-- TBC - plain drink (mana restore, no stats), reskins of the same mechanic
+ham.blackCoffee = ham.Item.new(33042, "Black Coffee")
+ham.blackrockFortifiedWater = ham.Item.new(38431, "Blackrock Fortified Water")
+ham.blackrockMineralWater = ham.Item.new(38430, "Blackrock Mineral Water")
+ham.blackrockSpringWater = ham.Item.new(38429, "Blackrock Spring Water")
+ham.conjuredGlacierWater = ham.Item.new(22018, "Conjured Glacier Water", { conjured = true })
+ham.conjuredMountainSpringWater = ham.Item.new(30703, "Conjured Mountain Spring Water", { conjured = true })
+ham.dosOgris = ham.Item.new(32668, "Dos Ogris")
+ham.ethermead = ham.Item.new(29395, "Ethermead")
+ham.filteredDraenicWater = ham.Item.new(28399, "Filtered Draenic Water")
+ham.gilneasSparklingWater = ham.Item.new(30457, "Gilneas Sparkling Water")
+ham.purifiedDraenicWater = ham.Item.new(27860, "Purified Draenic Water")
+ham.silverwine = ham.Item.new(29454, "Silverwine")
+ham.sparklingSouthshoreCider = ham.Item.new(29401, "Sparkling Southshore Cider")
+ham.starsLament = ham.Item.new(32455, "Star's Lament")
+ham.starsTears = ham.Item.new(32453, "Star's Tears")
+
 -- Return a prioritized list of drink items for the current client.
 -- Retail food restores both health and mana in a single item, so there is no
 -- separate AutoDrink macro/list there.
