@@ -15,20 +15,24 @@ local prioFramesCounter = 0
 local firstIcon = nil
 local positionx = 0
 local currentPrioTitle = nil
-local bandagePrioTitle = nil
 local lastStaticElement = nil
-local RESET_AREA_HEIGHT = 40
+
+-- The "Current Priority" title + icon row and the Reset button live in a fixed-height
+-- footer anchored to the panel itself (not the scrollable content), so they stay visible
+-- no matter how far the settings above have been scrolled.
+local FOOTER_TOP_PADDING = 12
+local FOOTER_TITLE_HEIGHT = 24
+local FOOTER_ICON_GAP = PADDING -- gap between the title and the icon row below it
+local FOOTER_BUTTON_GAP = 16
+local FOOTER_BUTTON_HEIGHT = 22
+local FOOTER_BOTTOM_PADDING = 16
+local FOOTER_HEIGHT = FOOTER_TOP_PADDING + FOOTER_TITLE_HEIGHT + FOOTER_ICON_GAP + ICON_SIZE +
+	FOOTER_BUTTON_GAP + FOOTER_BUTTON_HEIGHT + FOOTER_BOTTOM_PADDING
 
 local CLASS_ORDER = {
 	"WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST", "DEATHKNIGHT",
 	"SHAMAN", "MAGE", "WARLOCK", "MONK", "DRUID", "EVOKER",
 }
-
--- Bandage priority UI state
-local bandageFrames = {}
-local bandageTextures = {}
-local bandageFirstIcon = nil
-local bandagePositionX = 0
 
 function ham.settingsFrame:updateConfig(option, value)
 	if ham.options[option] ~= nil then
@@ -42,7 +46,7 @@ function ham.settingsFrame:updateConfig(option, value)
 	ham.updateHeals()
 	ham.updateMacro()
 	self:updatePrio()
-	self:updateBandagePrio()
+	ham.bandageSettingsFrame:updateBandagePrio()
 end
 
 function ham.settingsFrame:OnEvent(event, addOnName)
@@ -54,6 +58,7 @@ function ham.settingsFrame:OnEvent(event, addOnName)
 				HAMDB = CopyTable(ham.defaults)
 			end
 			self:InitializeOptions()
+			ham.bandageSettingsFrame:InitializeOptions()
 		end
 	end
 	if event == "PLAYER_LOGIN" then
@@ -61,7 +66,7 @@ function ham.settingsFrame:OnEvent(event, addOnName)
 		ham.updateHeals()
 		ham.updateMacro()
 		self:updatePrio()
-		self:updateBandagePrio()
+		ham.bandageSettingsFrame:updateBandagePrio()
 	end
 end
 
@@ -70,7 +75,7 @@ ham.settingsFrame:RegisterEvent("ADDON_LOADED")
 ham.settingsFrame:SetScript("OnEvent", ham.settingsFrame.OnEvent)
 
 -- Resize the scrollable content to fit whatever was last laid out inside it (class
--- spell groups and priority/bandage icon rows can all change the content's extent).
+-- spell groups and the priority icon row can all change the content's extent).
 function ham.settingsFrame:recalculateContentHeight()
 	if self.content == nil then return end
 	local contentTop = self.content:GetTop()
@@ -86,9 +91,6 @@ function ham.settingsFrame:recalculateContentHeight()
 		end
 	end
 
-	considerBottom(bandagePrioTitle)
-	for _, frame in pairs(bandageFrames) do considerBottom(frame) end
-	for _, frame in pairs(prioFrames) do considerBottom(frame) end
 	for _, button in pairs(classButtons) do considerBottom(button) end
 
 	if lowest ~= nil then
@@ -97,7 +99,7 @@ function ham.settingsFrame:recalculateContentHeight()
 end
 
 function ham.settingsFrame:createPrioFrame(id, iconTexture, positionx, isSpell, isTinker)
-	local icon = CreateFrame("Frame", nil, self.content, UIParent)
+	local icon = CreateFrame("Frame", nil, self.priorityFooter, UIParent)
 	icon:SetFrameStrata("MEDIUM")
 	icon:SetWidth(ICON_SIZE)
 	icon:SetHeight(ICON_SIZE)
@@ -131,38 +133,6 @@ function ham.settingsFrame:createPrioFrame(id, iconTexture, positionx, isSpell, 
 	table.insert(prioFrames, icon)
 	table.insert(prioTextures, texture)
 	prioFramesCounter = prioFramesCounter + 1
-	return icon
-end
-
--- Create a bandage priority icon frame
-function ham.settingsFrame:createBandagePrioFrame(id, iconTexture, positionx)
-	local icon = CreateFrame("Frame", nil, self.content, UIParent)
-	icon:SetFrameStrata("MEDIUM")
-	icon:SetWidth(ICON_SIZE)
-	icon:SetHeight(ICON_SIZE)
-	icon:HookScript("OnEnter", function(_, btn, down)
-		GameTooltip:SetOwner(icon, "ANCHOR_TOPRIGHT")
-		GameTooltip:SetItemByID(id)
-		GameTooltip:Show()
-	end)
-	icon:HookScript("OnLeave", function(_, btn, down)
-		GameTooltip:Hide()
-	end)
-	local texture = icon:CreateTexture(nil, "BACKGROUND")
-	texture:SetTexture(iconTexture)
-	texture:SetAllPoints(icon)
-	---@diagnostic disable-next-line: inject-field
-	icon.texture = texture
-
-	if bandageFirstIcon == nil then
-		icon:SetPoint("TOPLEFT", bandagePrioTitle, 0, -PADDING)
-		bandageFirstIcon = icon
-	else
-		icon:SetPoint("TOPLEFT", bandageFirstIcon, positionx, 0)
-	end
-	icon:Show()
-	table.insert(bandageFrames, icon)
-	table.insert(bandageTextures, texture)
 	return icon
 end
 
@@ -261,53 +231,6 @@ function ham.settingsFrame:updatePrio()
 			itemCounter = itemCounter + 1
 		end
 	end
-	self:recalculateContentHeight()
-end
-
--- Update the Bandage Priority section
-function ham.settingsFrame:updateBandagePrio()
-	-- hide existing
-	for _, frame in pairs(bandageFrames) do
-		frame:Hide()
-	end
-
-	bandagePositionX = 0
-
-	-- Build the prioritized bandage list for the current context
-	if ham.getBandages then
-		local bandages = ham.getBandages()
-		local shown = 0
-		for _, item in ipairs(bandages) do
-			if item.getCount and item.getCount() > 0 then
-				local id = item.getId()
-				local _, _, _, _, _, _, _, _, _, iconTexture = C_Item.GetItemInfo(id)
-				local idx = shown + 1
-				local currentFrame = bandageFrames[idx]
-				local currentTexture = bandageTextures[idx]
-				if currentFrame ~= nil then
-					currentFrame:SetScript("OnEnter", nil)
-					currentFrame:SetScript("OnLeave", nil)
-					currentFrame:HookScript("OnEnter", function(_, btn, down)
-						GameTooltip:SetOwner(currentFrame, "ANCHOR_TOPRIGHT")
-						GameTooltip:SetItemByID(id)
-						GameTooltip:Show()
-					end)
-					currentFrame:HookScript("OnLeave", function(_, btn, down)
-						GameTooltip:Hide()
-					end)
-					currentTexture:SetTexture(iconTexture)
-					currentTexture:SetAllPoints(currentFrame)
-					currentFrame.texture = currentTexture
-					currentFrame:Show()
-				else
-					self:createBandagePrioFrame(id, iconTexture, bandagePositionX)
-					bandagePositionX = bandagePositionX + (ICON_SIZE + (ICON_SIZE / 2))
-				end
-				shown = shown + 1
-			end
-		end
-	end
-	self:recalculateContentHeight()
 end
 
 function ham.settingsFrame:InitializeOptions()
@@ -322,6 +245,7 @@ function ham.settingsFrame:InitializeOptions()
 		local category = Settings.RegisterCanvasLayoutCategory(self.panel, addonName)
 		Settings.RegisterAddOnCategory(category)
 		self.panel.categoryID = category:GetID() -- for OpenToCategory use
+		self.category = category -- exposed so subcategory panels (e.g. AutoBandage) can attach
 	end
 
 	-- Refresh priority preview when panel is shown (e.g. when opening settings in BG/Arena)
@@ -330,14 +254,34 @@ function ham.settingsFrame:InitializeOptions()
 		ham.updateHeals()
 		ham.updateMacro()
 		ham.settingsFrame:updatePrio()
-		ham.settingsFrame:updateBandagePrio()
 		ham.settingsFrame:recalculateContentHeight()
 	end)
+
+	-------------  FIXED FOOTER (Current Priority + Reset button)  -------------
+	-- Anchored to the panel itself (not the scrollable content) so both stay visible
+	-- no matter how far the settings above have been scrolled.
+	self.priorityFooter = CreateFrame("Frame", nil, self.panel)
+	self.priorityFooter:SetPoint("BOTTOMLEFT", self.panel, "BOTTOMLEFT", 0, 0)
+	self.priorityFooter:SetPoint("BOTTOMRIGHT", self.panel, "BOTTOMRIGHT", 0, 0)
+	self.priorityFooter:SetHeight(FOOTER_HEIGHT)
+
+	currentPrioTitle = self.priorityFooter:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
+	currentPrioTitle:SetPoint("TOPLEFT", self.priorityFooter, "TOPLEFT", 16, -FOOTER_TOP_PADDING)
+	currentPrioTitle:SetText(L["Current Priority"])
+
+	local btn = CreateFrame("Button", nil, self.priorityFooter, "UIPanelButtonTemplate")
+	btn:SetPoint("BOTTOMLEFT", self.priorityFooter, "BOTTOMLEFT", 17, FOOTER_BOTTOM_PADDING)
+	btn:SetText(L["Reset to Default"])
+	-- Size to the localized text instead of a fixed width, so longer translations
+	-- (e.g. German "Auf Standard zurücksetzen") don't clip past the button's edges.
+	local BUTTON_TEXT_PADDING = 20
+	local MIN_BUTTON_WIDTH = 120
+	btn:SetWidth(math.max(MIN_BUTTON_WIDTH, btn:GetFontString():GetStringWidth() + BUTTON_TEXT_PADDING))
 
 	-- scrollable area so the panel stays usable once it has more rows than fit on screen
 	self.scrollFrame = CreateFrame("ScrollFrame", addonName .. "ScrollFrame", self.panel, "UIPanelScrollFrameTemplate")
 	self.scrollFrame:SetPoint("TOPLEFT", self.panel, "TOPLEFT", 16, -16)
-	self.scrollFrame:SetPoint("BOTTOMRIGHT", self.panel, "BOTTOMRIGHT", -28, 16 + RESET_AREA_HEIGHT)
+	self.scrollFrame:SetPoint("BOTTOMRIGHT", self.panel, "BOTTOMRIGHT", -28, FOOTER_HEIGHT)
 	self.scrollFrame:EnableMouseWheel(true)
 	self.scrollFrame:SetScript("OnMouseWheel", function(sf, delta)
 		local newScroll = sf:GetVerticalScroll() - delta * 40
@@ -513,20 +457,11 @@ function ham.settingsFrame:InitializeOptions()
 		lastStaticElement = heartseekingButton
 	end
 
-	-- Class/racial spell groups, "Current Priority" and "Bandage Priority" titles are all
-	-- created dynamically in InitializeClassSpells, since class headers depend on which
-	-- classes actually have spells and that section's height varies with how many show up.
+	-- Class/racial spell groups are created dynamically in InitializeClassSpells, since
+	-- class headers depend on which classes actually have spells and that section's
+	-- height varies with how many show up.
 
 	-------------  RESET BUTTON  -------------
-	-- Anchored to the panel itself (not the scrollable content) so it's always visible.
-	local btn = CreateFrame("Button", nil, self.panel, "UIPanelButtonTemplate")
-	btn:SetPoint("BOTTOMLEFT", self.panel, "BOTTOMLEFT", 17, 16)
-	btn:SetText(L["Reset to Default"])
-	-- Size to the localized text instead of a fixed width, so longer translations
-	-- (e.g. German "Auf Standard zurücksetzen") don't clip past the button's edges.
-	local BUTTON_TEXT_PADDING = 20
-	local MIN_BUTTON_WIDTH = 120
-	btn:SetWidth(math.max(MIN_BUTTON_WIDTH, btn:GetFontString():GetStringWidth() + BUTTON_TEXT_PADDING))
 	btn:SetScript("OnClick", function()
 		HAMDB = CopyTable(ham.defaults)
 
@@ -550,7 +485,7 @@ function ham.settingsFrame:InitializeOptions()
 		ham.updateHeals()
 		ham.updateMacro()
 		self:updatePrio()
-		self:updateBandagePrio()
+		ham.bandageSettingsFrame:updateBandagePrio()
 		print(L["Reset successful!"])
 	end)
 end
@@ -654,16 +589,6 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 		layoutGroup(className, buckets[classToken] or {})
 	end
 	layoutGroup(L["Other / Racial"], otherBucket)
-
-	-------------  CURRENT PRIORITY  -------------
-	currentPrioTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
-	currentPrioTitle:SetPoint("TOPLEFT", lastAnchor, 0, -PADDING_CATERGORY)
-	currentPrioTitle:SetText(L["Current Priority"])
-
-	-------------  BANDAGE PRIORITY  -------------
-	bandagePrioTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
-	bandagePrioTitle:SetPoint("TOPLEFT", currentPrioTitle, 0, -PADDING_CATERGORY - ICON_SIZE)
-	bandagePrioTitle:SetText(L["Bandage Priority"])
 
 	self:recalculateContentHeight()
 end
