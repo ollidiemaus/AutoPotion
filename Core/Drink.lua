@@ -83,6 +83,19 @@ ham.tarpCollectedDew = ham.Item.new(49254, "Tarp Collected Dew")
 ham.volcanicSpringWater = ham.Item.new(49601, "Volcanic Spring Water")
 ham.wellWater = ham.Item.new(60269, "Well Water")
 
+-- Mists - plain drink (mana restore, no stats), reskins of the same mechanic
+ham.blackTea = ham.Item.new(90660, "Black Tea")
+ham.carbonatedWater = ham.Item.new(81924, "Carbonated Water")
+ham.coboCola = ham.Item.new(81923, "Cobo Cola")
+ham.cupOfKafa = ham.Item.new(88578, "Cup of Kafa")
+ham.funkyMonkeyBrew = ham.Item.new(105711, "Funky Monkey Brew")
+ham.goldenCarpConsomme = ham.Item.new(74636, "Golden Carp Consomme")
+ham.jadeWitchBrew = ham.Item.new(75037, "Jade Witch Brew")
+ham.jasmineTea = ham.Item.new(90659, "Jasmine Tea")
+ham.lotusWater = ham.Item.new(88532, "Lotus Water")
+ham.timelessTea = ham.Item.new(104348, "Timeless Tea")
+ham.viseclawSoup = ham.Item.new(85501, "Viseclaw Soup")
+
 -- Return a prioritized list of drink items for the current client.
 -- Retail food restores both health and mana in a single item, so there is no
 -- separate AutoDrink macro/list there.
