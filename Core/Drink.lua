@@ -44,6 +44,21 @@ ham.sparklingSouthshoreCider = ham.Item.new(29401, "Sparkling Southshore Cider")
 ham.starsLament = ham.Item.new(32455, "Star's Lament")
 ham.starsTears = ham.Item.new(32453, "Star's Tears")
 
+-- Wrath - plain drink (mana restore, no stats), reskins of the same mechanic
+ham.bitterPlasma = ham.Item.new(38698, "Bitter Plasma")
+ham.crusadersWaterskin = ham.Item.new(42777, "Crusader's Waterskin")
+ham.freshAppleJuice = ham.Item.new(43086, "Fresh Apple Juice")
+ham.freshSqueezedLimeade = ham.Item.new(44941, "Fresh-Squeezed Limeade")
+ham.frostberryJuice = ham.Item.new(37253, "Frostberry Juice")
+ham.grizzleberryJuice = ham.Item.new(40357, "Grizzleberry Juice")
+ham.honeymintTea = ham.Item.new(33445, "Honeymint Tea")
+ham.kungaloosh = ham.Item.new(39520, "Kungaloosh")
+ham.mountainWater = ham.Item.new(44750, "Mountain Water")
+ham.pungentSealWhey = ham.Item.new(33444, "Pungent Seal Whey")
+ham.starsSorrow = ham.Item.new(43236, "Star's Sorrow")
+ham.sweetenedGoatsMilk = ham.Item.new(35954, "Sweetened Goat's Milk")
+ham.yetiMilk = ham.Item.new(41731, "Yeti Milk")
+
 -- Return a prioritized list of drink items for the current client.
 -- Retail food restores both health and mana in a single item, so there is no
 -- separate AutoDrink macro/list there.
