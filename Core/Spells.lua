@@ -1,11 +1,15 @@
 local addonName, ham = ...
 
 ham.crimsonVialSpell = ham.Spell.new(185311, "ROGUE")
+-- Removed on retail in patch 12.0.0, replaced by the passive "Aessina's Renewal" - kept
+-- here (object always created, see note below) since it's still a real, active spell on
+-- Mists Classic and is listed there.
 ham.renewal = ham.Spell.new(108238, "DRUID")
 ham.exhilaration = ham.Spell.new(109304, "HUNTER")
----Fortitude of the Bear became a passive in 12.0 (Hunter exotic-pet ability, not Druid)
+---Fortitude of the Bear became a passive in 12.0 (Hunter exotic-pet ability, not Druid) - not offered anywhere any more
 ham.fortitudeOfTheBear = ham.Spell.new(388035, "HUNTER")
 ham.lastStand = ham.Spell.new(12975, "WARRIOR")
+-- Removed outright in patch 12.0.0, no replacement - not offered anywhere any more
 ham.bitterImmunity = ham.Spell.new(383762, "WARRIOR")
 ham.desperatePrayer = ham.Spell.new(19236, "PRIEST")
 ham.expelHarm = ham.Spell.new(322101, "MONK")
