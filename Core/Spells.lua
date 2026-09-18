@@ -1,34 +1,36 @@
 local addonName, ham = ...
 
-ham.crimsonVialSpell = ham.Spell.new(185311)
-ham.renewal = ham.Spell.new(108238)
-ham.exhilaration = ham.Spell.new(109304)
----Fortitude of the Bear became a passive in 12.0
-ham.fortitudeOfTheBear = ham.Spell.new(388035)
-ham.lastStand = ham.Spell.new(12975)
-ham.bitterImmunity = ham.Spell.new(383762)
-ham.desperatePrayer = ham.Spell.new(19236)
-ham.expelHarm = ham.Spell.new(322101)
-ham.healingElixir = ham.Spell.new(122281)
-ham.darkPact = ham.Spell.new(108416)
-ham.vampiricBlood = ham.Spell.new(55233)
-ham.deathPact = ham.Spell.new(48743)
+ham.crimsonVialSpell = ham.Spell.new(185311, "ROGUE")
+ham.renewal = ham.Spell.new(108238, "DRUID")
+ham.exhilaration = ham.Spell.new(109304, "HUNTER")
+---Fortitude of the Bear became a passive in 12.0 (Hunter exotic-pet ability, not Druid)
+ham.fortitudeOfTheBear = ham.Spell.new(388035, "HUNTER")
+ham.lastStand = ham.Spell.new(12975, "WARRIOR")
+ham.bitterImmunity = ham.Spell.new(383762, "WARRIOR")
+ham.desperatePrayer = ham.Spell.new(19236, "PRIEST")
+ham.expelHarm = ham.Spell.new(322101, "MONK")
+ham.healingElixir = ham.Spell.new(122281, "MONK")
+ham.darkPact = ham.Spell.new(108416, "WARLOCK")
+ham.vampiricBlood = ham.Spell.new(55233, "DEATHKNIGHT")
+ham.deathPact = ham.Spell.new(48743, "DEATHKNIGHT")
 
--- Recuperate is only usable out of combat
+-- Recuperate is only usable out of combat; not tied to a class (Undermine'd consumable/environment effect)
 ham.recuperate = ham.Spell.new(1231411)
 
 --Racials WTF These are all seperate Spells
-ham.giftOfTheNaaruDK = ham.Spell.new(59545)
-ham.giftOfTheNaaruHunter = ham.Spell.new(59543)
-ham.giftOfTheNaaruMage = ham.Spell.new(59548)
+ham.giftOfTheNaaruDK = ham.Spell.new(59545, "DEATHKNIGHT")
+ham.giftOfTheNaaruHunter = ham.Spell.new(59543, "HUNTER")
+ham.giftOfTheNaaruMage = ham.Spell.new(59548, "MAGE")
+-- Shared Mage/Warlock id: left classless to avoid listing it under both headers
 ham.giftOfTheNaaruMageWarlock = ham.Spell.new(416250)
-ham.giftOfTheNaaruMonk = ham.Spell.new(121093)
-ham.giftOfTheNaaruPaladin = ham.Spell.new(59542)
-ham.giftOfTheNaaruPriest = ham.Spell.new(59544)
-ham.giftOfTheNaaruRogue = ham.Spell.new(370626)
-ham.giftOfTheNaaruShaman = ham.Spell.new(59547)
-ham.giftOfTheNaaruWarrior = ham.Spell.new(28880)
+ham.giftOfTheNaaruMonk = ham.Spell.new(121093, "MONK")
+ham.giftOfTheNaaruPaladin = ham.Spell.new(59542, "PALADIN")
+ham.giftOfTheNaaruPriest = ham.Spell.new(59544, "PRIEST")
+ham.giftOfTheNaaruRogue = ham.Spell.new(370626, "ROGUE")
+ham.giftOfTheNaaruShaman = ham.Spell.new(59547, "SHAMAN")
+ham.giftOfTheNaaruWarrior = ham.Spell.new(28880, "WARRIOR")
 
+-- Vulpera racial, not tied to a class
 ham.bagOfTricks = ham.Spell.new(312411)
 
 ham.supportedSpells = {}
