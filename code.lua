@@ -492,10 +492,7 @@ function ham.updateFoodMacro()
   end
 end
 
--- No-op on Retail: AutoDrink doesn't exist there (Retail food restores both
--- health and mana), so callers never need to branch on ham.isRetail.
 function ham.updateDrinkMacro()
-  if ham.isRetail then return end
   local drinkMacroStr = buildDrinkMacroString()
   if megaMacro.installed and megaMacro.loaded then
     UpdateMegaMacroByName(drinkMacroName, drinkMacroStr)

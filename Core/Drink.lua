@@ -1,5 +1,41 @@
 local addonName, ham = ...
 
+-- Retail - plain drink (mana restore, no stats). Wowhead's Food & Drinks category lists
+-- dozens of cosmetic name/icon reskins of the same restore-only mechanic per zone; these
+-- are the confirmed drink-type items, included individually for coverage.
+ham.manaLilyTea = ham.Item.new(242297, "Mana Lily Tea")
+ham.tranquilityBloomTea = ham.Item.new(242300, "Tranquility Bloom Tea")
+ham.purifiedCordial = ham.Item.new(260258, "Purified Cordial")
+ham.everspringWater = ham.Item.new(260259, "Everspring Water")
+ham.springrunnerSparkling = ham.Item.new(260260, "Springrunner Sparkling")
+ham.bloomNectar = ham.Item.new(260261, "Bloom Nectar")
+ham.rootJuice = ham.Item.new(260271, "Root Juice")
+ham.crispBluffBock = ham.Item.new(260272, "Crisp Bluff Bock")
+ham.teaOfMistsAndRain = ham.Item.new(260273, "Tea of Mists and Rain")
+ham.denshroomDeepRoast = ham.Item.new(260274, "Denshroom Deep Roast")
+ham.refreshingAhluaWater = ham.Item.new(260282, "Refreshing Ahl'ua Water")
+ham.grottoGulp = ham.Item.new(260283, "Grotto Gulp")
+ham.lashroomQuencher = ham.Item.new(260284, "Lashroom Quencher")
+ham.extractOfLightbloom = ham.Item.new(260285, "Extract of Lightbloom")
+ham.voidPort = ham.Item.new(260293, "Void Port")
+ham.voidwyrmAbsinthe = ham.Item.new(260294, "Voidwyrm Absinthe")
+ham.purifiedStormWater = ham.Item.new(260295, "Purified Storm Water")
+ham.shadeleafTea = ham.Item.new(260296, "Shadeleaf Tea")
+ham.goldengroveJuice = ham.Item.new(264981, "Goldengrove Juice")
+ham.wineNot = ham.Item.new(264982, "Wine Not")
+ham.sunwellShot = ham.Item.new(264983, "Sunwell Shot")
+ham.darkwellDraft = ham.Item.new(264984, "Darkwell Draft")
+ham.dawnmosa = ham.Item.new(264985, "Dawnmosa")
+ham.magistersMead = ham.Item.new(264987, "Magister's Mead")
+ham.dragonhawkFlight = ham.Item.new(264989, "Dragonhawk Flight")
+ham.fairbreezeFranciacorta = ham.Item.new(264990, "Fairbreeze Franciacorta")
+
+-- Retail - "Relaxed" drink: mana restore plus a secondary-stat buff, situational,
+-- opt-in via HAMDB.includeBuffFood (the same toggle used for Well Fed food).
+ham.argentleafTea = ham.Item.new(242298, "Argentleaf Tea", { buffFood = true })
+ham.sanguithornTea = ham.Item.new(242299, "Sanguithorn Tea", { buffFood = true })
+ham.azerootTea = ham.Item.new(242301, "Azeroot Tea", { buffFood = true })
+
 -- Classic - vendor water (mana restore, no stats)
 ham.refreshingSpringWater = ham.Item.new(159, "Refreshing Spring Water")
 ham.iceColdMilk = ham.Item.new(1179, "Ice Cold Milk")
@@ -96,15 +132,28 @@ ham.lotusWater = ham.Item.new(88532, "Lotus Water")
 ham.timelessTea = ham.Item.new(104348, "Timeless Tea")
 ham.viseclawSoup = ham.Item.new(85501, "Viseclaw Soup")
 
--- Return a prioritized list of drink items for the current client.
--- Retail food restores both health and mana in a single item, so there is no
--- separate AutoDrink macro/list there.
-function ham.getDrink()
-  if ham.isRetail then return {} end
+local function getRawDrink()
+  if ham.isRetail and ham.getDrinkForRetail then return ham.getDrinkForRetail() end
   if ham.isClassic and ham.getDrinkForClassic then return ham.getDrinkForClassic() end
   if ham.isTBC and ham.getDrinkForTBC then return ham.getDrinkForTBC() end
   if ham.isWrath and ham.getDrinkForWrath then return ham.getDrinkForWrath() end
   if ham.isCata and ham.getDrinkForCata then return ham.getDrinkForCata() end
   if ham.isMop and ham.getDrinkForMists then return ham.getDrinkForMists() end
   return {}
+end
+
+-- Return a prioritized list of drink items for the current client, excluding
+-- "buff drink" (situational Relaxed stat drink) unless the user opted in.
+function ham.getDrink()
+  local list = getRawDrink()
+  if HAMDB and HAMDB.includeBuffFood then
+    return list
+  end
+  local filtered = {}
+  for _, item in ipairs(list) do
+    if not item.hasTag("buffFood") then
+      table.insert(filtered, item)
+    end
+  end
+  return filtered
 end

@@ -69,10 +69,8 @@ function ham.drinkSettingsFrame:createDrinkPrioFrame(id, iconTexture, positionx)
 	return icon
 end
 
--- Update the Drink Priority section. No-op on Retail: AutoDrink doesn't
--- exist there (Retail food restores both health and mana).
+-- Update the Drink Priority section.
 function ham.drinkSettingsFrame:updateDrinkPrio()
-	if ham.isRetail then return end
 	-- hide existing
 	for _, frame in pairs(drinkFrames) do
 		frame:Hide()
@@ -117,11 +115,7 @@ function ham.drinkSettingsFrame:updateDrinkPrio()
 	self:recalculateContentHeight()
 end
 
--- No-op on Retail: AutoDrink doesn't exist there (Retail food restores both
--- health and mana in one item), so callers never need to branch.
 function ham.drinkSettingsFrame:InitializeOptions()
-	if ham.isRetail then return end
-
 	-- Create the sub-panel inside the Interface Options container
 	self.panel = CreateFrame("Frame", addonName .. "Drink", InterfaceOptionsFramePanelContainer)
 	self.panel.name = L["AutoDrink"]

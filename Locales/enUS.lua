@@ -13,8 +13,8 @@ L["Bandage Priority"] = "Bandage Priority"
 L["Food Priority"] = "Food Priority"
 L["Drink Priority"] = "Drink Priority"
 L["Include Buff Food"] = "Include Buff Food"
-L["Include \"Well Fed\" buff food items (with situational secondary-stat bonuses) in the food priority list."] =
-"Include \"Well Fed\" buff food items (with situational secondary-stat bonuses) in the food priority list."
+L["Include \"Well Fed\"/\"Relaxed\" buff food and drink items (with situational secondary-stat bonuses) in the food and drink priority lists."] =
+"Include \"Well Fed\"/\"Relaxed\" buff food and drink items (with situational secondary-stat bonuses) in the food and drink priority lists."
 L["Heartseeking Health Injector (tinker)"] = "Heartseeking Health Injector (tinker)"
 L["Include /stopcasting in the macro"] = "Include /stopcasting in the macro"
 L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"] =

@@ -61,6 +61,7 @@ Core/Food/Wrath.lua
 Core/Food/Cata.lua
 Core/Food/Mists.lua
 Core/Drink.lua
+Core/Drink/Retail.lua
 Core/Drink/Classic.lua
 Core/Drink/TBC.lua
 Core/Drink/Wrath.lua
