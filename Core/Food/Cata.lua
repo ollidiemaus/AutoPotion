@@ -471,6 +471,7 @@ function ham.getFoodForCata()
     ham.smokedBearMeat,
     ham.snapvineWatermelon,
     ham.softBananaBread,
+    ham.sourGreenApple,
     ham.specialChickenFeed,
     ham.spicedBeefJerky,
     ham.spicyBeefstick,

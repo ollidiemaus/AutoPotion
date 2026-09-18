@@ -66,6 +66,7 @@ function ham.getFoodForTBC()
     ham.lyribread,
     ham.magharGrainbread,
     ham.magharMildCheese,
+    ham.mingosFortuneGiblets,
     ham.mosersMagnificentMuffin,
     ham.ogrilaChickenFingers,
     ham.pickledEgg,
