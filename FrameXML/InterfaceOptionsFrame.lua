@@ -522,7 +522,11 @@ function ham.settingsFrame:InitializeOptions()
 	local btn = CreateFrame("Button", nil, self.panel, "UIPanelButtonTemplate")
 	btn:SetPoint("BOTTOMLEFT", self.panel, "BOTTOMLEFT", 17, 16)
 	btn:SetText(L["Reset to Default"])
-	btn:SetWidth(120)
+	-- Size to the localized text instead of a fixed width, so longer translations
+	-- (e.g. German "Auf Standard zurücksetzen") don't clip past the button's edges.
+	local BUTTON_TEXT_PADDING = 20
+	local MIN_BUTTON_WIDTH = 120
+	btn:SetWidth(math.max(MIN_BUTTON_WIDTH, btn:GetFontString():GetStringWidth() + BUTTON_TEXT_PADDING))
 	btn:SetScript("OnClick", function()
 		HAMDB = CopyTable(ham.defaults)
 
