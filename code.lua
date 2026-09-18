@@ -2,6 +2,8 @@ local L = LibStub("AceLocale-3.0"):GetLocale("AutoPotion")
 local addonName, ham = ...
 local macroName = L["AutoPotion"]
 local bandageMacroName = L["AutoBandage"] or "AutoBandage"
+local foodMacroName = L["AutoFood"] or "AutoFood"
+local drinkMacroName = L["AutoDrink"] or "AutoDrink"
 
 local function isInInstancedPvP()
   if not ham.isRetail then return false end
@@ -24,6 +26,7 @@ setmetatable(ham, {
         witheringDreamsPotion = HAMDB.witheringDreamsPotion or false,
         cavedwellerDelight = HAMDB.cavedwellerDelight or true,
         heartseekingInjector = HAMDB.heartseekingInjector or false,
+        includeBuffFood = HAMDB.includeBuffFood or false,
       }
       return t.options
     end
@@ -173,6 +176,28 @@ local function createBandageMacroIfMissing()
   end
 end
 
+local function createFoodMacroIfMissing()
+  -- dont create macro if MegaMacro is installed and loaded
+  if megaMacro.installed and megaMacro.loaded then
+    return
+  end
+  local name = GetMacroInfo(foodMacroName)
+  if name == nil then
+    CreateMacro(foodMacroName, "INV_Misc_QuestionMark")
+  end
+end
+
+local function createDrinkMacroIfMissing()
+  -- dont create macro if MegaMacro is installed and loaded
+  if megaMacro.installed and megaMacro.loaded then
+    return
+  end
+  local name = GetMacroInfo(drinkMacroName)
+  if name == nil then
+    CreateMacro(drinkMacroName, "INV_Misc_QuestionMark")
+  end
+end
+
 local function setShortestSpellCD(newSpell)
   if ham.options.cdReset then
     local cd
@@ -317,6 +342,40 @@ local function buildBandageMacroString()
   return "#showtooltip\n/use [@player] " .. sequence[1]
 end
 
+-- Build food macro string (highest available food first)
+local function buildFoodMacroString()
+  local sequence = {}
+  local food = ham.getFood()
+  for _, item in ipairs(food) do
+    if item.getCount() > 0 then
+      table.insert(sequence, "item:" .. tostring(item.getId()))
+      break
+    end
+  end
+
+  if #sequence == 0 then
+    return "#showtooltip"
+  end
+  return "#showtooltip\n/use [@player] " .. sequence[1]
+end
+
+-- Build drink macro string (highest available drink first)
+local function buildDrinkMacroString()
+  local sequence = {}
+  local drink = ham.getDrink()
+  for _, item in ipairs(drink) do
+    if item.getCount() > 0 then
+      table.insert(sequence, "item:" .. tostring(item.getId()))
+      break
+    end
+  end
+
+  if #sequence == 0 then
+    return "#showtooltip"
+  end
+  return "#showtooltip\n/use [@player] " .. sequence[1]
+end
+
 -- check if player has the engineering tinker: Heartseeking Health Injector
 function ham.checkTinker()
   if not ham.isRetail then return end
@@ -418,6 +477,39 @@ function ham.updateBandageMacro()
   end
 end
 
+function ham.updateFoodMacro()
+  local foodMacroStr = buildFoodMacroString()
+  if megaMacro.installed and megaMacro.loaded then
+    UpdateMegaMacroByName(foodMacroName, foodMacroStr)
+  else
+    createFoodMacroIfMissing()
+    local success, err = pcall(function()
+      EditMacro(foodMacroName, foodMacroName, nil, foodMacroStr)
+    end)
+    if success then
+      log('Food macro updated.')
+    end
+  end
+end
+
+-- No-op on Retail: AutoDrink doesn't exist there (Retail food restores both
+-- health and mana), so callers never need to branch on ham.isRetail.
+function ham.updateDrinkMacro()
+  if ham.isRetail then return end
+  local drinkMacroStr = buildDrinkMacroString()
+  if megaMacro.installed and megaMacro.loaded then
+    UpdateMegaMacroByName(drinkMacroName, drinkMacroStr)
+  else
+    createDrinkMacroIfMissing()
+    local success, err = pcall(function()
+      EditMacro(drinkMacroName, drinkMacroName, nil, drinkMacroStr)
+    end)
+    if success then
+      log('Drink macro updated.')
+    end
+  end
+end
+
 local function MakeMacro()
   -- dont attempt to create macro until MegaMacro addon is checked
   if not megaMacro.checked then
@@ -444,9 +536,13 @@ local function MakeMacro()
   ham.updateHeals()
   ham.updateMacro()
   ham.updateBandageMacro()
+  ham.updateFoodMacro()
+  ham.updateDrinkMacro()
 
   ham.settingsFrame:updatePrio()
   ham.bandageSettingsFrame:updateBandagePrio()
+  ham.foodSettingsFrame:updateFoodPrio()
+  ham.drinkSettingsFrame:updateDrinkPrio()
 end
 
 -- debounce handler for BAG_UPDATE events which can fire very rapidly
