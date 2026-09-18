@@ -446,7 +446,7 @@ local function MakeMacro()
   ham.updateBandageMacro()
 
   ham.settingsFrame:updatePrio()
-  ham.settingsFrame:updateBandagePrio()
+  ham.bandageSettingsFrame:updateBandagePrio()
 end
 
 -- debounce handler for BAG_UPDATE events which can fire very rapidly
