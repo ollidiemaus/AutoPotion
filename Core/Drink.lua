@@ -8,6 +8,16 @@ ham.sweetNectar = ham.Item.new(1708, "Sweet Nectar")
 ham.moonberryJuice = ham.Item.new(1645, "Moonberry Juice")
 ham.morningGloryDew = ham.Item.new(8766, "Morning Glory Dew")
 
+-- Classic - more plain vendor/drop water (no stats), reskins of the same mana-restore
+-- mechanic at the same level tiers as the list above
+ham.blendedBeanBrew = ham.Item.new(17404, "Blended Bean Brew")
+ham.bottledWinterspringWater = ham.Item.new(19300, "Bottled Winterspring Water")
+ham.bubblingWater = ham.Item.new(9451, "Bubbling Water")
+ham.enchantedWater = ham.Item.new(4791, "Enchanted Water")
+ham.fizzyFaireDrink = ham.Item.new(19299, "Fizzy Faire Drink")
+ham.goldthornTea = ham.Item.new(10841, "Goldthorn Tea")
+ham.hyjalNectar = ham.Item.new(18300, "Hyjal Nectar")
+
 -- Classic - conjured (Mage), prioritized first: free and doesn't consume bag/gold
 ham.conjuredWater = ham.Item.new(5350, "Conjured Water", { conjured = true })
 ham.conjuredFreshWater = ham.Item.new(2288, "Conjured Fresh Water", { conjured = true })
