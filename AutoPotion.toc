@@ -1,6 +1,6 @@
-## Interface: 120007, 120100
+## Interface: 120100
 ## Interface-Classic: 11509
-## Interface-BCC: 20505
+## Interface-BCC: 20506
 ## Interface-WOTLKC: 30405
 ## Interface-Cata: 40402
 ## Interface-Mists: 50504
