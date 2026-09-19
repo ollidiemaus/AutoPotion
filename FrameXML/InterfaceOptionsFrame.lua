@@ -47,6 +47,10 @@ function ham.settingsFrame:updateConfig(option, value)
 	ham.updateMacro()
 	self:updatePrio()
 	ham.bandageSettingsFrame:updateBandagePrio()
+	ham.updateFoodMacro()
+	ham.foodSettingsFrame:updateFoodPrio()
+	ham.updateDrinkMacro()
+	ham.drinkSettingsFrame:updateDrinkPrio()
 end
 
 function ham.settingsFrame:OnEvent(event, addOnName)
@@ -59,6 +63,8 @@ function ham.settingsFrame:OnEvent(event, addOnName)
 			end
 			self:InitializeOptions()
 			ham.bandageSettingsFrame:InitializeOptions()
+			ham.foodSettingsFrame:InitializeOptions()
+			ham.drinkSettingsFrame:InitializeOptions()
 		end
 	end
 	if event == "PLAYER_LOGIN" then
@@ -67,6 +73,10 @@ function ham.settingsFrame:OnEvent(event, addOnName)
 		ham.updateMacro()
 		self:updatePrio()
 		ham.bandageSettingsFrame:updateBandagePrio()
+		ham.updateFoodMacro()
+		ham.foodSettingsFrame:updateFoodPrio()
+		ham.updateDrinkMacro()
+		ham.drinkSettingsFrame:updateDrinkPrio()
 	end
 end
 

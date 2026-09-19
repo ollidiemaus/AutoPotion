@@ -5,4 +5,10 @@
   <Binding name="AutoBandage Macro" category="Auto Potion">
     -- AutoBandage
   </Binding>
+  <Binding name="AutoFood Macro" category="Auto Potion">
+    -- AutoFood
+  </Binding>
+  <Binding name="AutoDrink Macro" category="Auto Potion">
+    -- AutoDrink
+  </Binding>
 </Bindings>
