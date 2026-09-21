@@ -1,0 +1,60 @@
+---@diagnostic disable: undefined-global
+local addonName, ham = ...
+
+function ham.getDrinkForTBC()
+  return {
+    -- Conjured water first: free and doesn't consume bag space or gold
+    ham.conjuredGlacierWater,
+    ham.conjuredMountainSpringWater,
+    -- Dual restore (health AND mana, no stats) - shared with Core/Food/TBC.lua's list
+    ham.conjuredMannaBiscuit,
+    ham.enrichedTeroconeJuice,
+    ham.hotButteredTrout,
+    ham.naaruRation,
+    ham.undersporePod,
+    -- Plain water (no stats), highest tier first
+    ham.blackCoffee,
+    ham.blackrockFortifiedWater,
+    ham.dosOgris,
+    ham.ethermead,
+    ham.gilneasSparklingWater,
+    ham.purifiedDraenicWater,
+    ham.sparklingSouthshoreCider,
+    ham.starsTears,
+    ham.blackrockMineralWater,
+    ham.filteredDraenicWater,
+    ham.silverwine,
+    ham.starsLament,
+    ham.blackrockSpringWater,
+    -- Classic Era items, as a fallback for lower-level characters
+    ham.conjuredCrystalWater,
+    ham.conjuredSparklingWater,
+    ham.conjuredMineralWater,
+    ham.conjuredSpringWater,
+    ham.conjuredPurifiedWater,
+    ham.conjuredFreshWater,
+    ham.conjuredWater,
+    ham.essenceMango,
+    ham.enrichedMannaBiscuit,
+    ham.alteracMannaBiscuit,
+    ham.graccusMinceMeatFruitcake,
+    ham.bobbingApple,
+    ham.refreshingRedApple,
+    ham.greenTeaLeaf,
+    ham.cookedCrabClaw,
+    ham.sengginRoot,
+    ham.hyjalNectar,
+    ham.morningGloryDew,
+    ham.moonberryJuice,
+    ham.bottledWinterspringWater,
+    ham.sweetNectar,
+    ham.enchantedWater,
+    ham.goldthornTea,
+    ham.melonJuice,
+    ham.bubblingWater,
+    ham.fizzyFaireDrink,
+    ham.iceColdMilk,
+    ham.blendedBeanBrew,
+    ham.refreshingSpringWater,
+}
+end
