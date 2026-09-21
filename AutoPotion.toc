@@ -1,6 +1,6 @@
-## Interface: 120007, 120100
+## Interface: 120100
 ## Interface-Classic: 11509
-## Interface-BCC: 20505
+## Interface-BCC: 20506
 ## Interface-WOTLKC: 30405
 ## Interface-Cata: 40402
 ## Interface-Mists: 50504
@@ -57,8 +57,24 @@ Core/Bandages/Wrath.lua
 Core/Bandages/Cata.lua
 Core/Bandages/Mists.lua
 Core/Bandages/Forever.lua
+Core/Food.lua
+Core/Food/Retail.lua
+Core/Food/Classic.lua
+Core/Food/TBC.lua
+Core/Food/Wrath.lua
+Core/Food/Cata.lua
+Core/Food/Mists.lua
+Core/Drink.lua
+Core/Drink/Retail.lua
+Core/Drink/Classic.lua
+Core/Drink/TBC.lua
+Core/Drink/Wrath.lua
+Core/Drink/Cata.lua
+Core/Drink/Mists.lua
 Core/Player.lua
 code.lua
 Bindings.lua
 FrameXML/InterfaceOptionsFrame.lua
 FrameXML/BandageOptionsFrame.lua
+FrameXML/FoodOptionsFrame.lua
+FrameXML/DrinkOptionsFrame.lua

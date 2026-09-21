@@ -7,7 +7,8 @@ L["Auto Potion Settings"] = "Auto Potion 设置"
 L["Cavedweller's Delight"] = "洞穴住民的挚爱"
 L["Refreshing Serum"] = "复苏血清"
 L["Class/Racial Spells"] = "职业/种族技能"
-L["Configure the behavior of the addon. IE: if you want to include class spells"] = "您可以在此设置技能。例如：是否包含职业/种族回血技能"
+L["Configure the behavior of the addon. IE: if you want to include class spells"] = 
+"您可以在此设置技能。例如：是否包含职业/种族回血技能"
 L["Current Priority"] = "当前优先级"
 L["Bandage Priority"] = "绷带优先级"
 L["Heartseeking Health Injector (tinker)"] = "觅心生命注射器（匠械）"
@@ -17,14 +18,19 @@ L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE 
 L["Invalid option: "] = "无效选项："
 L["Items"] = "物品"
 L["Low Priority Healthstones"] = "降低治疗石使用优先级"
+L["Other / Racial"] = "其他 / 种族"
 L["Potion of Withering Dreams"] = "凋零梦境药水"
 L["Potion of Withering Vitality"] = "枯萎活力药水"
 L["Prioritize health potions over a healthstone."] = "治疗药水优先于治疗石使用"
 L["Reset successful!"] = "重置成功！"
 L["Reset to Default"] = "重置为默认"
-L["The Settings of AutoPotion were reset due to breaking changes."] = "由于插件结构变动，AutoPotion的设置已被重置。"
+L["Shows the bandage that will currently be used, based on what is in your bags."] = 
+"显示当前根据背包物品将会使用的绷带。"
+L["The Settings of AutoPotion were reset due to breaking changes."] = 
+"由于插件结构变动，AutoPotion的设置已被重置。"
 L["Useful for casters."] = "对施法职业有用。"
 
 -- code
-L["AutoPotion"] = "治疗"
+L["AutoPotion"] = "AutoPotion"   -- DO NOT TRANSLATE
+L["AutoBandage"] = "AutoBandage" -- DO NOT TRANSLATE
 
