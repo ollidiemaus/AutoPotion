@@ -147,6 +147,7 @@ local function getRawDrink()
   if ham.isWrath and ham.getDrinkForWrath then return ham.getDrinkForWrath() end
   if ham.isCata and ham.getDrinkForCata then return ham.getDrinkForCata() end
   if ham.isMop and ham.getDrinkForMists then return ham.getDrinkForMists() end
+  if ham.isForever and ham.getDrinkForForever then return ham.getDrinkForForever() end
   return {}
 end
 
