@@ -835,6 +835,7 @@ local function getRawFood()
   if ham.isWrath and ham.getFoodForWrath then return ham.getFoodForWrath() end
   if ham.isCata and ham.getFoodForCata then return ham.getFoodForCata() end
   if ham.isMop and ham.getFoodForMists then return ham.getFoodForMists() end
+  if ham.isForever and ham.getFoodForForever then return ham.getFoodForForever() end
   return {}
 end
 

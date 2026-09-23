@@ -161,7 +161,10 @@ function ham.settingsFrame:updatePrio()
 				-- Recuperate not shown in instanced PvP
 			else
 				local iconTexture, originalIconTexture
-				if ham.isRetail == true then
+				-- Feature-detect C_Spell rather than branching on ham.isRetail: Forever runs the
+				-- Mainline client engine (C_Spell.*, no GetSpellTexture global) despite ham.isRetail
+				-- being false for it. See Core/Spell.lua for the same pattern.
+				if C_Spell and C_Spell.GetSpellTexture then
 					iconTexture, originalIconTexture = C_Spell.GetSpellTexture(spell.getId())
 				else
 					iconTexture = GetSpellTexture(spell.getId())

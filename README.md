@@ -23,7 +23,7 @@ You never have to edit these macros yourself – Auto Potion keeps them updated 
 - **Bandage macro**:
   - Maintains an `AutoBandage` macro that uses the best bandage available for your current game version and content.
 - **Works across versions**:
-  - Retail (The War Within and later), Classic Era, WotLK Classic, Cataclysm Classic and Mists of Pandaria Classic.
+  - Retail (The War Within and later), Classic Era, WotLK Classic, Cataclysm Classic, Mists of Pandaria Classic, and WoW Forever (beta).
 
 ## How it works
 
@@ -119,7 +119,7 @@ Once configured, you can use your MegaMacro-managed `AutoPotion`/`AutoBandage` m
   **A:** Yes. The addon only updates the macro text. You must press your keybind for any heal, potion, or bandage to be used.
 
 - **Q: Does this work in all versions of WoW?**  
-  **A:** Yes. Auto Potion supports Retail, Classic Era, WotLK Classic, Cataclysm Classic and Mists of Pandaria Classic, adapting the item and bandage lists to each version.
+  **A:** Yes. Auto Potion supports Retail, Classic Era, WotLK Classic, Cataclysm Classic, Mists of Pandaria Classic, and WoW Forever (beta), adapting the item and bandage lists to each version.
 
 - **Q: Can I change which spells are used?**  
   **A:** Yes. Open the settings (`/ap`) and toggle your preferred class/racial self-healing spells.
