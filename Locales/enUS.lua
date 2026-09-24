@@ -21,6 +21,9 @@ L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE 
 "Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"
 L["Invalid option: "] = "Invalid option: "
 L["Items"] = "Items"
+L["Soulburn Healthstone"] = "Soulburn Healthstone"
+L["Casts Soulburn right before the macro in combat to empower your Healthstone. Costs a Soul Shard every time Soulburn is off cooldown, also on presses that use a potion or spell."] =
+"Casts Soulburn right before the macro in combat to empower your Healthstone. Costs a Soul Shard every time Soulburn is off cooldown, also on presses that use a potion or spell."
 L["Low Priority Healthstones"] = "Low Priority Healthstones"
 L["Other / Racial"] = "Other / Racial"
 L["Potion of Withering Dreams"] = "Potion of Withering Dreams"

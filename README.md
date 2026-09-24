@@ -74,6 +74,9 @@ Open the settings via `/ap` or **Interface → AddOns → AutoPotion**. The most
   - Enable/disable Cavedweller's Delight (and its fleeting versions) as a separate step.
 - **Heartseeking Health Injector (tinker)**:
   - Enable support for the engineering tinker on Retail if you have it equipped.
+- **Soulburn Healthstone** (Retail, Warlock only):
+  - Adds `/cast [combat] Soulburn` above the castsequence so your Healthstone is empowered (more healing and +20% max health) in the same keypress. Only added when you know the Soulburn talent and have a Healthstone in your bags.
+  - Soulburn costs a Soul Shard and is cast on every press while it is off cooldown, also when the press uses a potion or spell. Without a Soul Shard the macro simply continues as usual.
 - **Bandage Priority**:
   - Dedicated bandage priority display that shows which bandage will be used first (including battleground-specific bandages in Classic).
 
