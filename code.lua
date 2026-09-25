@@ -200,8 +200,10 @@ end
 
 local function setShortestSpellCD(newSpell)
   if ham.options.cdReset then
-    local cd
-    cd = GetSpellBaseCooldown(newSpell) / 1000
+    -- GetSpellBaseCooldown may be missing on Forever's Mainline engine (like GetSpellInfo)
+    local baseCd = GetSpellBaseCooldown and GetSpellBaseCooldown(newSpell)
+    if not baseCd then return end
+    local cd = baseCd / 1000
     if shortestCD == nil then
       shortestCD = cd
     end

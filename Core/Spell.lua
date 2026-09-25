@@ -2,6 +2,10 @@ local addonName, ham = ...
 
 ham.Spell = {}
 
+-- Maps a spell id to every rank id of that spell, for flavors with spell ranks.
+-- Filled in by the per-flavor Core/Spells/<Flavor>.lua files.
+ham.spellRanks = {}
+
 ham.Spell.new = function(id, class)
     local self = {}
 
@@ -39,7 +43,15 @@ ham.Spell.new = function(id, class)
     end
 
     function self.isKnown()
-        return IsSpellKnown(self.id) or IsSpellKnown(self.id, true)
+        -- Ranked (Classic-era) spells: the stored id is one specific rank, so also accept
+        -- any other rank registered in ham.spellRanks. The macro casts by name, which
+        -- resolves to the highest rank the player knows.
+        for _, rankId in ipairs(ham.spellRanks[self.id] or { self.id }) do
+            if IsSpellKnown(rankId) or IsSpellKnown(rankId, true) then
+                return true
+            end
+        end
+        return false
     end
 
     return self
