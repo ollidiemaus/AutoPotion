@@ -15,4 +15,5 @@ ham.spellRanks[ham.desperatePrayer.getId()] = {
     19240, -- Rank 4
     19241, -- Rank 5
     19242, -- Rank 6
+    19243, -- Rank 7
 }
