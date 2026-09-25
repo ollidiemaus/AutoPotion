@@ -200,8 +200,9 @@ end
 
 local function setShortestSpellCD(newSpell)
   if ham.options.cdReset then
-    -- GetSpellBaseCooldown may be missing on Forever's Mainline engine (like GetSpellInfo)
-    local baseCd = GetSpellBaseCooldown and GetSpellBaseCooldown(newSpell)
+    -- GetSpellBaseCooldown exists on every flavor (confirmed in-game on Forever), but can
+    -- return nil for a spell id absent from the client's spell data
+    local baseCd = GetSpellBaseCooldown(newSpell)
     if not baseCd then return end
     local cd = baseCd / 1000
     if shortestCD == nil then
