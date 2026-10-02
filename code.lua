@@ -201,8 +201,11 @@ end
 
 local function setShortestSpellCD(newSpell)
   if ham.options.cdReset then
-    local cd
-    cd = GetSpellBaseCooldown(newSpell) / 1000
+    -- GetSpellBaseCooldown exists on every flavor (confirmed in-game on Forever), but can
+    -- return nil for a spell id absent from the client's spell data
+    local baseCd = GetSpellBaseCooldown(newSpell)
+    if not baseCd then return end
+    local cd = baseCd / 1000
     if shortestCD == nil then
       shortestCD = cd
     end
@@ -220,6 +223,25 @@ local function setResetType()
   end
 end
 
+-- Spells that are only usable out of combat (Recuperate, the Earthen racial Quiet
+-- Contemplation). They can't go in the castsequence, so they get their own [nocombat] line.
+local function isOutOfCombatSpell(id)
+  return id == ham.recuperate.getId() or id == ham.quietContemplation.getId()
+end
+
+-- The out-of-combat spell to put on the [nocombat] line, if any. Quiet Contemplation is
+-- preferred since it also restores mana. Recuperate isn't allowed in instanced PvP.
+local function getOutOfCombatSpell()
+  if not ham.isRetail then return nil end
+  if ham.dbContains(ham.quietContemplation.getId()) and ham.quietContemplation.isKnown() then
+    return ham.quietContemplation
+  end
+  if not isInInstancedPvP() and ham.dbContains(ham.recuperate.getId()) and ham.recuperate.isKnown() then
+    return ham.recuperate
+  end
+  return nil
+end
+
 local function buildSpellMacroString()
   spellsMacroString = ''
 
@@ -227,8 +249,8 @@ local function buildSpellMacroString()
     local spellCounter = 1
     for i, spell in ipairs(ham.mySpells) do
       local name = ''
-      if spell.getId() == ham.recuperate.getId() then
-        --we don't want to add recuperate because even thought its a spell its only usable out of combat
+      if isOutOfCombatSpell(spell.getId()) then
+        --we don't want to add these because even though they are spells they are only usable out of combat
       else
         name = spell.getName();
         setShortestSpellCD(spell.getId())
@@ -439,12 +461,13 @@ function ham.updateMacro()
     if ham.options.stopCast then
       macroStr = macroStr .. "/stopcasting \n"
     end
-    -- Recuperate: not in instanced PvP (not allowed) and out-of-combat only
-    -- this condition is needed because if not used the castsequence will use off gcd heals direclty after recuperate
+    -- Recuperate / Quiet Contemplation: out-of-combat only
+    -- this condition is needed because if not used the castsequence will use off gcd heals direclty after them
     local combatCondition = ''
-    if ham.isRetail and not isInInstancedPvP() and ham.dbContains(ham.recuperate.getId()) and ham.recuperate.isKnown() then
+    local outOfCombatSpell = getOutOfCombatSpell()
+    if outOfCombatSpell then
       combatCondition = ',combat'
-      macroStr = macroStr .. "/cast [nocombat] " .. ham.recuperate.getName() .. "\n"
+      macroStr = macroStr .. "/cast [nocombat] " .. outOfCombatSpell.getName() .. "\n"
     end
 
     local sequenceStr = "/castsequence [@player" .. combatCondition .. "] reset=" .. resetType .. " "

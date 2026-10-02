@@ -1,11 +1,11 @@
-## Interface: 120100
+## Interface: 120100, 120105
 ## Interface-Classic: 11509
 ## Interface-BCC: 20506
 ## Interface-WOTLKC: 30405
 ## Interface-Cata: 40402
 ## Interface-Mists: 50504
 ## Interface-Forever: 16001
-## Version: 3.16.0
+## Version: 3.16.3
 ## Title: Auto Potion
 ## Author: ollidiemaus
 ## Notes: Updates the Macro AutoPotion to use either Healthstone or the highest Potion found in Bags 

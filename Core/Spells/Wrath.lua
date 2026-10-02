@@ -21,3 +21,18 @@ table.insert(ham.supportedSpells, ham.SpellGroup.new({
 -- ...or create and add one that's exclusive to this flavor:
 -- ham.someWrathOnlySpell = ham.Spell.new(123456, "WARRIOR") -- class token, or omit for non-class spells
 -- table.insert(ham.supportedSpells, ham.someWrathOnlySpell)
+
+-- Desperate Prayer (Holy talent) has one spell id per rank, while ham.desperatePrayer uses
+-- rank 2's id. Register every rank so a priest at any rank is detected.
+ham.spellRanks[ham.desperatePrayer.getId()] = {
+	13908, -- Rank 1
+	19236, -- Rank 2
+	19238, -- Rank 3
+	19240, -- Rank 4
+	19241, -- Rank 5
+	19242, -- Rank 6
+	19243, -- Rank 7
+	25437, -- Rank 8
+	48172, -- Rank 9
+	48173, -- Rank 10
+}
