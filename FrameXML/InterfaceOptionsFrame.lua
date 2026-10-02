@@ -383,6 +383,7 @@ function ham.settingsFrame:InitializeOptions()
 	local witheringDreamsPotionButton = nil
 	local cavedwellerDelightButton = nil
 	local heartseekingButton = nil
+	local soulburnButton = nil
 	if ham.isRetail then
 		local itemsTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
 		itemsTitle:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING_CATERGORY)
@@ -467,6 +468,31 @@ function ham.settingsFrame:InitializeOptions()
 		end)
 		heartseekingButton:SetChecked(HAMDB.heartseekingInjector)
 
+		---Soulburn (Warlock only)---
+		if ham.myPlayer.englishClass == "WARLOCK" then
+			soulburnButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
+			soulburnButton:SetPoint("TOPLEFT", itemsTitle, PADDING_HORIZONTAL, -PADDING * 2)
+			---@diagnostic disable-next-line: undefined-field
+			soulburnButton.Text:SetText(L["Soulburn Healthstone"])
+			soulburnButton:HookScript("OnClick", function(_, btn, down)
+				ham.settingsFrame:updateConfig("soulburn", soulburnButton:GetChecked())
+			end)
+			soulburnButton:HookScript("OnEnter", function(_, btn, down)
+				---@diagnostic disable-next-line: param-type-mismatch
+				GameTooltip:SetOwner(soulburnButton, "ANCHOR_TOPRIGHT")
+				GameTooltip:SetSpellByID(ham.soulburn.getId())
+				GameTooltip:AddLine(" ")
+				GameTooltip:AddLine(
+					L["Casts Soulburn right before the macro in combat to empower your Healthstone. Costs a Soul Shard every time Soulburn is off cooldown, also on presses that use a potion or spell."],
+					1, 1, 1, true)
+				GameTooltip:Show()
+			end)
+			soulburnButton:HookScript("OnLeave", function(_, btn, down)
+				GameTooltip:Hide()
+			end)
+			soulburnButton:SetChecked(HAMDB.soulburn)
+		end
+
 		lastStaticElement = heartseekingButton
 	end
 
@@ -494,6 +520,11 @@ function ham.settingsFrame:InitializeOptions()
 			witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
 			---@diagnostic disable-next-line: need-check-nil
 			cavedwellerDelightButton:SetChecked(HAMDB.cavedwellerDelight)
+		end
+		-- ham.options is only read once, so clear Soulburn in memory too or the macro keeps it until /reload
+		ham.options.soulburn = HAMDB.soulburn
+		if soulburnButton then
+			soulburnButton:SetChecked(HAMDB.soulburn)
 		end
 		ham.updateHeals()
 		ham.updateMacro()
