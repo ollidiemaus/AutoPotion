@@ -17,7 +17,7 @@ ham.defaults = {
         ham.giftOfTheNaaruHunter.getId(), ham.giftOfTheNaaruMage.getId(), ham.giftOfTheNaaruMageWarlock.getId(),
         ham.giftOfTheNaaruMonk.getId(), ham.giftOfTheNaaruPaladin.getId(), ham.giftOfTheNaaruPriest.getId(),
         ham.giftOfTheNaaruRogue.getId(), ham.giftOfTheNaaruShaman.getId(), ham.giftOfTheNaaruWarrior.getId(),
-        ham.bagOfTricks.getId() }
+        ham.bagOfTricks.getId(), ham.quietContemplation.getId() }
 }
 
 function ham.dbContains(id)

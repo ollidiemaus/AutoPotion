@@ -20,6 +20,7 @@ table.insert(ham.supportedSpells, ham.darkPact)
 table.insert(ham.supportedSpells, ham.vampiricBlood)
 table.insert(ham.supportedSpells, ham.deathPact)
 table.insert(ham.supportedSpells, ham.recuperate)
+table.insert(ham.supportedSpells, ham.quietContemplation)
 table.insert(ham.supportedSpells, ham.bagOfTricks)
 
 -- One row for every class's "Gift of the Naaru" id, instead of listing the same racial
