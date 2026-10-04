@@ -15,11 +15,17 @@ ham.desperatePrayer = ham.Spell.new(19236, "PRIEST")
 ham.expelHarm = ham.Spell.new(322101, "MONK")
 ham.healingElixir = ham.Spell.new(122281, "MONK")
 ham.darkPact = ham.Spell.new(108416, "WARLOCK")
+-- Not a heal itself: empowers the next Healthstone. Never part of ham.supportedSpells or the
+-- castsequence - code.lua adds it as a separate leading /cast line when the option is enabled.
+ham.soulburn = ham.Spell.new(385899, "WARLOCK")
 ham.vampiricBlood = ham.Spell.new(55233, "DEATHKNIGHT")
 ham.deathPact = ham.Spell.new(48743, "DEATHKNIGHT")
 
 -- Recuperate is only usable out of combat; not tied to a class (Undermine'd consumable/environment effect)
 ham.recuperate = ham.Spell.new(1231411)
+-- Earthen racial: their out-of-combat food/drink replacement (they can't eat), also only
+-- usable out of combat, so the macro treats it just like Recuperate
+ham.quietContemplation = ham.Spell.new(461063)
 
 -- Racials WTF These are all seperate Spells. Each keeps its real class tag (needed so
 -- ham.SpellGroup can pick the variant matching the player's own class for its tooltip/

@@ -29,6 +29,7 @@ setmetatable(ham, {
         heartseekingInjector = HAMDB.heartseekingInjector or false,
         includeBuffFood = HAMDB.includeBuffFood or false,
         includeRejuvenation = HAMDB.includeRejuvenation ~= false, -- on by default
+        soulburn = HAMDB.soulburn or false,
       }
       return t.options
     end
@@ -235,6 +236,25 @@ local function setResetType()
   end
 end
 
+-- Spells that are only usable out of combat (Recuperate, the Earthen racial Quiet
+-- Contemplation). They can't go in the castsequence, so they get their own [nocombat] line.
+local function isOutOfCombatSpell(id)
+  return id == ham.recuperate.getId() or id == ham.quietContemplation.getId()
+end
+
+-- The out-of-combat spell to put on the [nocombat] line, if any. Quiet Contemplation is
+-- preferred since it also restores mana. Recuperate isn't allowed in instanced PvP.
+local function getOutOfCombatSpell()
+  if not ham.isRetail then return nil end
+  if ham.dbContains(ham.quietContemplation.getId()) and ham.quietContemplation.isKnown() then
+    return ham.quietContemplation
+  end
+  if not isInInstancedPvP() and ham.dbContains(ham.recuperate.getId()) and ham.recuperate.isKnown() then
+    return ham.recuperate
+  end
+  return nil
+end
+
 local function buildSpellMacroString()
   spellsMacroString = ''
 
@@ -242,8 +262,8 @@ local function buildSpellMacroString()
     local spellCounter = 1
     for i, spell in ipairs(ham.mySpells) do
       local name = ''
-      if spell.getId() == ham.recuperate.getId() then
-        --we don't want to add recuperate because even thought its a spell its only usable out of combat
+      if isOutOfCombatSpell(spell.getId()) then
+        --we don't want to add these because even though they are spells they are only usable out of combat
       else
         name = spell.getName();
         setShortestSpellCD(spell.getId())
@@ -409,6 +429,25 @@ local function buildManaPotionMacroString()
   return "#showtooltip\n/use " .. sequence[1]
 end
 
+-- Soulburn (Warlock talent) empowers the next Healthstone. It's off the GCD, so a leading
+-- "/cast [combat] Soulburn" line fires in the same keypress as the castsequence step. It
+-- can't live inside the castsequence itself: with no Soul Shard the sequence would get stuck.
+local function shouldSoulburn()
+  if not ham.isRetail or not ham.options.soulburn then return false end
+  if ham.myPlayer.englishClass ~= "WARLOCK" then return false end
+  -- talents are not always reported by IsSpellKnown, so also check IsPlayerSpell
+  if not (ham.soulburn.isKnown() or (IsPlayerSpell and IsPlayerSpell(ham.soulburn.getId()))) then
+    return false
+  end
+  -- only when a Healthstone is actually in the sequence, so no shards are burned without one
+  for _, id in ipairs(ham.itemIdList) do
+    if id == ham.healthstone.getId() or id == ham.demonicHealthstone.getId() then
+      return true
+    end
+  end
+  return false
+end
+
 -- check if player has the engineering tinker: Heartseeking Health Injector
 function ham.checkTinker()
   if not ham.isRetail then return end
@@ -452,24 +491,39 @@ function ham.updateMacro()
     if ham.options.stopCast then
       macroStr = macroStr .. "/stopcasting \n"
     end
-    -- Recuperate: not in instanced PvP (not allowed) and out-of-combat only
-    -- this condition is needed because if not used the castsequence will use off gcd heals direclty after recuperate
+    -- Recuperate / Quiet Contemplation: out-of-combat only
+    -- this condition is needed because if not used the castsequence will use off gcd heals direclty after them
     local combatCondition = ''
-    if ham.isRetail and not isInInstancedPvP() and ham.dbContains(ham.recuperate.getId()) and ham.recuperate.isKnown() then
+    local outOfCombatSpell = getOutOfCombatSpell()
+    if outOfCombatSpell then
       combatCondition = ',combat'
-      macroStr = macroStr .. "/cast [nocombat] " .. ham.recuperate.getName() .. "\n"
+      macroStr = macroStr .. "/cast [nocombat] " .. outOfCombatSpell.getName() .. "\n"
     end
 
-    macroStr = macroStr .. "/castsequence [@player" .. combatCondition .. "] reset=" .. resetType .. " "
+    local sequenceStr = "/castsequence [@player" .. combatCondition .. "] reset=" .. resetType .. " "
     if spellsMacroString ~= "" then
-      macroStr = macroStr .. spellsMacroString
+      sequenceStr = sequenceStr .. spellsMacroString
     end
     if spellsMacroString ~= "" and itemsMacroString ~= "" then
-      macroStr = macroStr .. ", "
+      sequenceStr = sequenceStr .. ", "
     end
     if itemsMacroString ~= "" then
-      macroStr = macroStr .. itemsMacroString
+      sequenceStr = sequenceStr .. itemsMacroString
     end
+
+    -- Soulburn has to come before the castsequence so it is active when the Healthstone is used
+    if shouldSoulburn() then
+      local soulburnLine = "/cast [combat] " .. ham.soulburn.getName() .. "\n"
+      -- standard macros are limited to 255 characters (MegaMacro allows more);
+      -- rather drop Soulburn than break the whole macro
+      if not (megaMacro.installed and megaMacro.loaded) and #(macroStr .. soulburnLine .. sequenceStr) > 255 then
+        log("Macro too long, skipping Soulburn.")
+      else
+        macroStr = macroStr .. soulburnLine
+      end
+    end
+
+    macroStr = macroStr .. sequenceStr
   end
 
   if not megaMacro.checked then
