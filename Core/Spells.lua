@@ -15,6 +15,9 @@ ham.desperatePrayer = ham.Spell.new(19236, "PRIEST")
 ham.expelHarm = ham.Spell.new(322101, "MONK")
 ham.healingElixir = ham.Spell.new(122281, "MONK")
 ham.darkPact = ham.Spell.new(108416, "WARLOCK")
+-- Not a heal itself: empowers the next Healthstone. Never part of ham.supportedSpells or the
+-- castsequence - code.lua adds it as a separate leading /cast line when the option is enabled.
+ham.soulburn = ham.Spell.new(385899, "WARLOCK")
 ham.vampiricBlood = ham.Spell.new(55233, "DEATHKNIGHT")
 ham.deathPact = ham.Spell.new(48743, "DEATHKNIGHT")
 
