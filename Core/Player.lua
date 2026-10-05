@@ -12,11 +12,25 @@ ham.Player.new = function()
     return healingItems
   end
 
+  -- Ids of every spell offered on this flavor (groups expanded to their members). Saved
+  -- settings can still hold ids we've since stopped offering (e.g. Fortitude of the Bear,
+  -- now a passive on retail); the user can't untick those any more, so skip them here.
+  local function supportedIds()
+    local ids = {}
+    for _, spell in ipairs(ham.supportedSpells) do
+      for _, member in ipairs(spell.isGroup and spell.members or { spell }) do
+        ids[member.getId()] = true
+      end
+    end
+    return ids
+  end
+
   function self.getHealingSpells()
     local mySpells = {}
+    local supported = supportedIds()
     for i, id in ipairs(HAMDB.activatedSpells) do
       local currentSpell = ham.Spell.new(id)
-      if currentSpell.isKnown() then
+      if supported[id] and currentSpell.isKnown() then
         table.insert(mySpells, currentSpell)
       end
     end
