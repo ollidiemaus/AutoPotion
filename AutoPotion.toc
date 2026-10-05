@@ -73,6 +73,14 @@ Core/Drink/Wrath.lua
 Core/Drink/Cata.lua
 Core/Drink/Mists.lua
 Core/Drink/Forever.lua
+Core/ManaPotions.lua
+Core/ManaPotions/Retail.lua
+Core/ManaPotions/Classic.lua
+Core/ManaPotions/TBC.lua
+Core/ManaPotions/Wrath.lua
+Core/ManaPotions/Cata.lua
+Core/ManaPotions/Mists.lua
+Core/ManaPotions/Forever.lua
 Core/Player.lua
 code.lua
 Bindings.lua
@@ -80,3 +88,4 @@ FrameXML/InterfaceOptionsFrame.lua
 FrameXML/BandageOptionsFrame.lua
 FrameXML/FoodOptionsFrame.lua
 FrameXML/DrinkOptionsFrame.lua
+FrameXML/ManaPotionOptionsFrame.lua

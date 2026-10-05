@@ -8,6 +8,7 @@ ham.defaults = {
     cavedwellerDelight = true,
     heartseekingInjector = false,
     includeBuffFood = false,
+    includeRejuvenation = true,
     soulburn = false,
     -- ham.bitterImmunity is deliberately left out - it was removed outright in patch
     -- 12.0.0 with no replacement, and was never offered on any Classic flavor either, so

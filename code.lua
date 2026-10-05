@@ -4,6 +4,7 @@ local macroName = L["AutoPotion"]
 local bandageMacroName = L["AutoBandage"] or "AutoBandage"
 local foodMacroName = L["AutoFood"] or "AutoFood"
 local drinkMacroName = L["AutoDrink"] or "AutoDrink"
+local manaPotionMacroName = L["AutoManaPotion"] or "AutoManaPotion"
 
 local function isInInstancedPvP()
   if not ham.isRetail then return false end
@@ -27,6 +28,7 @@ setmetatable(ham, {
         cavedwellerDelight = HAMDB.cavedwellerDelight or true,
         heartseekingInjector = HAMDB.heartseekingInjector or false,
         includeBuffFood = HAMDB.includeBuffFood or false,
+        includeRejuvenation = HAMDB.includeRejuvenation ~= false, -- on by default
         soulburn = HAMDB.soulburn or false,
       }
       return t.options
@@ -196,6 +198,17 @@ local function createDrinkMacroIfMissing()
   local name = GetMacroInfo(drinkMacroName)
   if name == nil then
     CreateMacro(drinkMacroName, "INV_Misc_QuestionMark")
+  end
+end
+
+local function createManaPotionMacroIfMissing()
+  -- dont create macro if MegaMacro is installed and loaded
+  if megaMacro.installed and megaMacro.loaded then
+    return
+  end
+  local name = GetMacroInfo(manaPotionMacroName)
+  if name == nil then
+    CreateMacro(manaPotionMacroName, "INV_Misc_QuestionMark")
   end
 end
 
@@ -399,6 +412,23 @@ local function buildDrinkMacroString()
   return "#showtooltip\n/use [@player] " .. sequence[1]
 end
 
+-- Build mana potion macro string (highest mana restore available first)
+local function buildManaPotionMacroString()
+  local sequence = {}
+  local potions = ham.getManaPotions()
+  for _, item in ipairs(potions) do
+    if item.getCount() > 0 then
+      table.insert(sequence, "item:" .. tostring(item.getId()))
+      break
+    end
+  end
+
+  if #sequence == 0 then
+    return "#showtooltip"
+  end
+  return "#showtooltip\n/use " .. sequence[1]
+end
+
 -- Soulburn (Warlock talent) empowers the next Healthstone. It's off the GCD, so a leading
 -- "/cast [combat] Soulburn" line fires in the same keypress as the castsequence step. It
 -- can't live inside the castsequence itself: with no Soul Shard the sequence would get stuck.
@@ -564,6 +594,21 @@ function ham.updateDrinkMacro()
   end
 end
 
+function ham.updateManaPotionMacro()
+  local manaPotionMacroStr = buildManaPotionMacroString()
+  if megaMacro.installed and megaMacro.loaded then
+    UpdateMegaMacroByName(manaPotionMacroName, manaPotionMacroStr)
+  else
+    createManaPotionMacroIfMissing()
+    local success, err = pcall(function()
+      EditMacro(manaPotionMacroName, manaPotionMacroName, nil, manaPotionMacroStr)
+    end)
+    if success then
+      log('Mana potion macro updated.')
+    end
+  end
+end
+
 local function MakeMacro()
   -- dont attempt to create macro until MegaMacro addon is checked
   if not megaMacro.checked then
@@ -592,11 +637,13 @@ local function MakeMacro()
   ham.updateBandageMacro()
   ham.updateFoodMacro()
   ham.updateDrinkMacro()
+  ham.updateManaPotionMacro()
 
   ham.settingsFrame:updatePrio()
   ham.bandageSettingsFrame:updateBandagePrio()
   ham.foodSettingsFrame:updateFoodPrio()
   ham.drinkSettingsFrame:updateDrinkPrio()
+  ham.manaPotionSettingsFrame:updateManaPotionPrio()
 end
 
 -- debounce handler for BAG_UPDATE events which can fire very rapidly

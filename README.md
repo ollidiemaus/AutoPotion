@@ -1,11 +1,12 @@
 ## Auto Potion
 
-Smart, always-up-to-date healing macros for Healthstones, healing potions, class/racial self-heals and bandages.
+Smart, always-up-to-date healing macros for Healthstones, healing potions, class/racial self-heals and bandages, plus a mana potion macro.
 
-Auto Potion was previously known as *Healthstone Auto Macro*. The addon automatically maintains one or two macros for you:
+Auto Potion was previously known as *Healthstone Auto Macro*. The addon automatically maintains these macros for you:
 
 - **`AutoPotion`** – uses your class/racial healing spells, Healthstones and the best available healing potion (and some special healing items).
 - **`AutoBandage`** – optional bandage macro that always uses your strongest bandage, with special handling in battlegrounds.
+- **`AutoManaPotion`** – optional mana potion macro that always uses the mana potion in your bags that restores the most mana.
 
 You never have to edit these macros yourself – Auto Potion keeps them updated as your bags, talents and gear change.
 
@@ -20,6 +21,10 @@ You never have to edit these macros yourself – Auto Potion keeps them updated 
   - Optional **Cavedweller's Delight** support as a separate, toggleable step.
 - **Smart battleground support**:
   - Uses the appropriate PvP-only healing draughts and bandages when you are in battlegrounds (e.g. Ashran tonic, Classic draughts and BG bandages).
+- **Mana potion macro**:
+  - Maintains an `AutoManaPotion` macro (`/use item:<id>`) for the best mana potion in your bags, sorted by the amount of mana restored for your game version (e.g. Lightfused / Algari / Aerated on Retail, Master / Mythical / Runic / Super / Major on the Classic versions).
+  - Potions that restore health *and* mana (Rejuvenation potions, Cavedweller's Delight, Refreshing Serum) are included and sorted by their mana, and can be turned off in the settings.
+  - Channeled/"defenseless" potions, potions with side effects and zone-locked potions are never used.
 - **Bandage macro**:
   - Maintains an `AutoBandage` macro that uses the best bandage available for your current game version and content.
 - **Works across versions**:
@@ -45,10 +50,10 @@ You never have to edit these macros yourself – Auto Potion keeps them updated 
 1. **Install the addon**
    - Install via CurseForge/Wago or manually drop the `AutoPotion` folder into your `Interface/AddOns` directory.
 2. **Create the macro**
-   - Create an empty macro called **`AutoPotion`** (and optionally **`AutoBandage`**) in the standard WoW macro UI.
+   - Create an empty macro called **`AutoPotion`** (and optionally **`AutoBandage`** / **`AutoManaPotion`**) in the standard WoW macro UI.
 3. **Place it on your bars**
    - Drag the `AutoPotion` macro to your action bar and bind it to a comfortable key.
-   - If you use the bandage macro, do the same for `AutoBandage`.
+   - If you use the bandage or mana potion macro, do the same for `AutoBandage` / `AutoManaPotion`.
 4. **Reload once**
    - Type `/reload` to let the addon initialize and populate the macros.
 5. **Configure (optional)**
@@ -74,6 +79,8 @@ Open the settings via `/ap` or **Interface → AddOns → AutoPotion**. The most
   - Enable/disable Cavedweller's Delight (and its fleeting versions) as a separate step.
 - **Heartseeking Health Injector (tinker)**:
   - Enable support for the engineering tinker on Retail if you have it equipped.
+- **Mana Potions** (Interface → AddOns → AutoPotion → AutoManaPotion):
+  - Shows which mana potion will be used first, and lets you turn off potions that restore health and mana (**Include Rejuvenation Potions**).
 - **Soulburn Healthstone** (Retail, Warlock only):
   - Adds `/cast [combat] Soulburn` above the castsequence so your Healthstone is empowered (more healing and +20% max health) in the same keypress. Only added when you know the Soulburn talent and have a Healthstone in your bags.
   - Soulburn costs a Soul Shard and is cast on every press while it is off cooldown, also when the press uses a potion or spell. Without a Soul Shard the macro simply continues as usual.
@@ -103,7 +110,7 @@ If you use the **MegaMacro** addon, Auto Potion can update your MegaMacro macros
 
 - **Important setup steps**:
   - Create a **Global** macro in MegaMacro named **`AutoPotion`**.
-  - (Optional) Create another **Global** macro named **`AutoBandage`** if you want the bandage macro as well.
+  - (Optional) Create another **Global** macro named **`AutoBandage`** if you want the bandage macro as well, and **`AutoManaPotion`** for the mana potion macro.
   - Type `/reload` in-game.
 - **How it behaves**:
   - When MegaMacro is installed and loaded, Auto Potion **will not create or manage standard WoW macros** for these names.

@@ -13,6 +13,12 @@ L["Current Priority"] = "当前优先级"
 L["Bandage Priority"] = "绷带优先级"
 L["Food Priority"] = "食物优先级"
 L["Drink Priority"] = "饮料优先级"
+L["Mana Potion Priority"] = "法力药水优先级"
+L["Include Rejuvenation Potions"] = "包含复原药水"
+L["Also use potions that restore health and mana (Rejuvenation potions, Cavedweller's Delight, Refreshing Serum, ...). They are sorted by the amount of mana they restore."] =
+"同时使用可恢复生命值和法力值的药水（复原药水、洞穴住民的挚爱、复苏血清等），并按恢复的法力值多少排序。"
+L["Shows the mana potion that will currently be used, based on what is in your bags."] =
+"根据背包内的物品，显示当前将被使用的法力药水。"
 L["Include Buff Food"] = "包含增益食物"
 L["Include \"Well Fed\"/\"Relaxed\" buff food and drink items (with situational secondary-stat bonuses) in the food and drink priority lists."] =
 "将\"进食充分\"/\"悠闲\"增益食物和饮料（含情境性副属性加成）纳入食物和饮料优先级列表。"
@@ -44,4 +50,5 @@ L["AutoPotion"] = "AutoPotion"   -- DO NOT TRANSLATE
 L["AutoBandage"] = "AutoBandage" -- DO NOT TRANSLATE
 L["AutoFood"] = "AutoFood"       -- DO NOT TRANSLATE
 L["AutoDrink"] = "AutoDrink"     -- DO NOT TRANSLATE
+L["AutoManaPotion"] = "AutoManaPotion" -- DO NOT TRANSLATE
 

@@ -11,4 +11,7 @@
   <Binding name="AutoDrink Macro" category="Auto Potion">
     -- AutoDrink
   </Binding>
+  <Binding name="AutoManaPotion Macro" category="Auto Potion">
+    -- AutoManaPotion
+  </Binding>
 </Bindings>
