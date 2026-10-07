@@ -13,6 +13,7 @@
 ## X-Curse-Project-ID: 312940
 ## X-Wago-ID: yQKybBG7
 ## SavedVariables: HAMDB
+## IconTexture: Interface\AddOns\AutoPotion\Media\AutoPotion
 ## Category-enUS: Combat
 ## Category-deDE: Kampf
 ## Category-esES: Combate
