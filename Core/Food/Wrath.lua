@@ -86,7 +86,6 @@ function ham.getFoodForWrath()
     ham.northernStew,
     ham.crustyFlatbread,
     ham.dalaranSwiss,
-    ham.fattyBluefin,
     ham.filletOfIcefin,
     ham.freshDalaranBreadSlice,
     ham.freshEagleMeat,

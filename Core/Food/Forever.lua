@@ -191,8 +191,6 @@ function ham.getFoodForForever()
     ham.harvestFruit,
     ham.healingHerb,
     ham.sauteedSunfish,
-    ham.winterVeilCandy,
-    ham.winterVeilLoaf,
     ham.winterVeilRoast,
   }
 end

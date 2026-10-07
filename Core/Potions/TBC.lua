@@ -44,7 +44,6 @@ function ham.getHealthstonesForTBC()
     ham.healtsthone1,
     ham.lilyRoot,
     ham.healtsthone0,
-    ham.crystalFlakeThroatLozenge,
     ham.lesser2,
     ham.lesser1,
     ham.lesser0,
