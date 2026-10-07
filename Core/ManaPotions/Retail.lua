@@ -16,10 +16,10 @@ function ham.getManaPotionsForRetail()
     ham.manaRefreshingSerum1,           -- 19033 (+ health)
     -- The War Within
     ham.manaFleetingCavedwellersDelightR3, -- 14012 (+ health)
-    ham.manaFleetingCavedwellersDelightR2,
-    ham.manaFleetingCavedwellersDelightR1,
     ham.manaCavedwellersDelightR3,
+    ham.manaFleetingCavedwellersDelightR2,
     ham.manaCavedwellersDelightR2,
+    ham.manaFleetingCavedwellersDelightR1,
     ham.manaCavedwellersDelightR1,
     ham.fleetingAlgariManaPotionR3,     -- 13707
     ham.algariManaPotionR3,

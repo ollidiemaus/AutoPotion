@@ -5,9 +5,9 @@ function ham.getPotsForCata()
   return {
     ham.roguesDraught,
     ham.mythical,
-    ham.crazy_alch,
     ham.runic_inject,
     ham.runic,
+    ham.crazy_alch,
     ham.superreju,
     ham.endless,
     ham.injector,

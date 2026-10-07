@@ -8,9 +8,9 @@ function ham.getDrinkForTBC()
     ham.conjuredMountainSpringWater,
     -- Dual restore (health AND mana, no stats) - shared with Core/Food/TBC.lua's list
     ham.conjuredMannaBiscuit,
-    ham.enrichedTeroconeJuice,
     ham.hotButteredTrout,
     ham.naaruRation,
+    ham.enrichedTeroconeJuice,
     ham.undersporePod,
     -- Plain water (no stats), highest tier first
     ham.blackCoffee,
@@ -27,6 +27,7 @@ function ham.getDrinkForTBC()
     ham.starsLament,
     ham.blackrockSpringWater,
     -- Classic Era items, as a fallback for lower-level characters
+    -- Classic Era: conjured water
     ham.conjuredCrystalWater,
     ham.conjuredSparklingWater,
     ham.conjuredMineralWater,
@@ -34,15 +35,17 @@ function ham.getDrinkForTBC()
     ham.conjuredPurifiedWater,
     ham.conjuredFreshWater,
     ham.conjuredWater,
+    -- Classic Era: dual restore (health AND mana, no stats)
     ham.essenceMango,
     ham.enrichedMannaBiscuit,
     ham.alteracMannaBiscuit,
     ham.graccusMinceMeatFruitcake,
     ham.bobbingApple,
     ham.refreshingRedApple,
-    ham.greenTeaLeaf,
     ham.cookedCrabClaw,
     ham.sengginRoot,
+    ham.greenTeaLeaf,
+    -- Classic Era: plain water (no stats), highest tier first
     ham.hyjalNectar,
     ham.morningGloryDew,
     ham.moonberryJuice,

@@ -3,9 +3,9 @@ local addonName, ham = ...
 
 function ham.getPotsForWrath()
   return {
-    ham.crazy_alch,
     ham.runic_inject,
     ham.runic,
+    ham.crazy_alch,
     ham.superreju,
     ham.endless,
     ham.injector,
