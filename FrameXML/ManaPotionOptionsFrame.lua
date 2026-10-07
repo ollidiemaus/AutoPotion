@@ -120,14 +120,8 @@ function ham.manaPotionSettingsFrame:InitializeOptions()
 	self.panel = CreateFrame("Frame", addonName .. "ManaPotion", InterfaceOptionsFramePanelContainer)
 	self.panel.name = L["AutoManaPotion"]
 
-	-- Register as a subcategory of the main AutoPotion panel
-	if InterfaceOptions_AddCategory then
-		self.panel.parent = addonName
-		InterfaceOptions_AddCategory(self.panel)
-	else
-		local category = Settings.RegisterCanvasLayoutSubcategory(ham.settingsFrame.category, self.panel, self.panel.name)
-		self.panel.categoryID = category:GetID()
-	end
+	-- Register as a page below the AutoPotion root (the Information page)
+	ham.infoSettingsFrame:addSubcategory(self.panel)
 
 	-- Refresh priority preview when the panel is shown
 	self.panel:SetScript("OnShow", function()
