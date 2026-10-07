@@ -52,18 +52,20 @@ local COMMANDS = {
 	{ command = "/ap debug", description = L["Toggles debug messages in the chat."] },
 }
 
--- Other addons by the same author. `flavors` are product names and stay untranslated.
+-- Other addons by the same author. `flavors` are product names and stay untranslated. The
+-- icons are copies of each addon's own icon in Media, so they show without the addon installed.
+local MEDIA = "Interface\\AddOns\\" .. addonName .. "\\Media\\"
 local OTHER_ADDONS = {
 	{
 		name = "AutoSetup",
-		icon = "Interface\\Icons\\INV_Misc_Gear_01",
+		icon = MEDIA .. "AutoSetup",
 		flavors = "Retail · WoW Forever",
 		url = "https://www.curseforge.com/wow/addons/autosetup",
 		description = L["Applies the right Edit Mode layout, UI scale and AddOn set for your screen resolution. Made for switching between PC, laptop and Steam Deck."],
 	},
 	{
 		name = "Wayscribe",
-		icon = "Interface\\Icons\\INV_Misc_Book_09",
+		icon = MEDIA .. "Wayscribe",
 		flavors = "WoW Forever",
 		url = "https://www.curseforge.com/wow/addons/wayscribe",
 		description = L["An automatic journal of your adventures: level ups, dungeon runs, first boss kills, professions and your routes on the world map."],
@@ -217,7 +219,9 @@ function ham.infoSettingsFrame:InitializeOptions()
 		icon:SetSize(iconSize, iconSize)
 		icon:SetPoint("TOPLEFT", last, "BOTTOMLEFT", -lastIndent, -ENTRY_GAP)
 		icon:SetTexture(iconTexture)
-		icon:SetTexCoord(0.08, 0.92, 0.08, 0.92) -- crop the border baked into every icon
+		if iconTexture:find("^Interface\\Icons\\") then
+			icon:SetTexCoord(0.08, 0.92, 0.08, 0.92) -- crop the border baked into the game's icons
+		end
 
 		local nameString = content:CreateFontString(nil, "ARTWORK", nameFont)
 		nameString:SetPoint("TOPLEFT", icon, "TOPRIGHT", ICON_GAP, 0)
