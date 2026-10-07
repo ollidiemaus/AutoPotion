@@ -106,6 +106,15 @@ function ham.infoSettingsFrame:open()
 	end
 end
 
+-- Show "Installed" next to the other addons that are loaded. Checked whenever the page is
+-- shown: when this page is created, addons that load after AutoPotion (e.g. AutoSetup) aren't
+-- loaded yet.
+function ham.infoSettingsFrame:updateInstalledLabels()
+	for name, label in pairs(self.installedLabels) do
+		label:SetShown(isAddOnLoaded(name) and true or false)
+	end
+end
+
 -- Resize the scrollable content to fit the page. The text wraps, so its height depends on
 -- the width of the settings window.
 function ham.infoSettingsFrame:recalculateContentHeight()
@@ -130,7 +139,10 @@ function ham.infoSettingsFrame:InitializeOptions()
 		InterfaceOptions_AddCategory(self.panel)
 	end
 
+	self.installedLabels = {}
+
 	self.panel:SetScript("OnShow", function()
+		ham.infoSettingsFrame:updateInstalledLabels()
 		ham.infoSettingsFrame:recalculateContentHeight()
 		-- wrapped text may only get its final height once the page has been laid out
 		C_Timer.After(0, function() ham.infoSettingsFrame:recalculateContentHeight() end)
@@ -296,15 +308,15 @@ function ham.infoSettingsFrame:InitializeOptions()
 	for _, addon in ipairs(OTHER_ADDONS) do
 		addIconEntry(addon.icon, ADDON_ICON_SIZE, addon.name, "GameFontNormalLarge", addon.flavors, addon.description)
 
-		if isAddOnLoaded(addon.name) then
-			-- right-aligned on the name's line: the description spans the full width below it
-			local status = content:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-			status:SetPoint("BOTTOMRIGHT", last, "TOPRIGHT", 0, 3)
-			status:SetText(GREEN_FONT_COLOR_CODE .. L["Installed"] .. FONT_COLOR_CODE_CLOSE)
-		end
+		-- right-aligned on the name's line: the description spans the full width below it
+		local status = content:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+		status:SetPoint("BOTTOMRIGHT", last, "TOPRIGHT", 0, 3)
+		status:SetText(GREEN_FONT_COLOR_CODE .. L["Installed"] .. FONT_COLOR_CODE_CLOSE)
+		self.installedLabels[addon.name] = status
 
 		addLink(addon.url)
 	end
+	self:updateInstalledLabels()
 
 	self.lastElement = last
 end
