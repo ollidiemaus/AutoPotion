@@ -84,6 +84,7 @@ Core/ManaPotions/Forever.lua
 Core/Player.lua
 code.lua
 Bindings.lua
+FrameXML/InfoOptionsFrame.lua
 FrameXML/InterfaceOptionsFrame.lua
 FrameXML/BandageOptionsFrame.lua
 FrameXML/FoodOptionsFrame.lua

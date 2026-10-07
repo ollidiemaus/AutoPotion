@@ -57,15 +57,15 @@ You never have to edit these macros yourself – Auto Potion keeps them updated 
 4. **Reload once**
    - Type `/reload` to let the addon initialize and populate the macros.
 5. **Configure (optional)**
-   - Open the settings via `/ap` or through the **Interface → AddOns → AutoPotion** options panel to fine-tune priorities.
+   - Open the settings via `/ap` or through the **Interface → AddOns → AutoPotion** options panel. The first page is a short overview of how the addon works; the settings for each macro are on the pages below it.
 
 After this, just press your keybind whenever you need an emergency heal; Auto Potion will handle the rest according to your configuration.
 
 ## Configuration
 
-Open the settings via `/ap` or **Interface → AddOns → AutoPotion**. The most important options are:
+Open the settings via `/ap` or **Interface → AddOns → AutoPotion**. `/ap` opens a short **information page** (how the addon works, its macros and commands); each macro has its own page below it, in this order: **AutoPotion**, **AutoManaPotion**, **AutoFood**, **AutoDrink** and **AutoBandage**. Spells and items are listed with their icon, like in the spellbook. The most important options are:
 
-- **Class/Racial Spells**:
+- **Class/Racial Spells** (Interface → AddOns → AutoPotion → AutoPotion):
   - Choose which supported self-healing spells and racials should be part of the sequence for your class.
 - **Include `/stopcasting` in the macro**:
   - Useful for casters; immediately stop your current cast before using a heal.

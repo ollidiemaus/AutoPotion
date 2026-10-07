@@ -7,7 +7,16 @@ ham.settingsFrame = CreateFrame("Frame")
 local ICON_SIZE = 50
 local PADDING_CATERGORY = 45
 local PADDING = 25
-local PADDING_HORIZONTAL = 220
+local PADDING_HORIZONTAL = 300 -- column width; two columns leave room for an icon next to each name
+local COLUMNS = 2
+-- spell/item checkboxes show the icon between the box and the name, like the spellbook
+local ROW_ICON_SIZE = 28
+local ROW_ICON_GAP = 6
+local ROW_HEIGHT = 34
+local FIRST_ROW_OFFSET = 30 -- from a section title down to its first row of icon checkboxes
+local QUESTION_MARK_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
+-- the Heartseeking Health Injector's use effect, the same id ham.checkTinker matches
+local HEARTSEEKING_SPELL_ID = 452767
 local classButtons = {}
 local prioFrames = {}
 local prioTextures = {}
@@ -33,6 +42,42 @@ local CLASS_ORDER = {
 	"WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST", "DEATHKNIGHT",
 	"SHAMAN", "MAGE", "WARLOCK", "MONK", "DRUID", "EVOKER",
 }
+
+local function getSpellIcon(spellId)
+	-- Feature-detect C_Spell rather than branching on ham.isRetail: Forever runs the
+	-- Mainline client engine (C_Spell.*, no GetSpellTexture global) despite ham.isRetail
+	-- being false for it. See Core/Spell.lua for the same pattern.
+	if C_Spell and C_Spell.GetSpellTexture then
+		return C_Spell.GetSpellTexture(spellId)
+	end
+	return GetSpellTexture(spellId)
+end
+
+-- Spellbook-style checkbox: the box, then the spell/item icon, then its name. Clicking the
+-- icon or the name toggles the box too, just like the template's own label.
+local function createIconCheckButton(parent, iconTexture, label)
+	local button = CreateFrame("CheckButton", nil, parent, "InterfaceOptionsCheckButtonTemplate")
+
+	local icon = button:CreateTexture(nil, "ARTWORK")
+	icon:SetSize(ROW_ICON_SIZE, ROW_ICON_SIZE)
+	icon:SetPoint("LEFT", button, "RIGHT", ROW_ICON_GAP, 0)
+	icon:SetTexture(iconTexture or QUESTION_MARK_ICON)
+	icon:SetTexCoord(0.08, 0.92, 0.08, 0.92) -- crop the border baked into every icon
+
+	local border = button:CreateTexture(nil, "BACKGROUND")
+	border:SetColorTexture(0, 0, 0, 0.8)
+	border:SetPoint("TOPLEFT", icon, "TOPLEFT", -1, 1)
+	border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 1, -1)
+
+	---@diagnostic disable-next-line: undefined-field
+	local text = button.Text
+	text:ClearAllPoints()
+	text:SetPoint("LEFT", icon, "RIGHT", ROW_ICON_GAP, 0)
+	text:SetText(label)
+	button:SetHitRectInsets(0, -(ROW_ICON_GAP * 2 + ROW_ICON_SIZE + text:GetStringWidth()), 0, 0)
+
+	return button
+end
 
 function ham.settingsFrame:updateConfig(option, value)
 	if ham.options[option] ~= nil then
@@ -63,11 +108,13 @@ function ham.settingsFrame:OnEvent(event, addOnName)
 				print(L["The Settings of AutoPotion were reset due to breaking changes."])
 				HAMDB = CopyTable(ham.defaults)
 			end
+			-- the settings list shows the pages in this order
+			ham.infoSettingsFrame:InitializeOptions()
 			self:InitializeOptions()
-			ham.bandageSettingsFrame:InitializeOptions()
+			ham.manaPotionSettingsFrame:InitializeOptions()
 			ham.foodSettingsFrame:InitializeOptions()
 			ham.drinkSettingsFrame:InitializeOptions()
-			ham.manaPotionSettingsFrame:InitializeOptions()
+			ham.bandageSettingsFrame:InitializeOptions()
 		end
 	end
 	if event == "PLAYER_LOGIN" then
@@ -165,15 +212,7 @@ function ham.settingsFrame:updatePrio()
 			if spell.getId() == ham.recuperate.getId() and ham.isInInstancedPvP and ham.isInInstancedPvP() then
 				-- Recuperate not shown in instanced PvP
 			else
-				local iconTexture, originalIconTexture
-				-- Feature-detect C_Spell rather than branching on ham.isRetail: Forever runs the
-				-- Mainline client engine (C_Spell.*, no GetSpellTexture global) despite ham.isRetail
-				-- being false for it. See Core/Spell.lua for the same pattern.
-				if C_Spell and C_Spell.GetSpellTexture then
-					iconTexture, originalIconTexture = C_Spell.GetSpellTexture(spell.getId())
-				else
-					iconTexture = GetSpellTexture(spell.getId())
-				end
+				local iconTexture = getSpellIcon(spell.getId())
 				spellCounter = spellCounter + 1
 				local currentFrame = prioFrames[spellCounter]
 				local currentTexture = prioTextures[spellCounter]
@@ -252,19 +291,12 @@ function ham.settingsFrame:updatePrio()
 end
 
 function ham.settingsFrame:InitializeOptions()
-	-- Create the main panel inside the Interface Options container
-	self.panel = CreateFrame("Frame", addonName, InterfaceOptionsFramePanelContainer)
-	self.panel.name = addonName
+	-- Create the healing panel inside the Interface Options container
+	self.panel = CreateFrame("Frame", addonName .. "Heal", InterfaceOptionsFramePanelContainer)
+	self.panel.name = L["AutoPotion"]
 
-	-- Register with Interface Options
-	if InterfaceOptions_AddCategory then
-		InterfaceOptions_AddCategory(self.panel)
-	else
-		local category = Settings.RegisterCanvasLayoutCategory(self.panel, addonName)
-		Settings.RegisterAddOnCategory(category)
-		self.panel.categoryID = category:GetID() -- for OpenToCategory use
-		self.category = category -- exposed so subcategory panels (e.g. AutoBandage) can attach
-	end
+	-- Register as a page below the AutoPotion root (the Information page)
+	ham.infoSettingsFrame:addSubcategory(self.panel)
 
 	-- Refresh priority preview when panel is shown (e.g. when opening settings in BG/Arena)
 	self.panel:SetScript("OnShow", function()
@@ -394,11 +426,15 @@ function ham.settingsFrame:InitializeOptions()
 		itemsTitle:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING_CATERGORY)
 		itemsTitle:SetText(L["Items"])
 
+		-- offset of a cell in the two-column grid below the title
+		local function itemPosition(column, row)
+			return column * PADDING_HORIZONTAL, -FIRST_ROW_OFFSET - row * ROW_HEIGHT
+		end
+
 		---Withering Potion---
-		witheringPotionButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-		witheringPotionButton:SetPoint("TOPLEFT", itemsTitle, 0, -PADDING)
-		---@diagnostic disable-next-line: undefined-field
-		witheringPotionButton.Text:SetText(L["Potion of Withering Vitality"])
+		witheringPotionButton = createIconCheckButton(self.content, C_Item.GetItemIconByID(ham.witheringR3.getId()),
+			L["Potion of Withering Vitality"])
+		witheringPotionButton:SetPoint("TOPLEFT", itemsTitle, itemPosition(0, 0))
 		witheringPotionButton:HookScript("OnClick", function(_, btn, down)
 			ham.settingsFrame:updateConfig("witheringPotion", witheringPotionButton:GetChecked())
 		end)
@@ -414,10 +450,9 @@ function ham.settingsFrame:InitializeOptions()
 		witheringPotionButton:SetChecked(HAMDB.witheringPotion)
 
 		---Withering Dreams Potion---
-		witheringDreamsPotionButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-		witheringDreamsPotionButton:SetPoint("TOPLEFT", itemsTitle, PADDING_HORIZONTAL, -PADDING)
-		---@diagnostic disable-next-line: undefined-field
-		witheringDreamsPotionButton.Text:SetText(L["Potion of Withering Dreams"])
+		witheringDreamsPotionButton = createIconCheckButton(self.content,
+			C_Item.GetItemIconByID(ham.witheringDreamsR3.getId()), L["Potion of Withering Dreams"])
+		witheringDreamsPotionButton:SetPoint("TOPLEFT", itemsTitle, itemPosition(1, 0))
 		witheringDreamsPotionButton:HookScript("OnClick", function(_, btn, down)
 			ham.settingsFrame:updateConfig("witheringDreamsPotion", witheringDreamsPotionButton:GetChecked())
 		end)
@@ -433,10 +468,9 @@ function ham.settingsFrame:InitializeOptions()
 		witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
 
 		---Refreshing Serum buttons could be renamed---
-		cavedwellerDelightButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-		cavedwellerDelightButton:SetPoint("TOPLEFT", itemsTitle, PADDING_HORIZONTAL * 2, -PADDING)
-		---@diagnostic disable-next-line: undefined-field
-		cavedwellerDelightButton.Text:SetText(L["Refreshing Serum"])
+		cavedwellerDelightButton = createIconCheckButton(self.content,
+			C_Item.GetItemIconByID(ham.refreshingSerumR2.getId()), L["Refreshing Serum"])
+		cavedwellerDelightButton:SetPoint("TOPLEFT", itemsTitle, itemPosition(0, 1))
 		cavedwellerDelightButton:HookScript("OnClick", function(_, btn, down)
 			ham.settingsFrame:updateConfig("cavedwellerDelight", cavedwellerDelightButton:GetChecked())
 		end)
@@ -452,11 +486,10 @@ function ham.settingsFrame:InitializeOptions()
 		cavedwellerDelightButton:SetChecked(HAMDB.cavedwellerDelight)
 
 		---Heartseeking Health Injector---
-		heartseekingButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-		--Padding*2 because its a new Row
-		heartseekingButton:SetPoint("TOPLEFT", itemsTitle, 0, -PADDING * 2)
-		---@diagnostic disable-next-line: undefined-field
-		heartseekingButton.Text:SetText(L["Heartseeking Health Injector (tinker)"])
+		-- right column: its (German) name is too long for the left one
+		heartseekingButton = createIconCheckButton(self.content, getSpellIcon(HEARTSEEKING_SPELL_ID),
+			L["Heartseeking Health Injector (tinker)"])
+		heartseekingButton:SetPoint("TOPLEFT", itemsTitle, itemPosition(1, 1))
 		heartseekingButton:HookScript("OnClick", function(_, btn, down)
 			ham.settingsFrame:updateConfig("heartseekingInjector", heartseekingButton:GetChecked())
 		end)
@@ -475,10 +508,9 @@ function ham.settingsFrame:InitializeOptions()
 
 		---Soulburn (Warlock only)---
 		if ham.myPlayer.englishClass == "WARLOCK" then
-			soulburnButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-			soulburnButton:SetPoint("TOPLEFT", itemsTitle, PADDING_HORIZONTAL, -PADDING * 2)
-			---@diagnostic disable-next-line: undefined-field
-			soulburnButton.Text:SetText(L["Soulburn Healthstone"])
+			soulburnButton = createIconCheckButton(self.content, getSpellIcon(ham.soulburn.getId()),
+				L["Soulburn Healthstone"])
+			soulburnButton:SetPoint("TOPLEFT", itemsTitle, itemPosition(0, 2))
 			soulburnButton:HookScript("OnClick", function(_, btn, down)
 				ham.settingsFrame:updateConfig("soulburn", soulburnButton:GetChecked())
 			end)
@@ -498,7 +530,8 @@ function ham.settingsFrame:InitializeOptions()
 			soulburnButton:SetChecked(HAMDB.soulburn)
 		end
 
-		lastStaticElement = heartseekingButton
+		-- first button of the last row
+		lastStaticElement = soulburnButton or cavedwellerDelightButton
 	end
 
 	-- Class/racial spell groups are created dynamically in InitializeClassSpells, since
@@ -543,10 +576,8 @@ end
 -- `spell` is either a plain ham.Spell (single db entry) or a ham.SpellGroup (toggles
 -- every member together as one unit - see Core/SpellGroup.lua).
 local function createSpellButton(parent, relativeTo, offsetX, offsetY, spell)
-	local button = CreateFrame("CheckButton", nil, parent, "InterfaceOptionsCheckButtonTemplate")
+	local button = createIconCheckButton(parent, getSpellIcon(spell.getId()), spell.getName())
 	button:SetPoint("TOPLEFT", relativeTo, offsetX, offsetY)
-	---@diagnostic disable-next-line: undefined-field
-	button.Text:SetText(spell.getName())
 	button:HookScript("OnClick", function(_, btn, down)
 		if spell.isGroup then
 			if button:GetChecked() then
@@ -611,13 +642,13 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 
 		local rowStart = nil
 		local lastButton = nil
-		local posy = -PADDING
+		local posy = -FIRST_ROW_OFFSET
 		local count = 0
 		for _, spell in ipairs(spells) do
-			if count == 3 then
+			if count == COLUMNS then
 				lastButton = nil
 				count = 0
-				posy = posy - PADDING
+				posy = posy - ROW_HEIGHT
 			end
 			local button
 			if lastButton ~= nil then
@@ -656,11 +687,6 @@ SlashCmdList.HAM = function(msg, editBox)
 		return
 	end
 
-	-- Open settings if no "debug" keyword was passed
-	if InterfaceOptions_AddCategory then
-		InterfaceOptionsFrame_OpenToCategory(addonName)
-	else
-		local settingsCategoryID = _G[addonName].categoryID
-		Settings.OpenToCategory(settingsCategoryID)
-	end
+	-- Open settings (on the Information page) if no "debug" keyword was passed
+	ham.infoSettingsFrame:open()
 end
