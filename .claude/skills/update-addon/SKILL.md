@@ -1,0 +1,145 @@
+---
+name: update-addon
+description: Update AutoPotion for a new WoW patch or season - bump the ## Interface lines in AutoPotion.toc, check the patch's API changes against the APIs the addon calls, add new consumables (healing/mana potions, healthstones, food, drink, bandages) and update the README. Does not tag or release.
+disable-model-invocation: true
+argument-hint: "[patch or flavor, e.g. 12.1.5 or 'mists']"
+---
+
+# Update AutoPotion for a new patch
+
+Requested scope: $ARGUMENTS
+(Empty means: check every flavor in the TOC for a newer patch.)
+
+Work through the phases in order. Finish each one with a short table of what changed
+(or "nothing to do") before moving on, so the user can follow along and stop you early.
+Never guess a number, ID or API name - every value you write must come from a source you
+actually read in this session. If no source confirms it, ask the user instead.
+
+## 0. Setup
+
+- Start from an up-to-date `main` with a clean tree, then create a branch `update/<patch>`.
+- Read `AutoPotion.toc` to get the current interface versions; they tell you which
+  patches the addon was last updated for.
+
+## 1. Interface versions (`AutoPotion.toc`)
+
+TOC line → game flavor:
+
+| TOC line | Flavor | Client version → interface number |
+|---|---|---|
+| `## Interface` | Retail (Mainline) | 12.1.5 → `120105` |
+| `## Interface-Classic` | Classic Era | 1.15.9 → `11509` |
+| `## Interface-BCC` | TBC Anniversary | 2.5.6 → `20506` |
+| `## Interface-WOTLKC` | Wrath Classic | 3.4.5 → `30405` |
+| `## Interface-Cata` | Cata Classic | 4.4.2 → `40402` |
+| `## Interface-Mists` | Mists Classic | 5.5.4 → `50504` |
+| `## Interface-Forever` | WoW Forever | 1.60.1 → `16001` |
+
+Formula: `major*10000 + minor*100 + patch`.
+
+- Sources: https://warcraft.wiki.gg/wiki/TOC_format (current interface versions per flavor),
+  https://warcraft.wiki.gg/wiki/Public_client_builds and https://wago.tools/builds.
+  Use at least two of them to confirm each number.
+- A line can list several versions, comma-separated (`120100, 120105`). For retail, list the
+  live version and the upcoming PTR/patch version. Drop a version only once its patch is
+  completely gone from live. Keep the list in ascending order.
+- Change only the flavors that actually got a new patch.
+- Leave `## Version: @project-version@` as it is; the packager fills it in from the git tag.
+
+## 2. API changes
+
+For every flavor that got a new patch, read the API change notes for each patch between
+the old and new interface version, e.g. https://warcraft.wiki.gg/wiki/Patch_12.1.5/API_changes
+(Classic flavors use their own patch numbers). Then check them against what the addon
+actually uses. Run this to list the current API surface:
+
+```bash
+grep -rhoE '\bC_[A-Za-z]+\.[A-Za-z]+' --include='*.lua' code.lua Core FrameXML Bindings.lua | sort | uniq -c | sort -rn
+```
+
+Pay particular attention to the following:
+- **Macro API** in `code.lua`: `CreateMacro`, `EditMacro`, `GetMacroInfo`, `InCombatLockdown`
+  and the macro syntax itself (`/castsequence`, `/use item:<id>`, `reset=`, `[@player]`).
+  The addon is useless without these.
+- **Items/spells**: `C_Item.*`, `C_Spell.*`, `IsSpellKnown`, `IsPlayerSpell`,
+  `GetSpellBaseCooldown`, and the legacy `GetSpellInfo` fallback in `Core/Spell.lua`.
+- **Settings UI** in `FrameXML/`: `Settings.Register*`, `Settings.OpenToCategory`, templates
+  `InterfaceOptionsCheckButtonTemplate`, `UIPanelButtonTemplate`, `UIPanelScrollFrameTemplate`,
+  `InputBoxTemplate`, and `GameTooltip:SetItemByID/SetSpellByID`.
+- **Events** registered in `code.lua` (`grep -rn RegisterEvent code.lua`).
+- **Flavor detection** in `Core/Constants.lua`: `WOW_PROJECT_*` constants and the
+  interface-range check for Forever.
+- `C_AddOns.*`, `C_Map.GetBestMapForUnit`, `C_PvP.*`, `C_Timer.After`.
+
+Rules:
+- A Retail API change does not apply to the Classic flavors (and vice versa). The code
+  already guards per flavor (`ham.isRetail`, `if C_Spell and ...`); keep fixes inside those guards.
+- Fix removals and signature changes that break the addon. If an API is only marked
+  deprecated, report it and ask the user before changing it.
+- While reading the patch notes, also look for changes to the class/racial self-heals in
+  `Core/Spells.lua` and `Core/Spells/<Flavor>.lua` (spells removed, made passive or added).
+  Report them, but ask before changing the spell lists. See the comment at the top of
+  `Core/Spells/Retail.lua` for how removed spells were handled before.
+
+## 3. New consumables
+
+How the code is laid out:
+- Item objects are defined in `Core/Potions.lua` (healing potions + healthstones),
+  `Core/ManaPotions.lua`, `Core/Food.lua`, `Core/Drink.lua` and `Core/Bandages.lua`
+  as `ham.<name> = ham.Item.new(<itemID>, "<English name>")`, grouped under an expansion
+  comment (`--Midnight`, `--The War Within`, ...). New items go under the matching header,
+  highest rank/quality first.
+- The priority lists live in `Core/<Category>/<Flavor>.lua` (e.g. `ham.getPotsForRetail()` in
+  `Core/Potions/Retail.lua`). They are ordered best first; the macro uses the first entry
+  found in the bags.
+- Potions that restore health *and* mana are defined twice, once in `Potions.lua` and once
+  in `ManaPotions.lua` with `{ rejuvenation = true }`, and are on the health list in
+  `ham.getDelightPotsForRetail()`.
+
+What to look for: new healing potions (all ranks/qualities), fleeting variants, mana
+potions, health+mana potions, healthstone variants, food/drink (including conjured food)
+and bandages for the new patch or season.
+
+- Sources: Wowhead (item pages and the patch's "new items" lists), https://wago.tools/db2/ItemSparse
+  and warcraft.wiki.gg. Confirm each item ID **and** the rank/quality → ID mapping on its item page.
+  IDs are not always ascending by rank (e.g. Silvermoon R2 = 241304, R1 = 241305).
+- Order them the way the existing list does: stronger before weaker; a fleeting variant
+  sits next to its normal version of the same rank (see the Invigorating/Algari entries).
+- Never add potions that are channeled, have harmful side effects or only work in one zone. The
+  existing side-effect potions (Withering) only run behind a settings toggle. If a new item
+  would need a new option, that is a feature: describe it and ask before adding settings
+  or locale strings (`Locales/enUS.lua` is the default locale; the other locales fall back to it).
+- Add it to every flavor list where the item exists, not just Retail.
+
+## 4. README
+
+There is no CHANGELOG file and no `.pkgmeta`. The BigWigs packager builds the
+CurseForge/Wago changelog from the **commit messages** since the last tag, so:
+- Write commit subjects for players to read, e.g. `Add Midnight Season 2 healing potions`,
+  `Update interface versions for 12.1.5`. Make one commit per phase that changed something.
+- Update `README.md` where it lists things you changed: the potion families named under
+  "What the addon does", the mana potion examples, and the supported versions in that
+  section and in the FAQ.
+
+## 5. Verify
+
+Run the static checks (Lua syntax, list entries without a definition, duplicate IDs):
+
+```bash
+.claude/skills/update-addon/check.sh
+```
+
+It must exit 0. The two "review" sections list duplicates that already exist and are
+intentional (health+mana potions, `5512` Healthstone). Only look into entries your change added.
+
+You cannot run the game. Finish with an in-game test checklist for the user, listing each
+changed flavor: `/reload` without Lua errors, the `AutoPotion`/`AutoManaPotion` macro text
+picks up the new item, and `/ap` shows it on the right settings page.
+
+## 6. Wrap up
+
+- Show a summary table: interface versions old → new, API fixes, items added (name, ID,
+  source), README changes and anything left open for the user.
+- Commit on the branch. Ask the user before pushing or opening a PR.
+- Do **not** create or push a git tag: a tag push publishes a release to CurseForge and
+  Wago, and the user does that themselves.
