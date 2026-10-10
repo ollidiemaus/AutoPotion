@@ -76,6 +76,8 @@ L["Applies the right Edit Mode layout, UI scale and AddOn set for your screen re
 "Applies the right Edit Mode layout, UI scale and AddOn set for your screen resolution. Made for switching between PC, laptop and Steam Deck."
 L["An automatic journal of your adventures: level ups, dungeon runs, first boss kills, professions and your routes on the world map."] =
 "An automatic journal of your adventures: level ups, dungeon runs, first boss kills, professions and your routes on the world map."
+L["Small quality of life features in one addon: a smaller viewport, junk selling and repairs, quests accepted and turned in for you, IDs and vendor prices in tooltips, a square minimap and dungeons on the world map."] =
+"Small quality of life features in one addon: a smaller viewport, junk selling and repairs, quests accepted and turned in for you, IDs and vendor prices in tooltips, a square minimap and dungeons on the world map."
 L["Installed"] = "Installed"
 L["Click and press %s to copy"] = "Click and press %s to copy"
 L["Ctrl+C"] = "Ctrl+C"
