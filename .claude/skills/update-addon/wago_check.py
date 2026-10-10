@@ -26,7 +26,8 @@ usage: wago_check.py [--flavor NAME ...] [--no-order] [--dump] [--verbose] [--ca
   --no-order skip the ordering check (needs only the small item tables)
   --dump     print the amount of every list entry, to place a new item correctly
   --verbose  also list names that differ only because the item was renamed in a client
-  --cache    download directory (default: $AUTOPOTION_WAGO_CACHE or <tmp>/autopotion-wago)
+  --cache    download directory (default: $AUTOPOTION_WAGO_CACHE, else the wow-data skill's
+             cache $WOW_DATA_CACHE/db2 or ~/.cache/wow-data/db2, which has the same layout)
 
 Exits 1 when it prints an ERROR or ORDER line.
 """
@@ -36,7 +37,6 @@ import json
 import os
 import re
 import sys
-import tempfile
 import time
 import urllib.error
 import urllib.request
@@ -410,8 +410,9 @@ def main():
     ap.add_argument("--no-order", action="store_true")
     ap.add_argument("--dump", action="store_true")
     ap.add_argument("--verbose", action="store_true")
-    ap.add_argument("--cache", type=Path, default=Path(os.environ.get("AUTOPOTION_WAGO_CACHE")
-                                                      or Path(tempfile.gettempdir()) / "autopotion-wago"))
+    ap.add_argument("--cache", type=Path, default=Path(
+        os.environ.get("AUTOPOTION_WAGO_CACHE")
+        or Path(os.environ.get("WOW_DATA_CACHE") or Path.home() / ".cache" / "wow-data") / "db2"))
     args = ap.parse_args()
 
     toc = read_toc()

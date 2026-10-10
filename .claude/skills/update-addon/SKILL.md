@@ -15,6 +15,15 @@ Work through the phases in order. Finish each one with a short table of what cha
 Never guess a number, ID or API name - every value you write must come from a source you
 actually read in this session. If no source confirms it, ask the user instead.
 
+Game data (builds, item and spell IDs, ranks, amounts, tooltips) and Blizzard's UI source
+come from the `wow-data` skill's script, not from Wowhead/wago.tools pages in the browser
+and not from memory. Its output is a few lines; a browsed page is tens of thousands of tokens.
+Keep the browser for what the script can't answer (patch notes, "new items" guides, comments).
+
+```bash
+W=~/.claude/skills/wow-data/scripts/wow.py   # python3 $W <command> -h for options
+```
+
 ## 0. Setup
 
 - Start from an up-to-date `main` with a clean tree, then create a branch `update/<patch>`.
@@ -37,9 +46,10 @@ TOC line → game flavor:
 
 Formula: `major*10000 + minor*100 + patch`.
 
-- Sources: https://warcraft.wiki.gg/wiki/TOC_format (current interface versions per flavor),
-  https://warcraft.wiki.gg/wiki/Public_client_builds and https://wago.tools/builds.
-  Use at least two of them to confirm each number.
+- Sources: `python3 $W builds` (newest client build per flavor, including PTR) and
+  https://warcraft.wiki.gg/wiki/TOC_format (current interface versions per flavor).
+  Confirm each number with both; https://warcraft.wiki.gg/wiki/Public_client_builds
+  breaks a tie.
 - A line can list several versions, comma-separated (`120100, 120105`). For retail, list the
   live version and the upcoming PTR/patch version. Drop a version only once its patch is
   completely gone from live. Keep the list in ascending order.
@@ -56,6 +66,20 @@ actually uses. Run this to list the current API surface:
 ```bash
 grep -rhoE '\bC_[A-Za-z]+\.[A-Za-z]+' --include='*.lua' code.lua Core FrameXML Bindings.lua | sort | uniq -c | sort -rn
 ```
+
+To check whether an API the addon calls still exists, or what its signature is now, grep
+that flavor's Blizzard UI source instead of opening the wiki page for every function
+(`-f retail|ptr|classic|tbc|mists|forever`; Wrath and Cata have no branch):
+
+```bash
+python3 $W ui -f ptr grep 'Name = "GetItemCount"' Interface/AddOns/Blizzard_APIDocumentationGenerated
+python3 $W ui -f ptr grep 'GetMacroInfo\('         # old globals aren't in the generated docs: find callers
+python3 $W ui -f mists grep 'InterfaceOptionsCheckButtonTemplate' --files
+```
+
+`C_*` namespaces are documented in `Blizzard_APIDocumentationGenerated`; old globals such as
+the macro API are not, so look for Blizzard's own callers instead. A template or function that
+only turns up in a `Deprecated*` file is on its way out: report it.
 
 Pay particular attention to the following:
 - **Macro API** in `code.lua`: `CreateMacro`, `EditMacro`, `GetMacroInfo`, `InCombatLockdown`
@@ -104,9 +128,18 @@ What to look for: new healing potions (all ranks/qualities), fleeting variants, 
 potions, health+mana potions, healthstone variants, food/drink (including conjured food)
 and bandages for the new patch or season.
 
-- Sources: Wowhead (item pages and the patch's "new items" lists), https://wago.tools/db2/ItemSparse
-  and warcraft.wiki.gg. Confirm each item ID **and** the rank/quality → ID mapping on its item page.
-  IDs are not always ascending by rank (e.g. Silvermoon R2 = 241304, R1 = 241305).
+- Find candidates with the script, against the flavor's client (`-f ptr` before the patch is live):
+  ```bash
+  python3 $W item 'healing potion' -f ptr -n 40
+  python3 $W db2 ItemSparse -f ptr -w ExpansionID=11 -w 'Display_lang~potion|healthstone' -c ID,Display_lang,ItemLevel
+  python3 $W item 241304 241305 -f retail          # name, crafting rank R1-R3, on-use spell
+  python3 $W spell <spellID> -f retail --effects   # what it restores
+  python3 $W wowhead item 241304                   # tooltip; also for items wago lacks
+  ```
+  Use Wowhead's "new items" lists or patch notes in the browser only to learn *which* items
+  are new, then confirm each one with `item`. Confirm the item ID **and** the rank/quality → ID
+  mapping from the `item` output (its R1-R3 column). IDs are not always ascending by rank
+  (e.g. Silvermoon R2 = 241304, R1 = 241305).
 - Order them the way the existing list does: stronger before weaker; a fleeting variant
   sits next to its normal version of the same rank (see the Invigorating/Algari entries).
   `python3 .claude/skills/update-addon/wago_check.py --dump --flavor <flavor>` prints the
@@ -145,21 +178,21 @@ python3 .claude/skills/update-addon/wago_check.py
 ```
 
 It reads the interface versions from `AutoPotion.toc`, downloads the item and spell tables
-of the newest client build for each of them (about 600 MB on the first run, cached in
-`$TMPDIR/autopotion-wago`; set `AUTOPOTION_WAGO_CACHE` to move it, add `--no-order` to skip
-the large spell tables) and must exit 0:
+of the newest client build for each of them (about 600 MB on the first run, cached in the
+wow-data cache `~/.cache/wow-data/db2`, so `wow.py` and this check share downloads;
+`AUTOPOTION_WAGO_CACHE` overrides it, `--no-order` skips the large spell tables) and must exit 0:
 - `ERROR`: the item ID does not exist in that flavor, is "UNUSED ITEM" there, points to an
   item with another name (a wrong ID), is not a consumable, or its R1/R2/R3 suffix does not
   match its crafting quality. Fix the ID or remove the entry from that flavor's list.
 - `ORDER`: an entry restores more than one listed above it in the same section, or a lower
   quality of an item is listed above a higher one. Move it.
 - `NOTE`: wago only has part of the item (its export lacks encrypted and hotfix-only rows).
-  Confirm the item on Wowhead; these don't fail the check.
+  Confirm the item with `python3 $W wowhead item <id> -f <flavor>`; these don't fail the check.
 
 Amounts that scale with the player's level can't be compared, so for Retail potions and
 bandages (and a few Mists/Cata items) only the quality order is checked. Keep the rest of
 their order by hand: newest expansion first. A new zone-, underwater- or battleground-only
-item also passes the check, so read its tooltip before adding it.
+item also passes the check, so read its tooltip (`python3 $W wowhead item <id>`) before adding it.
 
 You cannot run the game. Finish with an in-game test checklist for the user, listing each
 changed flavor: `/reload` without Lua errors, the `AutoPotion`/`AutoManaPotion` macro text
