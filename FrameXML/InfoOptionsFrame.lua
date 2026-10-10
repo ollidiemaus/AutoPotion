@@ -54,21 +54,30 @@ local COMMANDS = {
 
 -- Other addons by the same author. `flavors` are product names and stay untranslated. The
 -- icons are copies of each addon's own icon in Media, so they show without the addon installed.
+-- `folder` is the addon's folder name, when it differs from `name`.
 local MEDIA = "Interface\\AddOns\\" .. addonName .. "\\Media\\"
 local OTHER_ADDONS = {
-	{
-		name = "AutoSetup",
-		icon = MEDIA .. "AutoSetup",
-		flavors = "Retail · WoW Forever",
-		url = "https://www.curseforge.com/wow/addons/autosetup",
-		description = L["Applies the right Edit Mode layout, UI scale and AddOn set for your screen resolution. Made for switching between PC, laptop and Steam Deck."],
-	},
 	{
 		name = "Wayscribe",
 		icon = MEDIA .. "Wayscribe",
 		flavors = "WoW Forever",
 		url = "https://www.curseforge.com/wow/addons/wayscribe",
 		description = L["An automatic journal of your adventures: level ups, dungeon runs, first boss kills, professions and your routes on the world map."],
+	},
+	{
+		name = "Quality of Life",
+		folder = "QoL",
+		icon = MEDIA .. "QoL",
+		flavors = "Retail · WoW Forever",
+		url = "https://www.curseforge.com/wow/addons/qol",
+		description = L["Small quality of life features in one addon: a smaller viewport, junk selling and repairs, quests accepted and turned in for you, IDs and vendor prices in tooltips, a square minimap and dungeons on the world map."],
+	},
+	{
+		name = "AutoSetup",
+		icon = MEDIA .. "AutoSetup",
+		flavors = "Retail · WoW Forever",
+		url = "https://www.curseforge.com/wow/addons/autosetup",
+		description = L["Applies the right Edit Mode layout, UI scale and AddOn set for your screen resolution. Made for switching between PC, laptop and Steam Deck."],
 	},
 }
 
@@ -316,7 +325,7 @@ function ham.infoSettingsFrame:InitializeOptions()
 		local status = content:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
 		status:SetPoint("BOTTOMRIGHT", last, "TOPRIGHT", 0, 3)
 		status:SetText(GREEN_FONT_COLOR_CODE .. L["Installed"] .. FONT_COLOR_CODE_CLOSE)
-		self.installedLabels[addon.name] = status
+		self.installedLabels[addon.folder or addon.name] = status
 
 		addLink(addon.url)
 	end
