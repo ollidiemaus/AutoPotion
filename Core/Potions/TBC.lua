@@ -3,8 +3,8 @@ local addonName, ham = ...
 
 function ham.getPotsForTBC()
   local pots = {
-    ham.injector,
     ham.superreju,
+    ham.injector,
     ham.auchenai,
     ham.super,
     ham.major,
@@ -41,10 +41,9 @@ function ham.getHealthstonesForTBC()
     ham.greater0,
     ham.wipperRootTuber,
     ham.healtsthone2,
-    ham.healtsthone1,
     ham.lilyRoot,
+    ham.healtsthone1,
     ham.healtsthone0,
-    ham.crystalFlakeThroatLozenge,
     ham.lesser2,
     ham.lesser1,
     ham.lesser0,

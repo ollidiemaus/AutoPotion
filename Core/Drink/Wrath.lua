@@ -4,8 +4,8 @@ local addonName, ham = ...
 function ham.getDrinkForWrath()
   return {
     -- Conjured water first: free and doesn't consume bag space or gold
-    ham.conjuredManaPie,
     ham.conjuredManaStrudel,
+    ham.conjuredManaPie,
     -- Dual restore (health AND mana, no stats) - shared with Core/Food/Wrath.lua's list
     ham.blackJelly,
     ham.giganticFeast,
@@ -28,13 +28,16 @@ function ham.getDrinkForWrath()
     ham.mountainWater,
     ham.sweetenedGoatsMilk,
     -- TBC and Classic Era items, as a fallback for lower-level characters
+    -- TBC: conjured water
     ham.conjuredGlacierWater,
     ham.conjuredMountainSpringWater,
+    -- TBC: dual restore (health AND mana, no stats)
     ham.conjuredMannaBiscuit,
-    ham.enrichedTeroconeJuice,
     ham.hotButteredTrout,
     ham.naaruRation,
+    ham.enrichedTeroconeJuice,
     ham.undersporePod,
+    -- TBC: plain water (no stats), highest tier first
     ham.blackCoffee,
     ham.blackrockFortifiedWater,
     ham.dosOgris,
@@ -48,6 +51,7 @@ function ham.getDrinkForWrath()
     ham.silverwine,
     ham.starsLament,
     ham.blackrockSpringWater,
+    -- Classic Era: conjured water
     ham.conjuredCrystalWater,
     ham.conjuredSparklingWater,
     ham.conjuredMineralWater,
@@ -55,15 +59,17 @@ function ham.getDrinkForWrath()
     ham.conjuredPurifiedWater,
     ham.conjuredFreshWater,
     ham.conjuredWater,
+    -- Classic Era: dual restore (health AND mana, no stats)
     ham.essenceMango,
     ham.enrichedMannaBiscuit,
     ham.alteracMannaBiscuit,
     ham.graccusMinceMeatFruitcake,
     ham.bobbingApple,
     ham.refreshingRedApple,
-    ham.greenTeaLeaf,
     ham.cookedCrabClaw,
     ham.sengginRoot,
+    ham.greenTeaLeaf,
+    -- Classic Era: plain water (no stats), highest tier first
     ham.hyjalNectar,
     ham.morningGloryDew,
     ham.moonberryJuice,

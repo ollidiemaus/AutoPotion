@@ -91,7 +91,11 @@ How the code is laid out:
   highest rank/quality first.
 - The priority lists live in `Core/<Category>/<Flavor>.lua` (e.g. `ham.getPotsForRetail()` in
   `Core/Potions/Retail.lua`). They are ordered best first; the macro uses the first entry
-  found in the bags.
+  found in the bags. Each comment starts a section, and each section is sorted by amount
+  restored unless its comment says "order doesn't matter" (Well Fed food).
+- The food and drink lists of TBC, Wrath, Cata and Mists end with a fallback for lower-level
+  characters: a copy of the older flavors' lists, one `-- <Flavor>: <section>` block per
+  section. When you change an older flavor's list, change these copies too.
 - Potions that restore health *and* mana are defined twice, once in `Potions.lua` and once
   in `ManaPotions.lua` with `{ rejuvenation = true }`, and are on the health list in
   `ham.getDelightPotsForRetail()`.
@@ -105,6 +109,8 @@ and bandages for the new patch or season.
   IDs are not always ascending by rank (e.g. Silvermoon R2 = 241304, R1 = 241305).
 - Order them the way the existing list does: stronger before weaker; a fleeting variant
   sits next to its normal version of the same rank (see the Invigorating/Algari entries).
+  `python3 .claude/skills/update-addon/wago_check.py --dump --flavor <flavor>` prints the
+  amount every list entry restores in that flavor's client, so you can see where a new item goes.
 - Never add potions that are channeled, have harmful side effects or only work in one zone. The
   existing side-effect potions (Withering) only run behind a settings toggle. If a new item
   would need a new option, that is a feature: describe it and ask before adding settings
@@ -131,6 +137,29 @@ Run the static checks (Lua syntax, list entries without a definition, duplicate 
 
 It must exit 0. The two "review" sections list duplicates that already exist and are
 intentional (health+mana potions, `5512` Healthstone). Only look into entries your change added.
+
+Then check every item against the game client data on wago.tools:
+
+```bash
+python3 .claude/skills/update-addon/wago_check.py
+```
+
+It reads the interface versions from `AutoPotion.toc`, downloads the item and spell tables
+of the newest client build for each of them (about 600 MB on the first run, cached in
+`$TMPDIR/autopotion-wago`; set `AUTOPOTION_WAGO_CACHE` to move it, add `--no-order` to skip
+the large spell tables) and must exit 0:
+- `ERROR`: the item ID does not exist in that flavor, is "UNUSED ITEM" there, points to an
+  item with another name (a wrong ID), is not a consumable, or its R1/R2/R3 suffix does not
+  match its crafting quality. Fix the ID or remove the entry from that flavor's list.
+- `ORDER`: an entry restores more than one listed above it in the same section, or a lower
+  quality of an item is listed above a higher one. Move it.
+- `NOTE`: wago only has part of the item (its export lacks encrypted and hotfix-only rows).
+  Confirm the item on Wowhead; these don't fail the check.
+
+Amounts that scale with the player's level can't be compared, so for Retail potions and
+bandages (and a few Mists/Cata items) only the quality order is checked. Keep the rest of
+their order by hand: newest expansion first. A new zone-, underwater- or battleground-only
+item also passes the check, so read its tooltip before adding it.
 
 You cannot run the game. Finish with an in-game test checklist for the user, listing each
 changed flavor: `/reload` without Lua errors, the `AutoPotion`/`AutoManaPotion` macro text

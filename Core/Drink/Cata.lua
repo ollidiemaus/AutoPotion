@@ -4,11 +4,11 @@ local addonName, ham = ...
 function ham.getDrinkForCata()
   return {
     -- Conjured water first: free and doesn't consume bag space or gold
-    ham.conjuredManaBrownie,
     ham.conjuredManaCake,
-    ham.conjuredManaCookie,
-    ham.conjuredManaCupcake,
     ham.conjuredManaLollipop,
+    ham.conjuredManaCupcake,
+    ham.conjuredManaBrownie,
+    ham.conjuredManaCookie,
     -- Dual restore (health AND mana, no stats) - shared with Core/Food/Cata.lua's list
     ham.scaldingMurglesnout,
     -- Plain water (no stats), highest tier first
@@ -16,14 +16,15 @@ function ham.getDrinkForCata()
     ham.invigoratingPineapplePunch,
     ham.meisMasterfulBrew,
     ham.sasparillaSinker,
+    ham.southIslandIcedTea,
+    ham.starfireEspresso,
     ham.fungusSqueezings,
     ham.greasyWhaleMilk,
-    ham.southIslandIcedTea,
     ham.sparklingOasisWater,
-    ham.starfireEspresso,
     ham.freshWater,
     ham.murkyWater,
     ham.sweetTea,
+    ham.garrsLimeade,
     ham.briarootBrew,
     ham.earlBlackTea,
     ham.filteredBilgeWater,
@@ -31,18 +32,20 @@ function ham.getDrinkForCata()
     ham.refreshingPineapplePunch,
     ham.volcanicSpringWater,
     ham.tarpCollectedDew,
-    ham.garrsLimeade,
     ham.stormwindSurprise,
     ham.wellWater,
     -- Wrath, TBC, and Classic Era items, as a fallback for lower-level characters
-    ham.conjuredManaPie,
+    -- Wrath: conjured water
     ham.conjuredManaStrudel,
+    ham.conjuredManaPie,
+    -- Wrath: dual restore (health AND mana, no stats)
     ham.blackJelly,
     ham.giganticFeast,
     ham.grilledBonescale,
     ham.sauteedGoby,
     ham.smallFeast,
     ham.smokedRockfin,
+    -- Wrath: plain water (no stats), highest tier first
     ham.crusadersWaterskin,
     ham.honeymintTea,
     ham.kungaloosh,
@@ -56,13 +59,16 @@ function ham.getDrinkForCata()
     ham.grizzleberryJuice,
     ham.mountainWater,
     ham.sweetenedGoatsMilk,
+    -- TBC: conjured water
     ham.conjuredGlacierWater,
     ham.conjuredMountainSpringWater,
+    -- TBC: dual restore (health AND mana, no stats)
     ham.conjuredMannaBiscuit,
-    ham.enrichedTeroconeJuice,
     ham.hotButteredTrout,
     ham.naaruRation,
+    ham.enrichedTeroconeJuice,
     ham.undersporePod,
+    -- TBC: plain water (no stats), highest tier first
     ham.blackCoffee,
     ham.blackrockFortifiedWater,
     ham.dosOgris,
@@ -76,6 +82,7 @@ function ham.getDrinkForCata()
     ham.silverwine,
     ham.starsLament,
     ham.blackrockSpringWater,
+    -- Classic Era: conjured water
     ham.conjuredCrystalWater,
     ham.conjuredSparklingWater,
     ham.conjuredMineralWater,
@@ -83,15 +90,17 @@ function ham.getDrinkForCata()
     ham.conjuredPurifiedWater,
     ham.conjuredFreshWater,
     ham.conjuredWater,
+    -- Classic Era: dual restore (health AND mana, no stats)
     ham.essenceMango,
     ham.enrichedMannaBiscuit,
     ham.alteracMannaBiscuit,
     ham.graccusMinceMeatFruitcake,
     ham.bobbingApple,
     ham.refreshingRedApple,
-    ham.greenTeaLeaf,
     ham.cookedCrabClaw,
     ham.sengginRoot,
+    ham.greenTeaLeaf,
+    -- Classic Era: plain water (no stats), highest tier first
     ham.hyjalNectar,
     ham.morningGloryDew,
     ham.moonberryJuice,

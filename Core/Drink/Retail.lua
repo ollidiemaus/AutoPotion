@@ -5,13 +5,13 @@ function ham.getDrinkForRetail()
   return {
     -- Conjured first: free and doesn't consume bag space or gold. Conjured Mana Bun is
     -- dual restore, shared with Core/Food/Retail.lua's list; Conjured Tea is mana-only.
-    ham.conjuredManaBun,
     ham.conjuredTea,
+    ham.conjuredManaBun,
     -- "Relaxed" drink (mana restore plus a secondary stat), opt-in via includeBuffFood
     ham.argentleafTea,
     ham.sanguithornTea,
     ham.azerootTea,
-    -- Plain drink (mana only, no stats) - cosmetic reskins, order doesn't matter
+    -- Plain drink (mana only, no stats), highest tier first
     ham.manaLilyTea,
     ham.tranquilityBloomTea,
     ham.springrunnerSparkling,

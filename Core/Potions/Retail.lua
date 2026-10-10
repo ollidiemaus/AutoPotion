@@ -5,12 +5,12 @@ function ham.getDelightPotsForRetail()
   return {
     ham.refreshingSerumR2,
     ham.refreshingSerumR1,
-    ham.cavedwellersDelightR3,
-    ham.cavedwellersDelightR2,
-    ham.cavedwellersDelightR1,
     ham.fleetingCavedwellersDelightR3,
+    ham.cavedwellersDelightR3,
     ham.fleetingCavedwellersDelightR2,
+    ham.cavedwellersDelightR2,
     ham.fleetingCavedwellersDelightR1,
+    ham.cavedwellersDelightR1,
   }
 end
 
@@ -19,15 +19,13 @@ function ham.getPotsForRetail()
     ham.concentratedSilvermoonPotion2,
     ham.concentratedSilvermoonPotion1,
     ham.fleetingSilvermoonPotion2,
-    ham.fleetingSilvermoonPotion1,
     ham.silvermoonPotion2,
+    ham.fleetingSilvermoonPotion1,
     ham.silvermoonPotion1,
     ham.potent,
     ham.fleetingInvigoratingHealingPotionR3,
     ham.invigoratingHealingPotionR3,
-    ham.fleetingInvigoratingHealingPotionR2,
     ham.invigoratingHealingPotionR2,
-    ham.fleetingInvigoratingHealingPotionR1,
     ham.invigoratingHealingPotionR1,
     ham.fleetingAlgariHealingPotionR3,
     ham.algariHealingPotionR3,

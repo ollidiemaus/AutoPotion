@@ -29,22 +29,22 @@ end
 function ham.getHealthstonesForForever()
   return {
     ham.major2,
-    ham.major1,
     ham.major0,
+    ham.major1,
     ham.greater2,
-    ham.greater1,
     ham.greater0,
+    ham.greater1,
     ham.wipperRootTuber,
     ham.healtsthone2,
-    ham.healtsthone1,
     ham.lilyRoot,
     ham.healtsthone0,
     ham.crystalFlakeThroatLozenge,
+    ham.healtsthone1,
     ham.lesser2,
-    ham.lesser1,
     ham.lesser0,
+    ham.lesser1,
     ham.minor2,
-    ham.minor1,
-    ham.minor0
+    ham.minor0,
+    ham.minor1
   }
 end

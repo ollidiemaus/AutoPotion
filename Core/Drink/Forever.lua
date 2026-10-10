@@ -19,10 +19,10 @@ function ham.getDrinkForForever()
     ham.graccusMinceMeatFruitcake,
     ham.bobbingApple,
     ham.refreshingRedApple,
-    ham.greenTeaLeaf,
-    ham.cookedCrabClaw,
     ham.sengginRoot,
-    -- Plain vendor water, highest tier first, then cosmetic reskins (order doesn't matter)
+    ham.cookedCrabClaw,
+    ham.greenTeaLeaf,
+    -- Plain vendor water (no stats), highest tier first
     ham.hyjalNectar,
     ham.morningGloryDew,
     ham.moonberryJuice,
