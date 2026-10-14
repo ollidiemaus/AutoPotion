@@ -6,6 +6,18 @@ ham.Spell = {}
 -- Filled in by the per-flavor Core/Spells/<Flavor>.lua files.
 ham.spellRanks = {}
 
+-- The global IsSpellKnown is a deprecated wrapper around C_SpellBook.IsSpellInSpellBook on
+-- every flavor that has the C_SpellBook version (Retail, Classic Era, TBC, Mists, Forever),
+-- and only exists there while the loadDeprecationFallbacks CVar is on. Cata and Wrath have
+-- no C_SpellBook version, so they keep the native global. Same arguments as the wrapper.
+local function isSpellKnown(spellId, isPet)
+    if C_SpellBook and C_SpellBook.IsSpellInSpellBook then
+        local spellBank = isPet and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player
+        return C_SpellBook.IsSpellInSpellBook(spellId, spellBank, false)
+    end
+    return IsSpellKnown(spellId, isPet)
+end
+
 ham.Spell.new = function(id, class)
     local self = {}
 
@@ -47,7 +59,7 @@ ham.Spell.new = function(id, class)
         -- any other rank registered in ham.spellRanks. The macro casts by name, which
         -- resolves to the highest rank the player knows.
         for _, rankId in ipairs(ham.spellRanks[self.id] or { self.id }) do
-            if IsSpellKnown(rankId) or IsSpellKnown(rankId, true) then
+            if isSpellKnown(rankId) or isSpellKnown(rankId, true) then
                 return true
             end
         end
