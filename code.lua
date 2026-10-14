@@ -435,8 +435,10 @@ end
 local function shouldSoulburn()
   if not ham.isRetail or not ham.options.soulburn then return false end
   if ham.myPlayer.englishClass ~= "WARLOCK" then return false end
-  -- talents are not always reported by IsSpellKnown, so also check IsPlayerSpell
-  if not (ham.soulburn.isKnown() or (IsPlayerSpell and IsPlayerSpell(ham.soulburn.getId()))) then
+  -- talents are not always in the spellbook, so also check whether the player knows it
+  -- (C_SpellBook.IsSpellKnown replaces the deprecated IsPlayerSpell; Retail only, see above)
+  if not (ham.soulburn.isKnown()
+      or C_SpellBook.IsSpellKnown(ham.soulburn.getId(), Enum.SpellBookSpellBank.Player)) then
     return false
   end
   -- only when a Healthstone is actually in the sequence, so no shards are burned without one
