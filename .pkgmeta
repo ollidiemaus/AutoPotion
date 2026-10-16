@@ -1,0 +1,6 @@
+package-as: AutoPotion
+
+ignore:
+  - docs
+  - GLOSSARY.md
+  - tests

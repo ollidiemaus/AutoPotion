@@ -152,7 +152,7 @@ and bandages for the new patch or season.
 
 ## 4. README
 
-There is no CHANGELOG file and no `.pkgmeta`. The BigWigs packager builds the
+There is no CHANGELOG file, and `.pkgmeta` sets no `manual-changelog`. The BigWigs packager builds the
 CurseForge/Wago changelog from the **commit messages** since the last tag, so:
 - Write commit subjects for players to read, e.g. `Add Midnight Season 2 healing potions`,
   `Update interface versions for 12.1.5`. Make one commit per phase that changed something.
@@ -170,6 +170,13 @@ Run the static checks (Lua syntax, list entries without a definition, duplicate 
 
 It must exit 0. The two "review" sections list duplicates that already exist and are
 intentional (health+mana potions, `5512` Healthstone). Only look into entries your change added.
+
+Then the headless tests (the addon in a fake client on Retail, Classic Era and Forever; needs
+`brew install luajit`), which must exit 0 too:
+
+```bash
+tests/run.sh
+```
 
 Then check every item against the game client data on wago.tools:
 
