@@ -24,6 +24,4 @@ L["Prioritize health potions over a healthstone."] =
 "Dai priorità alle pozioni della salute rispetto a una pietra della salute."
 L["Reset successful!"] = "Reset riuscito!"
 L["Reset to Default"] = "Reimposta ai Predefiniti"
-L["The Settings of AutoPotion were reset due to breaking changes."] =
-"Le impostazioni di AutoPotion sono state reimpostate a causa di modifiche non retrocompatibili."
 L["Useful for casters."] = "Utile per i maghi."

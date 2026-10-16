@@ -11,7 +11,7 @@ function ham.getFoodForClassic()
     ham.conjuredRye,
     ham.conjuredBread,
     ham.conjuredMuffin,
-    -- Stat ("Well Fed") food - only used when HAMDB.includeBuffFood is enabled.
+    -- Stat ("Well Fed") food - only used when the includeBuffFood option is enabled.
     -- Cosmetic/regional reskins of the same few stat tiers, order among them doesn't matter.
     ham.dirgesKickinChimaerokChops,
     ham.smokedDesertDumplings,

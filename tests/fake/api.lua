@@ -251,6 +251,8 @@ local function installSettings(client, env)
     category.frame:Show()
     canvas:Show()
   end
+  client.displaySettingsCategory = display
+  client.displayedSettingsCategory = function() return current end
 
   env.Settings = {
     RegisterCanvasLayoutCategory = function(frame, name) return register(frame, name) end,

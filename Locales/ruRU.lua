@@ -23,6 +23,4 @@ L["Potion of Withering Vitality"] = "Зелье угасающей жизни"
 L["Prioritize health potions over a healthstone."] = "Отдавайте предпочтение зельям здоровья, а не камням здоровья."
 L["Reset successful!"] = "Сброс успешен!"
 L["Reset to Default"] = "Сброс"
-L["The Settings of AutoPotion were reset due to breaking changes."] =
-"Настройки AutoPotion были сброшены из-за критических изменений."
 L["Useful for casters."] = "Полезно для кастеров."

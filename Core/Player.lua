@@ -28,7 +28,7 @@ ham.Player.new = function()
   function self.getHealingSpells()
     local mySpells = {}
     local supported = supportedIds()
-    for i, id in ipairs(HAMDB.activatedSpells) do
+    for i, id in ipairs(ham.options.activatedSpells) do
       local currentSpell = ham.Spell.new(id)
       if supported[id] and currentSpell.isKnown() then
         table.insert(mySpells, currentSpell)

@@ -6,7 +6,7 @@ function ham.getFoodForWrath()
     -- Conjured food first: free and doesn't consume bag space or gold
     ham.conjuredManaStrudel,
     ham.conjuredManaPie,
-    -- Stat ("Well Fed") food - only used when HAMDB.includeBuffFood is enabled; order doesn't matter
+    -- Stat ("Well Fed") food - only used when the includeBuffFood option is enabled; order doesn't matter
     ham.steamingChickenSoup,
     ham.bakedMantaRay,
     ham.blackenedDragonfin,

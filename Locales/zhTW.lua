@@ -22,7 +22,6 @@ L["Potion of Withering Vitality"] = "凋萎活力藥水"
 L["Prioritize health potions over a healthstone."] = "將治療藥水優先於治療石。"
 L["Reset successful!"] = "重置成功！"
 L["Reset to Default"] = "重置為預設值"
-L["The Settings of AutoPotion were reset due to breaking changes."] = "因為插件大改版的關係，自動藥水的設定已被重置。"
 L["Useful for casters."] = "對於施法者是很有用的。"
 
 -- code

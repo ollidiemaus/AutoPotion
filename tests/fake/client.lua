@@ -165,6 +165,10 @@ end
 
 -- Loading and logging in ---------------------------------------------------------------------
 
+local function savedVariableNames(self)
+  return (self.addonMetadata.SavedVariables or ""):gmatch("[^,%s]+")
+end
+
 function Client:loadAddon()
   local namespace = {}
   for _, path in ipairs(self.addonFiles) do
@@ -178,7 +182,7 @@ function Client:loadAddon()
   end
   self.addonLoaded = true
   -- a variable with nothing stored keeps what the addon's files set
-  for name in (self.addonMetadata.SavedVariables or ""):gmatch("[^,%s]+") do
+  for name in savedVariableNames(self) do
     local stored = self.savedVariables[name]
     if type(stored) == "table" then stored = copy(stored) end
     if stored ~= nil then self.env[name] = stored end
@@ -186,12 +190,44 @@ function Client:loadAddon()
   self:fireEvent("ADDON_LOADED", self.addonName)
 end
 
--- Loads the addon and runs the login events, then one frame.
-function Client:login()
+-- Loads the addon and runs the login events, then one frame. `reloading` runs them the way a
+-- /reload does.
+function Client:login(reloading)
   self:loadAddon()
   self:fireEvent("PLAYER_LOGIN")
-  self:fireEvent("PLAYER_ENTERING_WORLD", true, false)
+  self:fireEvent("PLAYER_ENTERING_WORLD", not reloading, reloading and true or false)
   self:nextFrame()
+end
+
+-- Ends the session the way logging out and /reload do: PLAYER_LOGOUT, then the client writes
+-- the saved variables. Returns what it wrote, { [name] = value }.
+function Client:logout()
+  self:fireEvent("PLAYER_LOGOUT")
+  local saved = {}
+  for name in savedVariableNames(self) do
+    local value = self.env[name]
+    if type(value) == "table" then value = copy(value) end
+    saved[name] = value
+  end
+  return saved
+end
+
+-- /reload: ends this session and returns a new, logged-in one for the same character, its bags,
+-- gear, spells and macros (the server keeps those), with the saved variables this session wrote.
+function Client:reload()
+  local saved = self:logout()
+  local knownSpells, petSpells = {}, {}
+  for spellId in pairs(self.knownSpells) do table.insert(knownSpells, spellId) end
+  for spellId in pairs(self.petSpells) do table.insert(petSpells, spellId) end
+  local client = Client.new({
+    flavor = self.flavorName, class = self.class, faction = self.faction,
+    instanceType = self.instanceType, mapId = self.mapId, bags = self.bags, items = self.items,
+    equipped = self.equipped, spells = self.spells, knownSpells = knownSpells, petSpells = petSpells,
+    savedVariables = saved,
+  })
+  client.macros = copy(self.macros)
+  client:login(true)
+  return client
 end
 
 -- Events, frames and timers ------------------------------------------------------------------
@@ -257,6 +293,77 @@ end
 function Client:leaveCombat()
   self.lockdown = false
   self:fireEvent("PLAYER_REGEN_ENABLED")
+end
+
+-- The settings panel ---------------------------------------------------------------------------
+
+local function pathOf(category)
+  local names = {}
+  while category do
+    table.insert(names, 1, category.name)
+    category = category.parent
+  end
+  return names
+end
+
+-- The pages the settings panel's category list offers, each as its path: { "AutoPotion",
+-- "AutoFood" } is AutoFood below AutoPotion.
+function Client:settingsPages()
+  local pages = {}
+  for i, category in ipairs(self.settingsCategories) do pages[i] = pathOf(category) end
+  return pages
+end
+
+-- Opens a page of the game's settings panel the way the player does, through the category list:
+-- openSettings("AutoPotion", "AutoFood") opens AutoFood below AutoPotion.
+function Client:openSettings(...)
+  local path = table.concat({ ... }, " > ")
+  for _, category in ipairs(self.settingsCategories) do
+    if table.concat(pathOf(category), " > ") == path then
+      self.displaySettingsCategory(category)
+      return
+    end
+  end
+  error("no settings page " .. path, 2)
+end
+
+local function visibleCheckboxes(self)
+  local category = self.displayedSettingsCategory()
+  if not category then error("the settings panel isn't open", 3) end
+  local boxes = {}
+  for _, frame in ipairs(Widgets.descendants(category.frame)) do
+    if frame:IsObjectType("CheckButton") and frame:IsVisible() then table.insert(boxes, frame) end
+  end
+  return boxes
+end
+
+-- The labels of the check boxes on the open settings page, top to bottom as created.
+function Client:checkboxLabels()
+  local labels = {}
+  for _, box in ipairs(visibleCheckboxes(self)) do table.insert(labels, Widgets.checkboxLabel(box)) end
+  return labels
+end
+
+local function checkbox(self, label)
+  local found
+  for _, box in ipairs(visibleCheckboxes(self)) do
+    if Widgets.checkboxLabel(box) == label then
+      if found then error('two check boxes say "' .. label .. '"', 3) end
+      found = box
+    end
+  end
+  if not found then error('no check box "' .. label .. '" on the open settings page', 3) end
+  return found
+end
+
+-- Whether the check box with this label on the open settings page is ticked.
+function Client:isChecked(label)
+  return checkbox(self, label):GetChecked()
+end
+
+-- Clicks the check box with this label on the open settings page.
+function Client:clickCheckbox(label)
+  Widgets.click(checkbox(self, label))
 end
 
 -- What the player and the client see ---------------------------------------------------------

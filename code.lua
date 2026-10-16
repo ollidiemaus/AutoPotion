@@ -13,29 +13,6 @@ local function isInInstancedPvP()
 end
 ham.isInInstancedPvP = isInInstancedPvP
 
--- Configuration options
--- Use in-memory options as HAMDB updates are not persisted instantly.
--- We'll also use lazy initialization to prevent early access issues.
-setmetatable(ham, {
-  __index = function(t, k)
-    if k == "options" then
-      t.options = {
-        cdReset = HAMDB.cdReset or false,
-        stopCast = HAMDB.stopCast or false,
-        raidStone = HAMDB.raidStone or false,
-        witheringPotion = HAMDB.witheringPotion or false,
-        witheringDreamsPotion = HAMDB.witheringDreamsPotion or false,
-        cavedwellerDelight = HAMDB.cavedwellerDelight or true,
-        heartseekingInjector = HAMDB.heartseekingInjector or false,
-        includeBuffFood = HAMDB.includeBuffFood or false,
-        includeRejuvenation = HAMDB.includeRejuvenation ~= false, -- on by default
-        soulburn = HAMDB.soulburn or false,
-      }
-      return t.options
-    end
-  end
-})
-
 ham.debug = false
 ham.tinkerSlot = nil
 ham.myPlayer = ham.Player.new()

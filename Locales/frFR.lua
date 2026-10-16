@@ -23,5 +23,4 @@ if not L then return end
 --L["Prioritize health potions over a healthstone."] = "Prioritize health potions over a healthstone."
 --L["Reset successful!"] = "Reset successful!"
 --L["Reset to Default"] = "Reset to Default"
---L["The Settings of AutoPotion were reset due to breaking changes."] = "The Settings of AutoPotion were reset due to breaking changes."
 --L["Useful for casters."] = "Useful for casters."

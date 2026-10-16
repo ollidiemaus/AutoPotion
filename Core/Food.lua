@@ -164,7 +164,7 @@ ham.wildHogShank = ham.Item.new(3771, "Wild Hog Shank")
 ham.curedHamSteak = ham.Item.new(4599, "Cured Ham Steak")
 ham.roastedQuail = ham.Item.new(8952, "Roasted Quail")
 
--- Classic - stat ("Well Fed") food, highly situational, opt-in via HAMDB.includeBuffFood
+-- Classic - stat ("Well Fed") food, highly situational, opt-in via the includeBuffFood option
 ham.grilledSquid = ham.Item.new(13928, "Grilled Squid", { buffFood = true }) -- Agility
 ham.nightfinSoup = ham.Item.new(13931, "Nightfin Soup", { buffFood = true }) -- Mana regen
 ham.runnTumTuberSurprise = ham.Item.new(18254, "Runn Tum Tuber Surprise", { buffFood = true }) -- Intellect
@@ -181,7 +181,7 @@ ham.conjuredSweetRoll = ham.Item.new(8076, "Conjured Sweet Roll", { conjured = t
 ham.conjuredCinnamonRoll = ham.Item.new(22895, "Conjured Cinnamon Roll", { conjured = true })
 
 -- Classic - more stat ("Well Fed") food, classified from Wowhead's actual tooltip effect text
--- (well fed / stat-granting wording) rather than guesswork, opt-in via HAMDB.includeBuffFood
+-- (well fed / stat-granting wording) rather than guesswork, opt-in via the includeBuffFood option
 ham.badEggNog = ham.Item.new(17199, "Bad Egg Nog", { buffFood = true })
 ham.barbecuedBuzzardWing = ham.Item.new(4457, "Barbecued Buzzard Wing", { buffFood = true })
 ham.beerBastedBoarRibs = ham.Item.new(2888, "Beer Basted Boar Ribs", { buffFood = true })
@@ -359,7 +359,7 @@ ham.winterVeilLoaf = ham.Item.new(21236, "Winter Veil Loaf")
 ham.winterVeilRoast = ham.Item.new(21235, "Winter Veil Roast")
 
 -- TBC - stat ("Well Fed") food, classified from Wowhead's actual tooltip effect text,
--- opt-in via HAMDB.includeBuffFood
+-- opt-in via the includeBuffFood option
 ham.batBites = ham.Item.new(27636, "Bat Bites", { buffFood = true })
 ham.blackenedBasilisk = ham.Item.new(27657, "Blackened Basilisk", { buffFood = true })
 ham.blackenedSporefish = ham.Item.new(27663, "Blackened Sporefish", { buffFood = true })
@@ -443,7 +443,7 @@ ham.zangarCaps = ham.Item.new(27859, "Zangar Caps")
 ham.zangarTrout = ham.Item.new(29452, "Zangar Trout")
 
 -- Wrath - stat ("Well Fed") food, classified from Wowhead's actual tooltip effect text,
--- opt-in via HAMDB.includeBuffFood
+-- opt-in via the includeBuffFood option
 ham.bakedMantaRay = ham.Item.new(42942, "Baked Manta Ray", { buffFood = true })
 ham.blackenedDragonfin = ham.Item.new(42999, "Blackened Dragonfin", { buffFood = true })
 ham.blackenedWorgSteak = ham.Item.new(42997, "Blackened Worg Steak", { buffFood = true })
@@ -551,7 +551,7 @@ ham.teldrassilSweetPotato = ham.Item.new(44855, "Teldrassil Sweet Potato")
 ham.tundraBerries = ham.Item.new(35949, "Tundra Berries")
 
 -- Cata - stat ("Well Fed") food, classified from Wowhead's actual tooltip effect text,
--- opt-in via HAMDB.includeBuffFood
+-- opt-in via the includeBuffFood option
 ham.bakedRockfish = ham.Item.new(62661, "Baked Rockfish", { buffFood = true })
 ham.basiliskLiverdog = ham.Item.new(62665, "Basilisk Liverdog", { buffFood = true })
 ham.beerBastedCrocolisk = ham.Item.new(62670, "Beer-Basted Crocolisk", { buffFood = true })
@@ -683,7 +683,7 @@ ham.wrigglingFood = ham.Item.new(67366, "Wriggling Food")
 ham.yetichokeHearts = ham.Item.new(65731, "Yetichoke Hearts")
 
 -- Mists - stat ("Well Fed") food, classified from Wowhead's actual tooltip effect text,
--- opt-in via HAMDB.includeBuffFood
+-- opt-in via the includeBuffFood option
 ham.banquetOfTheBrew = ham.Item.new(87246, "Banquet of the Brew", { buffFood = true })
 ham.banquetOfTheGrill = ham.Item.new(87226, "Banquet of the Grill", { buffFood = true })
 ham.banquetOfTheOven = ham.Item.new(87242, "Banquet of the Oven", { buffFood = true })
@@ -842,7 +842,7 @@ end
 -- "buff food" (situational Well Fed stat food) unless the user opted in.
 function ham.getFood()
   local list = getRawFood()
-  if HAMDB and HAMDB.includeBuffFood then
+  if ham.options.includeBuffFood then
     return list
   end
   local filtered = {}

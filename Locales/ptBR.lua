@@ -23,6 +23,4 @@ L["Potion of Withering Vitality"] = "Poção de Vitalidade Murcha"
 L["Prioritize health potions over a healthstone."] = "Priorizar poções de vida em vez de uma pedra de vida."
 L["Reset successful!"] = "Reset bem-sucedido!"
 L["Reset to Default"] = "Redefinir para Padrão"
-L["The Settings of AutoPotion were reset due to breaking changes."] =
-"As configurações do AutoPotion foram redefinidas devido a mudanças significativas."
 L["Useful for casters."] = "Útil para conjuradores."

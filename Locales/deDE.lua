@@ -23,8 +23,6 @@ L["Potion of Withering Vitality"] = "Trank der welkenden Vitalität"
 L["Prioritize health potions over a healthstone."] = "Tränke über Gesundheitssteinen priorisieren."
 L["Reset successful!"] = "Zurücksetzen erfolgreich!"
 L["Reset to Default"] = "Auf Standard zurücksetzen"
-L["The Settings of AutoPotion were reset due to breaking changes."] =
-"Die Einstellungen von AutoPotion wurden aufgrund von Breaking Changes zurückgesetzt."
 L["Useful for casters."] = "Nützlich für Zauberwirker."
 
 -- InfoOptionsFrame

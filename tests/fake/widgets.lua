@@ -302,6 +302,31 @@ end
 function CheckButton:SetChecked(checked) self[0].checked = checked and true or false end
 function CheckButton:GetChecked() return self[0].checked or false end
 
+-- The text next to the box, what the player reads it by: the template's label, wherever the
+-- addon moved it.
+function Widgets.checkboxLabel(button)
+  return button[0].label and button[0].label:GetText()
+end
+
+-- A left click as the player makes it: a check button toggles before its OnClick runs.
+function Widgets.click(button)
+  if button:IsObjectType("CheckButton") then button:SetChecked(not button:GetChecked()) end
+  runScript(button, "OnClick", "LeftButton", false)
+end
+
+-- Every frame below `frame`, in creation order.
+function Widgets.descendants(frame)
+  local result = {}
+  local function collect(f)
+    for _, child in ipairs(f[0].children) do
+      table.insert(result, child)
+      collect(child)
+    end
+  end
+  collect(frame)
+  return result
+end
+
 -- ScrollFrame --------------------------------------------------------------------------------
 
 function ScrollFrame:SetScrollChild(child)
@@ -369,6 +394,7 @@ local FONT_OBJECTS = {
 
 local function checkButtonTemplate(button)
   button.Text = button:CreateFontString("$parentText", "ARTWORK", "GameFontNormalSmall")
+  button[0].label = button.Text
 end
 
 local templates = {

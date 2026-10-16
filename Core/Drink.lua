@@ -39,7 +39,7 @@ ham.worldRootBeer = ham.Item.new(265666, "World Root Beer")
 ham.brightClaw = ham.Item.new(265667, "Bright Claw")
 
 -- Retail - "Relaxed" drink: mana restore plus a secondary-stat buff, situational,
--- opt-in via HAMDB.includeBuffFood (the same toggle used for Well Fed food).
+-- opt-in via the includeBuffFood option (the same toggle used for Well Fed food).
 ham.argentleafTea = ham.Item.new(242298, "Argentleaf Tea", { buffFood = true })
 ham.sanguithornTea = ham.Item.new(242299, "Sanguithorn Tea", { buffFood = true })
 ham.azerootTea = ham.Item.new(242301, "Azeroot Tea", { buffFood = true })
@@ -155,7 +155,7 @@ end
 -- "buff drink" (situational Relaxed stat drink) unless the user opted in.
 function ham.getDrink()
   local list = getRawDrink()
-  if HAMDB and HAMDB.includeBuffFood then
+  if ham.options.includeBuffFood then
     return list
   end
   local filtered = {}

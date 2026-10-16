@@ -112,7 +112,7 @@ function ham.getManaPotions()
   end
 
   local list = getRawManaPotions()
-  if HAMDB and HAMDB.includeRejuvenation ~= false then
+  if ham.options.includeRejuvenation then
     return list
   end
   local filtered = {}

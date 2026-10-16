@@ -81,8 +81,8 @@ end
 
 function ham.settingsFrame:updateConfig(option, value)
 	if ham.options[option] ~= nil then
-		ham.options[option] = value -- Update in-memory
-		HAMDB[option] = value -- Persist to DB
+		HAMDB[option] = value
+		ham.refreshOptions()
 	else
 		print(L["Invalid option: "] .. tostring(option))
 	end
@@ -101,21 +101,16 @@ function ham.settingsFrame:updateConfig(option, value)
 end
 
 function ham.settingsFrame:OnEvent(event, addOnName)
-	if addOnName == "AutoPotion" then
-		if event == "ADDON_LOADED" then
-			HAMDB = HAMDB or CopyTable(ham.defaults)
-			if HAMDB.activatedSpells == nil then
-				print(L["The Settings of AutoPotion were reset due to breaking changes."])
-				HAMDB = CopyTable(ham.defaults)
-			end
-			-- the settings list shows the pages in this order
-			ham.infoSettingsFrame:InitializeOptions()
-			self:InitializeOptions()
-			ham.manaPotionSettingsFrame:InitializeOptions()
-			ham.foodSettingsFrame:InitializeOptions()
-			ham.drinkSettingsFrame:InitializeOptions()
-			ham.bandageSettingsFrame:InitializeOptions()
-		end
+	if event == "ADDON_LOADED" and addOnName == addonName then
+		self:UnregisterEvent("ADDON_LOADED")
+		ham.loadSettings()
+		-- the settings list shows the pages in this order
+		ham.infoSettingsFrame:InitializeOptions()
+		self:InitializeOptions()
+		ham.manaPotionSettingsFrame:InitializeOptions()
+		ham.foodSettingsFrame:InitializeOptions()
+		ham.drinkSettingsFrame:InitializeOptions()
+		ham.bandageSettingsFrame:InitializeOptions()
 	end
 	if event == "PLAYER_LOGIN" then
 		self:InitializeClassSpells(lastStaticElement)
@@ -379,7 +374,7 @@ function ham.settingsFrame:InitializeOptions()
 	stopCastButton:HookScript("OnLeave", function(_, btn, down)
 		GameTooltip:Hide()
 	end)
-	stopCastButton:SetChecked(HAMDB.stopCast)
+	stopCastButton:SetChecked(ham.options.stopCast)
 	lastStaticElement = stopCastButton
 
 	-------------  Shortest Cooldown  -------------	
@@ -391,7 +386,7 @@ function ham.settingsFrame:InitializeOptions()
 	cdResetButton:HookScript("OnClick", function(_, btn, down)
 		ham.settingsFrame:updateConfig("cdReset", cdResetButton:GetChecked())
 	end)
-	cdResetButton:SetChecked(HAMDB.cdReset)
+	cdResetButton:SetChecked(ham.options.cdReset)
 	lastStaticElement = cdResetButton
 
 	-------------  Healthstone Priority  -------------	
@@ -411,7 +406,7 @@ function ham.settingsFrame:InitializeOptions()
 	raidStoneButton:HookScript("OnLeave", function(_, btn, down)
 		GameTooltip:Hide()
 	end)
-	raidStoneButton:SetChecked(HAMDB.raidStone)
+	raidStoneButton:SetChecked(ham.options.raidStone)
 	lastStaticElement = raidStoneButton
 
 
@@ -447,7 +442,7 @@ function ham.settingsFrame:InitializeOptions()
 		witheringPotionButton:HookScript("OnLeave", function(_, btn, down)
 			GameTooltip:Hide()
 		end)
-		witheringPotionButton:SetChecked(HAMDB.witheringPotion)
+		witheringPotionButton:SetChecked(ham.options.witheringPotion)
 
 		---Withering Dreams Potion---
 		witheringDreamsPotionButton = createIconCheckButton(self.content,
@@ -465,7 +460,7 @@ function ham.settingsFrame:InitializeOptions()
 		witheringDreamsPotionButton:HookScript("OnLeave", function(_, btn, down)
 			GameTooltip:Hide()
 		end)
-		witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
+		witheringDreamsPotionButton:SetChecked(ham.options.witheringDreamsPotion)
 
 		---Refreshing Serum buttons could be renamed---
 		cavedwellerDelightButton = createIconCheckButton(self.content,
@@ -483,7 +478,7 @@ function ham.settingsFrame:InitializeOptions()
 		cavedwellerDelightButton:HookScript("OnLeave", function(_, btn, down)
 			GameTooltip:Hide()
 		end)
-		cavedwellerDelightButton:SetChecked(HAMDB.cavedwellerDelight)
+		cavedwellerDelightButton:SetChecked(ham.options.cavedwellerDelight)
 
 		---Heartseeking Health Injector---
 		-- right column: its (German) name is too long for the left one
@@ -504,7 +499,7 @@ function ham.settingsFrame:InitializeOptions()
 		heartseekingButton:HookScript("OnLeave", function(_, btn, down)
 			GameTooltip:Hide()
 		end)
-		heartseekingButton:SetChecked(HAMDB.heartseekingInjector)
+		heartseekingButton:SetChecked(ham.options.heartseekingInjector)
 
 		---Soulburn (Warlock only)---
 		if ham.myPlayer.englishClass == "WARLOCK" then
@@ -527,7 +522,7 @@ function ham.settingsFrame:InitializeOptions()
 			soulburnButton:HookScript("OnLeave", function(_, btn, down)
 				GameTooltip:Hide()
 			end)
-			soulburnButton:SetChecked(HAMDB.soulburn)
+			soulburnButton:SetChecked(ham.options.soulburn)
 		end
 
 		-- first button of the last row
@@ -541,6 +536,7 @@ function ham.settingsFrame:InitializeOptions()
 	-------------  RESET BUTTON  -------------
 	btn:SetScript("OnClick", function()
 		HAMDB = CopyTable(ham.defaults)
+		ham.refreshOptions()
 
 		for spellID, button in pairs(classButtons) do
 			if ham.dbContains(spellID) then
@@ -549,20 +545,21 @@ function ham.settingsFrame:InitializeOptions()
 				button:SetChecked(false)
 			end
 		end
-		cdResetButton:SetChecked(HAMDB.cdReset)
-		raidStoneButton:SetChecked(HAMDB.raidStone)
+		stopCastButton:SetChecked(ham.options.stopCast)
+		cdResetButton:SetChecked(ham.options.cdReset)
+		raidStoneButton:SetChecked(ham.options.raidStone)
 		if ham.isRetail then
 			---@diagnostic disable-next-line: need-check-nil
-			witheringPotionButton:SetChecked(HAMDB.witheringPotion)
+			witheringPotionButton:SetChecked(ham.options.witheringPotion)
 			---@diagnostic disable-next-line: need-check-nil
-			witheringDreamsPotionButton:SetChecked(HAMDB.witheringDreamsPotion)
+			witheringDreamsPotionButton:SetChecked(ham.options.witheringDreamsPotion)
 			---@diagnostic disable-next-line: need-check-nil
-			cavedwellerDelightButton:SetChecked(HAMDB.cavedwellerDelight)
+			cavedwellerDelightButton:SetChecked(ham.options.cavedwellerDelight)
+			---@diagnostic disable-next-line: need-check-nil
+			heartseekingButton:SetChecked(ham.options.heartseekingInjector)
 		end
-		-- ham.options is only read once, so clear Soulburn in memory too or the macro keeps it until /reload
-		ham.options.soulburn = HAMDB.soulburn
 		if soulburnButton then
-			soulburnButton:SetChecked(HAMDB.soulburn)
+			soulburnButton:SetChecked(ham.options.soulburn)
 		end
 		ham.updateHeals()
 		ham.updateMacro()

@@ -43,8 +43,6 @@ L["Shows the food that will currently be used, based on what is in your bags."] 
 "Shows the food that will currently be used, based on what is in your bags."
 L["Shows the drink that will currently be used, based on what is in your bags."] =
 "Shows the drink that will currently be used, based on what is in your bags."
-L["The Settings of AutoPotion were reset due to breaking changes."] =
-"The Settings of AutoPotion were reset due to breaking changes."
 L["Useful for casters."] = "Useful for casters."
 
 -- InfoOptionsFrame

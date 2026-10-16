@@ -125,9 +125,9 @@ function ham.manaPotionSettingsFrame:InitializeOptions()
 
 	-- Refresh priority preview when the panel is shown
 	self.panel:SetScript("OnShow", function()
-		-- "Reset to Default" on the main panel rewrites HAMDB, so re-read the saved value
+		-- "Reset to Default" on the main panel changes the settings, so re-read the option
 		if ham.manaPotionSettingsFrame.includeRejuvenationButton then
-			ham.manaPotionSettingsFrame.includeRejuvenationButton:SetChecked(HAMDB.includeRejuvenation ~= false)
+			ham.manaPotionSettingsFrame.includeRejuvenationButton:SetChecked(ham.options.includeRejuvenation)
 		end
 		ham.manaPotionSettingsFrame:updateManaPotionPrio()
 	end)
@@ -177,7 +177,7 @@ function ham.manaPotionSettingsFrame:InitializeOptions()
 	includeRejuvenationButton:HookScript("OnLeave", function(_, btn, down)
 		GameTooltip:Hide()
 	end)
-	includeRejuvenationButton:SetChecked(HAMDB.includeRejuvenation ~= false)
+	includeRejuvenationButton:SetChecked(ham.options.includeRejuvenation)
 	self.includeRejuvenationButton = includeRejuvenationButton
 
 	-- mana potion priority header

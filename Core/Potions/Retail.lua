@@ -75,13 +75,13 @@ function ham.getPotsForRetail()
     ham.removeFromList(pots, ham.thirdWind)
   end
 
-  if not HAMDB.witheringPotion then
+  if not ham.options.witheringPotion then
     ham.removeFromList(pots, ham.witheringR1)
     ham.removeFromList(pots, ham.witheringR2)
     ham.removeFromList(pots, ham.witheringR3)
   end
 
-  if not HAMDB.witheringDreamsPotion then
+  if not ham.options.witheringDreamsPotion then
     ham.removeFromList(pots, ham.witheringDreamsR1)
     ham.removeFromList(pots, ham.witheringDreamsR2)
     ham.removeFromList(pots, ham.witheringDreamsR3)

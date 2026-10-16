@@ -41,8 +41,6 @@ L["Shows the food that will currently be used, based on what is in your bags."] 
 "显示当前将使用的食物（依据背包物品）。"
 L["Shows the drink that will currently be used, based on what is in your bags."] =
 "显示当前将使用的饮料（依据背包物品）"
-L["The Settings of AutoPotion were reset due to breaking changes."] = 
-"由于插件结构变动，AutoPotion的设置已被重置。"
 L["Useful for casters."] = "对施法职业有用。"
 
 -- code
