@@ -72,19 +72,19 @@ function ham.getPotsForRetail()
 
   local isUnratedBattleground = C_PvP.IsBattleground() and not C_PvP.IsRatedBattleground()
   if not isUnratedBattleground then
-    RemoveFromList(pots, ham.thirdWind)
+    ham.removeFromList(pots, ham.thirdWind)
   end
 
   if not HAMDB.witheringPotion then
-    RemoveFromList(pots, ham.witheringR1)
-    RemoveFromList(pots, ham.witheringR2)
-    RemoveFromList(pots, ham.witheringR3)
+    ham.removeFromList(pots, ham.witheringR1)
+    ham.removeFromList(pots, ham.witheringR2)
+    ham.removeFromList(pots, ham.witheringR3)
   end
 
   if not HAMDB.witheringDreamsPotion then
-    RemoveFromList(pots, ham.witheringDreamsR1)
-    RemoveFromList(pots, ham.witheringDreamsR2)
-    RemoveFromList(pots, ham.witheringDreamsR3)
+    ham.removeFromList(pots, ham.witheringDreamsR1)
+    ham.removeFromList(pots, ham.witheringDreamsR2)
+    ham.removeFromList(pots, ham.witheringDreamsR3)
   end
 
   return pots

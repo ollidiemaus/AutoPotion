@@ -113,7 +113,7 @@ ham.fel1 = ham.Item.new(36893, "Fel Healthstone")
 ham.fel2 = ham.Item.new(36894, "Fel Healthstone")
 ------Healthstones for Cata------
 
-function RemoveFromList(list, itemToRemove)
+function ham.removeFromList(list, itemToRemove)
   for i = #list, 1, -1 do
     if list[i] == itemToRemove then
       table.remove(list, i)

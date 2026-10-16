@@ -422,7 +422,7 @@ function ham.settingsFrame:InitializeOptions()
 	local heartseekingButton = nil
 	local soulburnButton = nil
 	if ham.isRetail then
-		local itemsTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
+		local itemsTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
 		itemsTitle:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING_CATERGORY)
 		itemsTitle:SetText(L["Items"])
 
