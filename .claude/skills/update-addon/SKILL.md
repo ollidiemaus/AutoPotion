@@ -24,6 +24,11 @@ Keep the browser for what the script can't answer (patch notes, "new items" guid
 W=~/.claude/skills/wow-data/scripts/wow.py   # python3 $W <command> -h for options
 ```
 
+Batch lookups that don't depend on each other into one Bash call (`python3 $W item 241304 -f retail;
+python3 $W spell 1234 -f retail --effects; python3 $W ui -f ptr grep 'GetItemCount'`). Every tool
+call re-reads the whole conversation, which costs more than the lookup's own output. Make a separate
+call only when the next lookup needs the previous result (grep first, then read the lines it found).
+
 ## 0. Setup
 
 - Start from an up-to-date `main` with a clean tree, then create a branch `update/<patch>`.
