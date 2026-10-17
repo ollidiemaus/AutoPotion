@@ -133,61 +133,6 @@ function ham.updateHeals()
   end
 end
 
-local function createMacroIfMissing()
-  -- dont create macro if MegaMacro is installed and loaded
-  if megaMacro.installed and megaMacro.loaded then
-    return
-  end
-  local name = GetMacroInfo(macroName)
-  if name == nil then
-    CreateMacro(macroName, "INV_Misc_QuestionMark")
-  end
-end
-
-local function createBandageMacroIfMissing()
-  -- dont create macro if MegaMacro is installed and loaded
-  if megaMacro.installed and megaMacro.loaded then
-    return
-  end
-  local name = GetMacroInfo(bandageMacroName)
-  if name == nil then
-    CreateMacro(bandageMacroName, "INV_Misc_QuestionMark")
-  end
-end
-
-local function createFoodMacroIfMissing()
-  -- dont create macro if MegaMacro is installed and loaded
-  if megaMacro.installed and megaMacro.loaded then
-    return
-  end
-  local name = GetMacroInfo(foodMacroName)
-  if name == nil then
-    CreateMacro(foodMacroName, "INV_Misc_QuestionMark")
-  end
-end
-
-local function createDrinkMacroIfMissing()
-  -- dont create macro if MegaMacro is installed and loaded
-  if megaMacro.installed and megaMacro.loaded then
-    return
-  end
-  local name = GetMacroInfo(drinkMacroName)
-  if name == nil then
-    CreateMacro(drinkMacroName, "INV_Misc_QuestionMark")
-  end
-end
-
-local function createManaPotionMacroIfMissing()
-  -- dont create macro if MegaMacro is installed and loaded
-  if megaMacro.installed and megaMacro.loaded then
-    return
-  end
-  local name = GetMacroInfo(manaPotionMacroName)
-  if name == nil then
-    CreateMacro(manaPotionMacroName, "INV_Misc_QuestionMark")
-  end
-end
-
 local function setShortestSpellCD(newSpell)
   if ham.options.cdReset then
     -- GetSpellBaseCooldown exists on every flavor (confirmed in-game on Forever), but can
@@ -279,29 +224,62 @@ local function buildItemMacroString()
   end
 end
 
-local function UpdateMegaMacro(newCode)
-  for _, macro in pairs(MegaMacroGlobalData.Macros) do
-    if macro.DisplayName == macroName then
-      MegaMacro.UpdateCode(macro, newCode)
-      log("MegaMacro updated with: " .. newCode)
-      return
-    end
-  end
-  print(
-    "|cffff0000AutoPotion Error:|r Missing global 'AutoPotion' macro in MegaMacro. Please create it then reload your game.")
-end
-
-local function UpdateMegaMacroByName(name, newCode)
+-- Hands the text to the MegaMacro macro with this display name. Returns false when the player
+-- hasn't created it.
+local function updateMegaMacro(name, text)
   for _, macro in pairs(MegaMacroGlobalData.Macros) do
     if macro.DisplayName == name then
-      MegaMacro.UpdateCode(macro, newCode)
-      log("MegaMacro updated (" .. name .. ") with: " .. newCode)
+      MegaMacro.UpdateCode(macro, text)
+      log("MegaMacro updated (" .. name .. ") with: " .. text)
       return true
     end
   end
   print("|cffff0000AutoPotion Error:|r Missing global '" ..
     tostring(name) .. "' macro in MegaMacro. Please create it then reload your game.")
   return false
+end
+
+local writtenText = {}   -- [macro name] = the text last written to it this session
+local reportedFull = {}  -- [macro name] = true once the player was told it didn't fit
+
+-- Retail and Forever list the limit in Constants.MacroConsts, the older clients in a global.
+local function maxGeneralMacros()
+  local consts = Constants and Constants.MacroConsts
+  return consts and consts.MAX_ACCOUNT_MACROS or MAX_ACCOUNT_MACROS
+end
+
+-- Creates the macro unless the general macro slots are full; then it tells the player, once per
+-- session for each macro, and returns false.
+local function createMacro(name, text)
+  if GetNumMacros() >= maxGeneralMacros() then
+    if not reportedFull[name] then
+      reportedFull[name] = true
+      local message =
+        L["Couldn't create the %s macro: your general macros are full. Delete one of them and it will be created."]
+      print("|cffb48ef9AutoPotion:|r " .. format(message, name))
+    end
+    return false
+  end
+  CreateMacro(name, "INV_Misc_QuestionMark", text)
+  return true
+end
+
+-- The one writer for all five macros, standard or MegaMacro-managed. Writing a macro makes the
+-- action bars refresh, so it only writes text that differs from what it wrote last.
+local function writeMacro(name, text)
+  if megaMacro.installed and megaMacro.loaded then
+    if writtenText[name] ~= text and updateMegaMacro(name, text) then writtenText[name] = text end
+    return
+  end
+  if GetMacroInfo(name) == nil then
+    if not createMacro(name, text) then return end
+  elseif writtenText[name] ~= text then
+    EditMacro(name, name, nil, text)
+  else
+    return
+  end
+  writtenText[name] = text
+  log(name .. " macro updated.")
 end
 
 local function checkMegaMacroAddon()
@@ -514,81 +492,23 @@ function ham.updateMacro()
     return
   end
 
-  if megaMacro.installed and megaMacro.loaded then
-    UpdateMegaMacro(macroStr)
-    return
-  end
-
-  log('MegaMacro not in use. Creating default macro.')
-  createMacroIfMissing()
-
-  -- Use pcall to suppress LUA errors
-  local success, err = pcall(function()
-    EditMacro(macroName, macroName, nil, macroStr)
-  end)
-  if success then
-    log('Macro updated.')
-  end
+  writeMacro(macroName, macroStr)
 end
 
 function ham.updateBandageMacro()
-  local bandageMacroStr = buildBandageMacroString()
-  if megaMacro.installed and megaMacro.loaded then
-    UpdateMegaMacroByName(bandageMacroName, bandageMacroStr)
-  else
-    createBandageMacroIfMissing()
-    local success, err = pcall(function()
-      EditMacro(bandageMacroName, bandageMacroName, nil, bandageMacroStr)
-    end)
-    if success then
-      log('Bandage macro updated.')
-    end
-  end
+  writeMacro(bandageMacroName, buildBandageMacroString())
 end
 
 function ham.updateFoodMacro()
-  local foodMacroStr = buildFoodMacroString()
-  if megaMacro.installed and megaMacro.loaded then
-    UpdateMegaMacroByName(foodMacroName, foodMacroStr)
-  else
-    createFoodMacroIfMissing()
-    local success, err = pcall(function()
-      EditMacro(foodMacroName, foodMacroName, nil, foodMacroStr)
-    end)
-    if success then
-      log('Food macro updated.')
-    end
-  end
+  writeMacro(foodMacroName, buildFoodMacroString())
 end
 
 function ham.updateDrinkMacro()
-  local drinkMacroStr = buildDrinkMacroString()
-  if megaMacro.installed and megaMacro.loaded then
-    UpdateMegaMacroByName(drinkMacroName, drinkMacroStr)
-  else
-    createDrinkMacroIfMissing()
-    local success, err = pcall(function()
-      EditMacro(drinkMacroName, drinkMacroName, nil, drinkMacroStr)
-    end)
-    if success then
-      log('Drink macro updated.')
-    end
-  end
+  writeMacro(drinkMacroName, buildDrinkMacroString())
 end
 
 function ham.updateManaPotionMacro()
-  local manaPotionMacroStr = buildManaPotionMacroString()
-  if megaMacro.installed and megaMacro.loaded then
-    UpdateMegaMacroByName(manaPotionMacroName, manaPotionMacroStr)
-  else
-    createManaPotionMacroIfMissing()
-    local success, err = pcall(function()
-      EditMacro(manaPotionMacroName, manaPotionMacroName, nil, manaPotionMacroStr)
-    end)
-    if success then
-      log('Mana potion macro updated.')
-    end
-  end
+  writeMacro(manaPotionMacroName, buildManaPotionMacroString())
 end
 
 -- Works out the current priorities from the bags and shows them on the settings pages. It makes

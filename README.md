@@ -61,7 +61,7 @@ You never have to edit these macros yourself – Auto Potion keeps them updated 
 1. **Install the addon**
    - Install via CurseForge/Wago or manually drop the `AutoPotion` folder into your `Interface/AddOns` directory.
 2. **Log in or reload once**
-   - The addon creates its macros (`AutoPotion`, `AutoManaPotion`, `AutoFood`, `AutoDrink`, `AutoBandage`) under **General Macros** (`/macro`). If all your general macro slots are full, delete one first.
+   - The addon creates its macros (`AutoPotion`, `AutoManaPotion`, `AutoFood`, `AutoDrink`, `AutoBandage`) under **General Macros** (`/macro`). If all your general macro slots are full, AutoPotion says in chat which macro it couldn't create; delete one of your general macros and it appears.
 3. **Place them on your bars**
    - Drag the `AutoPotion` macro to your action bar and bind it to a comfortable key.
    - Do the same for any of the other macros you want to use.

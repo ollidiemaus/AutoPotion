@@ -15,7 +15,7 @@ local CLASSES = {
   EVOKER = { id = 13, name = "Evoker" },
 }
 
-local MAX_ACCOUNT_MACROS, MAX_CHARACTER_MACROS = 120, 30
+local MAX_CHARACTER_MACROS = 30
 local MAX_MACRO_LENGTH = 255
 
 -- Icons are FileDataIDs in game; the fake makes one up from the item or spell ID.
@@ -139,18 +139,42 @@ local function installSpells(client, env)
   end
 end
 
+-- A stand-in for the MegaMacro addon, installed and loaded before AutoPotion: its global macros
+-- (one per name in client.megaMacroNames) and the UpdateCode call AutoPotion writes them with,
+-- recorded in client.macroCalls.
+local MEGA_MACRO = "MegaMacro"
+local function installMegaMacro(client, env)
+  local macros = {}
+  for i, name in ipairs(client.megaMacroNames) do
+    macros[i] = { Id = i, Scope = "gg", DisplayName = name, Code = "" }
+  end
+  env.MegaMacroGlobalData = { Macros = macros }
+  env.MegaMacro = {
+    UpdateCode = function(macro, code)
+      table.insert(client.macroCalls, { func = "MegaMacro.UpdateCode", name = macro.DisplayName, body = code })
+      macro.Code = code
+    end,
+  }
+end
+
 local function installAddOns(client, env)
   local function isOwn(name) return name == client.addonName or name == 1 end
+  local hasMegaMacro = client.megaMacroNames ~= nil
+  if hasMegaMacro then installMegaMacro(client, env) end
   env.C_AddOns = {
     GetAddOnInfo = function(name)
       if isOwn(name) then
         local metadata = client.addonMetadata
         return client.addonName, metadata.Title, metadata.Notes, true, nil, "INSECURE", false
       end
+      if hasMegaMacro and name == MEGA_MACRO then
+        return MEGA_MACRO, MEGA_MACRO, nil, true, nil, "INSECURE", false
+      end
       return nil, nil, nil, false, "MISSING", "INSECURE", false
     end,
     IsAddOnLoaded = function(name)
       if isOwn(name) then return client.addonLoaded, client.addonLoaded end
+      if hasMegaMacro and name == MEGA_MACRO then return true, true end
       return false, false
     end,
     GetAddOnMetadata = function(name, field)
@@ -159,11 +183,25 @@ local function installAddOns(client, env)
   }
 end
 
--- Macros: account macros take indexes 1..MAX_ACCOUNT_MACROS, character macros the ones after.
--- Creating and editing are protected in combat: there the call is recorded as a blocked action
--- and does nothing, as the game does with an addon's call.
+-- Macros: account (general) macros take indexes 1..maxAccountMacros, character macros the ones
+-- after. Creating and editing are protected in combat: there the call is recorded as a blocked
+-- action and does nothing, as the game does with an addon's call. client.macroApiError, when set,
+-- makes them fail with that message the way the C API raises errors.
 local function installMacros(client, env)
   local macros = client.macros
+  local MAX_ACCOUNT_MACROS = client.maxAccountMacros
+
+  -- Retail and Forever list the limits in Constants.MacroConsts; Classic Era's MacroUI reads globals.
+  if client.flavorName == "classic" then
+    env.MAX_ACCOUNT_MACROS, env.MAX_CHARACTER_MACROS = MAX_ACCOUNT_MACROS, MAX_CHARACTER_MACROS
+  else
+    env.Constants = env.Constants or {}
+    env.Constants.MacroConsts = {
+      MAX_ACCOUNT_MACROS = MAX_ACCOUNT_MACROS, MAX_CHARACTER_MACROS = MAX_CHARACTER_MACROS,
+    }
+  end
+
+  env.GetNumMacros = function() return #macros.account, #macros.character end
 
   local function find(nameOrIndex)
     if type(nameOrIndex) == "number" then
@@ -193,6 +231,7 @@ local function installMacros(client, env)
   env.CreateMacro = function(name, icon, body, perCharacter)
     table.insert(client.macroCalls, { func = "CreateMacro", name = name, body = body })
     if client:blockProtected("CreateMacro") then return end
+    if client.macroApiError then error(client.macroApiError, 2) end
     local list = perCharacter and macros.character or macros.account
     local limit = perCharacter and MAX_CHARACTER_MACROS or MAX_ACCOUNT_MACROS
     if #list >= limit then error("CreateMacro(): Too many macros", 2) end
@@ -203,6 +242,7 @@ local function installMacros(client, env)
   env.EditMacro = function(nameOrIndex, name, icon, body)
     table.insert(client.macroCalls, { func = "EditMacro", macro = nameOrIndex, name = name, body = body })
     if client:blockProtected("EditMacro") then return end
+    if client.macroApiError then error(client.macroApiError, 2) end
     local list, position = find(nameOrIndex)
     local macro = list and list[position]
     if not macro then error("EditMacro(): Invalid macro " .. tostring(nameOrIndex), 2) end

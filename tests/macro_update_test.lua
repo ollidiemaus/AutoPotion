@@ -6,15 +6,7 @@ local Api = require("fake.api")
 
 local MACRO_NAMES = { "AutoPotion", "AutoFood", "AutoDrink", "AutoBandage", "AutoManaPotion" }
 
--- How often each macro was rewritten since the client started, { [name] = count }.
-local function macroWrites(client)
-  local counts = {}
-  for _, name in ipairs(MACRO_NAMES) do counts[name] = 0 end
-  for _, call in ipairs(client.macroCalls) do
-    if call.func == "EditMacro" then counts[call.macro] = (counts[call.macro] or 0) + 1 end
-  end
-  return counts
-end
+local function macroWrites(client) return client:macroWrites(MACRO_NAMES) end
 
 local function everyMacro(count)
   local counts = {}
@@ -173,7 +165,7 @@ for _, flavor in ipairs(Client.FLAVOR_NAMES) do
 end
 
 for _, flavor in ipairs(Client.FLAVOR_NAMES) do
-  test(flavor .. ": several update requests in one frame rebuild the macros once", function()
+  test(flavor .. ": several update requests in one frame rewrite a changed macro once", function()
     local client = loggedIn(flavor)
     local before = macroWrites(client)
     client:fireEvent("PLAYER_EQUIPMENT_CHANGED", 1, false)
@@ -184,6 +176,9 @@ for _, flavor in ipairs(Client.FLAVOR_NAMES) do
     client:advance(1)
     local after = macroWrites(client)
     for name, count in pairs(after) do after[name] = count - before[name] end
-    assertEqual(after, everyMacro(1))
+    -- both boxes change only the AutoPotion macro
+    local expected = everyMacro(0)
+    expected.AutoPotion = 1
+    assertEqual(after, expected)
   end)
 end

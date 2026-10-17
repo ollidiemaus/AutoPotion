@@ -86,3 +86,7 @@ L["AutoBandage"] = "AutoBandage" -- DO NOT TRANSLATE
 L["AutoFood"] = "AutoFood"       -- DO NOT TRANSLATE
 L["AutoDrink"] = "AutoDrink"     -- DO NOT TRANSLATE
 L["AutoManaPotion"] = "AutoManaPotion" -- DO NOT TRANSLATE
+
+-- code.lua
+L["Couldn't create the %s macro: your general macros are full. Delete one of them and it will be created."] =
+"Couldn't create the %s macro: your general macros are full. Delete one of them and it will be created."

@@ -69,6 +69,10 @@ end
 --   spells           { [spellId] = { name =, icon =, baseCooldown = } }, all optional
 --   knownSpells      { spellId, ... } in the player's spell book; petSpells the same for the pet
 --   savedVariables   { [name] = value } as stored by an earlier session
+--   accountMacros    { name, ... } general macros the player already has
+--   maxAccountMacros the client's limit of general macros, 120 by default
+--   megaMacro        { name, ... } global macros in a stub MegaMacro addon, installed and loaded
+--                    (Retail only, as the addon checks it only there)
 function Client.new(options)
   options = options or {}
   local flavorName = options.flavor or "retail"
@@ -92,6 +96,8 @@ function Client.new(options)
     petSpells = toSet(options.petSpells),
     savedVariables = copy(options.savedVariables or {}),
     macros = { account = {}, character = {} },
+    maxAccountMacros = options.maxAccountMacros or 120,
+    megaMacroNames = options.megaMacro,
     -- records
     errors = {},
     printed = {},
@@ -106,6 +112,9 @@ function Client.new(options)
     lockdown = false,
   }, Client)
 
+  for _, name in ipairs(options.accountMacros or {}) do
+    table.insert(self.macros.account, { name = name, icon = "INV_Misc_QuestionMark", body = "" })
+  end
   self.addonFiles, self.addonMetadata = Toc.read(self.addonName .. ".toc")
   self.errorHandler = function(message)
     table.insert(self.errors, debug.traceback(tostring(message), 2))
@@ -223,9 +232,11 @@ function Client:reload()
     flavor = self.flavorName, class = self.class, faction = self.faction,
     instanceType = self.instanceType, mapId = self.mapId, bags = self.bags, items = self.items,
     equipped = self.equipped, spells = self.spells, knownSpells = knownSpells, petSpells = petSpells,
-    savedVariables = saved,
+    savedVariables = saved, maxAccountMacros = self.maxAccountMacros, megaMacro = self.megaMacroNames,
   })
-  client.macros = copy(self.macros)
+  -- the macro API holds on to the macros table, so fill it rather than replacing it
+  local macros = copy(self.macros)
+  client.macros.account, client.macros.character = macros.account, macros.character
   -- the server keeps the character in combat across the reload
   client.lockdown = self.lockdown
   client:login(true)
@@ -285,8 +296,28 @@ function Client:advance(seconds)
   for _ = 1, frames do self:nextFrame(seconds / frames) end
 end
 
+-- Puts items in the bags (a negative count takes them out) and fires BAG_UPDATE as the client does.
+function Client:addToBags(itemId, count)
+  self.bags[itemId] = math.max((self.bags[itemId] or 0) + count, 0)
+  self:fireEvent("BAG_UPDATE", 0)
+end
+
+-- The player deletes this macro in the macro window (/macro).
+function Client:deleteMacro(name)
+  for _, list in ipairs({ self.macros.account, self.macros.character }) do
+    for position, macro in ipairs(list) do
+      if macro.name == name then
+        table.remove(list, position)
+        return
+      end
+    end
+  end
+  error("no macro " .. tostring(name), 2)
+end
+
 -- Combat: PLAYER_REGEN_DISABLED fires before the lockdown starts, PLAYER_REGEN_ENABLED after
 -- it ended, as in game.
+
 function Client:enterCombat()
   self:fireEvent("PLAYER_REGEN_DISABLED")
   self.lockdown = true
@@ -404,6 +435,25 @@ end
 function Client:macroText(name)
   local _, _, body = self.env.GetMacroInfo(name)
   return body
+end
+
+-- The code of the stub MegaMacro addon's global macro with this name, or nil when there's none.
+function Client:megaMacroText(name)
+  for _, macro in ipairs(self.env.MegaMacroGlobalData and self.env.MegaMacroGlobalData.Macros or {}) do
+    if macro.DisplayName == name then return macro.Code end
+  end
+end
+
+-- How often each of these macros was written (created or edited) since the client started,
+-- { [name] = count }, blocked calls included.
+function Client:macroWrites(names)
+  local counts = {}
+  for _, name in ipairs(names) do counts[name] = 0 end
+  for _, call in ipairs(self.macroCalls) do
+    local name = call.func == "EditMacro" and call.macro or call.name
+    if counts[name] then counts[name] = counts[name] + 1 end
+  end
+  return counts
 end
 
 -- Names of the globals that weren't there before the addon loaded, sorted.
