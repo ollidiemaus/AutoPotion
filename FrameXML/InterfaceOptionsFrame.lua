@@ -86,18 +86,9 @@ function ham.settingsFrame:updateConfig(option, value)
 	else
 		print(L["Invalid option: "] .. tostring(option))
 	end
-	-- Rebuild the macro and update priority frame
-	ham.checkTinker()
-	ham.updateHeals()
-	ham.updateMacro()
-	self:updatePrio()
-	ham.bandageSettingsFrame:updateBandagePrio()
-	ham.updateFoodMacro()
-	ham.foodSettingsFrame:updateFoodPrio()
-	ham.updateDrinkMacro()
-	ham.drinkSettingsFrame:updateDrinkPrio()
-	ham.updateManaPotionMacro()
-	ham.manaPotionSettingsFrame:updateManaPotionPrio()
+	-- Show the new priorities now, rebuild the macros once combat allows
+	ham.refreshPreviews()
+	ham.requestMacroUpdate()
 end
 
 function ham.settingsFrame:OnEvent(event, addOnName)
@@ -114,16 +105,7 @@ function ham.settingsFrame:OnEvent(event, addOnName)
 	end
 	if event == "PLAYER_LOGIN" then
 		self:InitializeClassSpells(lastStaticElement)
-		ham.updateHeals()
-		ham.updateMacro()
-		self:updatePrio()
-		ham.bandageSettingsFrame:updateBandagePrio()
-		ham.updateFoodMacro()
-		ham.foodSettingsFrame:updateFoodPrio()
-		ham.updateDrinkMacro()
-		ham.drinkSettingsFrame:updateDrinkPrio()
-		ham.updateManaPotionMacro()
-		ham.manaPotionSettingsFrame:updateManaPotionPrio()
+		ham.requestMacroUpdate()
 	end
 end
 
@@ -293,12 +275,11 @@ function ham.settingsFrame:InitializeOptions()
 	-- Register as a page below the AutoPotion root (the Information page)
 	ham.infoSettingsFrame:addSubcategory(self.panel)
 
-	-- Refresh priority preview when panel is shown (e.g. when opening settings in BG/Arena)
+	-- Refresh the priority preview when the panel is shown (e.g. when opening settings in BG/Arena);
+	-- the macros follow once combat allows
 	self.panel:SetScript("OnShow", function()
-		ham.checkTinker()
-		ham.updateHeals()
-		ham.updateMacro()
-		ham.settingsFrame:updatePrio()
+		ham.refreshPreviews()
+		ham.requestMacroUpdate()
 		ham.settingsFrame:recalculateContentHeight()
 	end)
 
@@ -589,9 +570,8 @@ local function createSpellButton(parent, relativeTo, offsetX, offsetY, spell)
 				ham.removeFromDB(spell.getId())
 			end
 		end
-		ham.updateHeals()
-		ham.updateMacro()
-		ham.settingsFrame:updatePrio()
+		ham.refreshPreviews()
+		ham.requestMacroUpdate()
 	end)
 	button:HookScript("OnEnter", function(_, btn, down)
 		---@diagnostic disable-next-line: param-type-mismatch

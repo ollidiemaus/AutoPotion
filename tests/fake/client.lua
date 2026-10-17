@@ -213,7 +213,7 @@ function Client:logout()
 end
 
 -- /reload: ends this session and returns a new, logged-in one for the same character, its bags,
--- gear, spells and macros (the server keeps those), with the saved variables this session wrote.
+-- gear, spells, macros and combat state (the server keeps those), with the saved variables this session wrote.
 function Client:reload()
   local saved = self:logout()
   local knownSpells, petSpells = {}, {}
@@ -226,6 +226,8 @@ function Client:reload()
     savedVariables = saved,
   })
   client.macros = copy(self.macros)
+  -- the server keeps the character in combat across the reload
+  client.lockdown = self.lockdown
   client:login(true)
   return client
 end
@@ -364,6 +366,22 @@ end
 -- Clicks the check box with this label on the open settings page.
 function Client:clickCheckbox(label)
   Widgets.click(checkbox(self, label))
+end
+
+-- The icons the open settings page shows (FileDataIDs), top to bottom and left to right as
+-- created: the healing-spell boxes' icons and the "Current Priority" preview.
+function Client:shownIcons()
+  local category = self.displayedSettingsCategory()
+  if not category then error("the settings panel isn't open", 2) end
+  local icons = {}
+  for _, frame in ipairs(Widgets.descendants(category.frame)) do
+    for _, texture in ipairs(Widgets.textures(frame)) do
+      if texture:IsVisible() and type(texture:GetTexture()) == "number" then
+        table.insert(icons, texture:GetTexture())
+      end
+    end
+  end
+  return icons
 end
 
 -- What the player and the client see ---------------------------------------------------------

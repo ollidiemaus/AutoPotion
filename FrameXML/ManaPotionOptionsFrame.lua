@@ -123,13 +123,14 @@ function ham.manaPotionSettingsFrame:InitializeOptions()
 	-- Register as a page below the AutoPotion root (the Information page)
 	ham.infoSettingsFrame:addSubcategory(self.panel)
 
-	-- Refresh priority preview when the panel is shown
+	-- Refresh the priority preview when the panel is shown; the macros follow once combat allows
 	self.panel:SetScript("OnShow", function()
 		-- "Reset to Default" on the main panel changes the settings, so re-read the option
 		if ham.manaPotionSettingsFrame.includeRejuvenationButton then
 			ham.manaPotionSettingsFrame.includeRejuvenationButton:SetChecked(ham.options.includeRejuvenation)
 		end
-		ham.manaPotionSettingsFrame:updateManaPotionPrio()
+		ham.refreshPreviews()
+		ham.requestMacroUpdate()
 	end)
 
 	-- scrollable area, matching the main panel's layout

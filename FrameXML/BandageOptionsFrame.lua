@@ -123,12 +123,10 @@ function ham.bandageSettingsFrame:InitializeOptions()
 	-- Register as a page below the AutoPotion root (the Information page)
 	ham.infoSettingsFrame:addSubcategory(self.panel)
 
-	-- Refresh priority preview when the panel is shown
+	-- Refresh the priority preview when the panel is shown; the macros follow once combat allows
 	self.panel:SetScript("OnShow", function()
-		ham.checkTinker()
-		ham.updateHeals()
-		ham.updateMacro()
-		ham.bandageSettingsFrame:updateBandagePrio()
+		ham.refreshPreviews()
+		ham.requestMacroUpdate()
 	end)
 
 	-- scrollable area, matching the main panel's layout

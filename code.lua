@@ -24,7 +24,6 @@ local resetType = "combat"
 local shortestCD = nil
 local bagUpdates = false -- debounce watcher for BAG_UPDATE events
 local debounceTime = 3   -- seconds
-local combatRetry = 0    -- number of combat retries
 
 -- MegaMacro addon compatibility
 local megaMacro = {
@@ -332,7 +331,11 @@ local function checkMegaMacroAddon()
   -- Retry loading if not yet loaded
   if megaMacro.retries < 3 then
     megaMacro.retries = megaMacro.retries + 1
-    C_Timer.After(debounceTime, checkMegaMacroAddon)
+    C_Timer.After(debounceTime, function()
+      checkMegaMacroAddon()
+      -- the macros wait for this check
+      if megaMacro.checked then ham.requestMacroUpdate() end
+    end)
   else
     megaMacro.checked = true
   end
@@ -588,41 +591,55 @@ function ham.updateManaPotionMacro()
   end
 end
 
-local function MakeMacro()
-  -- dont attempt to create macro until MegaMacro addon is checked
-  if not megaMacro.checked then
-    log("MegaMacro not checked or loaded. Retrying.")
-    checkMegaMacroAddon()
-    return
-  end
-
-  -- retry if player is still in combat
-  if InCombatLockdown() then
-    if combatRetry < 4 then
-      combatRetry = combatRetry + 1
-      log("Player in combat. Retry attempt: " .. combatRetry)
-      C_Timer.After(0.5, MakeMacro)
-    else
-      log("Failed to update macro after 4 attempts.")
-    end
-    return
-  end
-
-  -- safe to update macro
-  combatRetry = 0
+-- Works out the current priorities from the bags and shows them on the settings pages. It makes
+-- no protected calls, so it also runs in combat.
+function ham.refreshPreviews()
   ham.checkTinker()
   ham.updateHeals()
-  ham.updateMacro()
-  ham.updateBandageMacro()
-  ham.updateFoodMacro()
-  ham.updateDrinkMacro()
-  ham.updateManaPotionMacro()
-
   ham.settingsFrame:updatePrio()
   ham.bandageSettingsFrame:updateBandagePrio()
   ham.foodSettingsFrame:updateFoodPrio()
   ham.drinkSettingsFrame:updateDrinkPrio()
   ham.manaPotionSettingsFrame:updateManaPotionPrio()
+end
+
+local function rebuildMacros()
+  ham.refreshPreviews()
+  ham.updateMacro()
+  ham.updateBandageMacro()
+  ham.updateFoodMacro()
+  ham.updateDrinkMacro()
+  ham.updateManaPotionMacro()
+end
+
+local updatePending = false -- an update was requested and hasn't run yet
+local flushArmed = false    -- a next-frame flush is waiting
+
+-- Runs a pending update unless combat lockdown blocks it; PLAYER_REGEN_ENABLED runs it then.
+local function flushMacroUpdate()
+  if not updatePending or InCombatLockdown() then return end
+  -- dont attempt to create macro until MegaMacro addon is checked; the check requests an update
+  if not megaMacro.checked then
+    log("MegaMacro not checked or loaded. Retrying.")
+    checkMegaMacroAddon()
+    if not megaMacro.checked then return end
+  end
+  updatePending = false
+  rebuildMacros()
+end
+
+local function onNextFrame()
+  flushArmed = false
+  flushMacroUpdate()
+end
+
+-- The one way to get the macros rebuilt. Requests made in the same frame lead to one rebuild on
+-- the next frame; a request made in combat waits until combat ends.
+function ham.requestMacroUpdate()
+  updatePending = true
+  if flushArmed or InCombatLockdown() then return end
+  flushArmed = true
+  C_Timer.After(0, onNextFrame)
 end
 
 -- debounce handler for BAG_UPDATE events which can fire very rapidly
@@ -633,10 +650,38 @@ local function onBagUpdate()
   log("event: BAG_UPDATE")
   bagUpdates = true
   C_Timer.After(debounceTime, function()
-    MakeMacro()
+    ham.requestMacroUpdate()
     bagUpdates = false
   end)
 end
+
+-- `message` is a constant, so logging builds no string while debug mode is off
+local function requestOn(message)
+  return function()
+    log(message)
+    ham.requestMacroUpdate()
+  end
+end
+
+local eventHandlers = {
+  ADDON_LOADED = function(self, name)
+    if name ~= addonName then return end
+    self:UnregisterEvent("ADDON_LOADED")
+    log("event: ADDON_LOADED")
+    ham.requestMacroUpdate()
+  end,
+  BAG_UPDATE = onBagUpdate,
+  UNIT_PET = requestOn("event: UNIT_PET"),
+  -- also on zoning: the instanced-PvP rules depend on the zone
+  PLAYER_ENTERING_WORLD = requestOn("event: PLAYER_ENTERING_WORLD"),
+  PLAYER_EQUIPMENT_CHANGED = requestOn("event: PLAYER_EQUIPMENT_CHANGED"),
+  TRAIT_CONFIG_UPDATED = requestOn("event: TRAIT_CONFIG_UPDATED"),
+  -- run what was requested during combat
+  PLAYER_REGEN_ENABLED = function()
+    log("event: PLAYER_REGEN_ENABLED")
+    flushMacroUpdate()
+  end,
+}
 
 local updateFrame = CreateFrame("Frame")
 updateFrame:RegisterEvent("ADDON_LOADED")
@@ -648,42 +693,6 @@ if ham.isClassic == false then
 end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 updateFrame:RegisterEvent("UNIT_PET")
-updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
-  -- when addon is loaded
-  if event == "ADDON_LOADED" and arg1 == addonName then
-    updateFrame:UnregisterEvent("ADDON_LOADED")
-    log("event: ADDON_LOADED")
-    MakeMacro()
-    return
-  end
-  -- player is in combat, do nothing
-  if InCombatLockdown() then
-    return
-  end
-  -- bag update events
-  if event == "BAG_UPDATE" then
-    onBagUpdate()
-    -- on loading/reloading
-  elseif event == "UNIT_PET" then
-    log("event: UNIT_PET")
-    MakeMacro()
-    -- when pet is called
-  elseif event == "PLAYER_ENTERING_WORLD" then
-    log("event: PLAYER_ENTERING_WORLD")
-    MakeMacro()
-    -- on exiting combat
-  elseif event == "PLAYER_REGEN_ENABLED" then
-    log("event: PLAYER_REGEN_ENABLED")
-    -- Wait a second after combat ends to update the macro
-    -- as the UI may still be cleaning up a protected state.
-    C_Timer.After(0.5, MakeMacro)
-    -- when talents change and classic is false
-  elseif ham.isClassic == false and event == "TRAIT_CONFIG_UPDATED" then
-    log("event: TRAIT_CONFIG_UPDATED")
-    MakeMacro()
-    -- when player changes equipment
-  elseif event == "PLAYER_EQUIPMENT_CHANGED" then
-    log("event: PLAYER_EQUIPMENT_CHANGED")
-    MakeMacro()
-  end
+updateFrame:SetScript("OnEvent", function(self, event, ...)
+  eventHandlers[event](self, ...)
 end)

@@ -164,6 +164,7 @@ for _, flavor in ipairs(Client.FLAVOR_NAMES) do
         client:openSettings(unpack(page))
         local before = macros(client)
         client:clickCheckbox(label)
+        client:nextFrame()
         local clicked = { checked = client:isChecked(label), macros = macros(client) }
         assertEqual(sameMacros(clicked.macros, before), false, box .. " changes no macro for this character")
 

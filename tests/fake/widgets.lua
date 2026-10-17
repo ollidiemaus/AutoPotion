@@ -77,7 +77,7 @@ local function newWidget(client, class, name, parent)
   local widget = setmetatable({}, class.meta)
   widget[0] = {
     client = client, class = class, name = name, parent = parent, shown = true,
-    points = {}, width = 0, height = 0, children = {}, scripts = {}, hooks = {}, events = {},
+    points = {}, width = 0, height = 0, children = {}, textures = {}, scripts = {}, hooks = {}, events = {},
   }
   if name then client.env[name] = widget end
   return widget
@@ -263,6 +263,7 @@ function Frame:UnregisterEvent(event) self[0].events[event] = nil end
 function Frame:CreateTexture(name, layer)
   local texture = newWidget(self[0].client, Texture, resolveName(name, self), self)
   texture[0].layer = layer
+  table.insert(self[0].textures, texture)
   return texture
 end
 
@@ -326,6 +327,9 @@ function Widgets.descendants(frame)
   collect(frame)
   return result
 end
+
+-- The textures created on `frame`, in creation order.
+function Widgets.textures(frame) return frame[0].textures end
 
 -- ScrollFrame --------------------------------------------------------------------------------
 
