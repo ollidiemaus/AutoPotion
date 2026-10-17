@@ -125,10 +125,6 @@ function ham.manaPotionSettingsFrame:InitializeOptions()
 
 	-- Refresh the priority preview when the panel is shown; the macros follow once combat allows
 	self.panel:SetScript("OnShow", function()
-		-- "Reset to Default" on the main panel changes the settings, so re-read the option
-		if ham.manaPotionSettingsFrame.includeRejuvenationButton then
-			ham.manaPotionSettingsFrame.includeRejuvenationButton:SetChecked(ham.options.includeRejuvenation)
-		end
 		ham.refreshPreviews()
 		ham.requestMacroUpdate()
 	end)
@@ -178,8 +174,7 @@ function ham.manaPotionSettingsFrame:InitializeOptions()
 	includeRejuvenationButton:HookScript("OnLeave", function(_, btn, down)
 		GameTooltip:Hide()
 	end)
-	includeRejuvenationButton:SetChecked(ham.options.includeRejuvenation)
-	self.includeRejuvenationButton = includeRejuvenationButton
+	ham.settingsFrame:trackOptionCheckbox(includeRejuvenationButton, "includeRejuvenation")
 
 	-- mana potion priority header
 	local manaPotionPrioTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")

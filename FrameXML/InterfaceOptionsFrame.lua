@@ -18,6 +18,8 @@ local QUESTION_MARK_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
 -- the Heartseeking Health Injector's use effect, the same id ham.checkTinker matches
 local HEARTSEEKING_SPELL_ID = 452767
 local classButtons = {}
+-- every check box on the settings pages with what reads its state, { [button] = isChecked }
+local checkboxReaders = {}
 local prioFrames = {}
 local prioTextures = {}
 local prioFramesCounter = 0
@@ -77,6 +79,24 @@ local function createIconCheckButton(parent, iconTexture, label)
 	button:SetHitRectInsets(0, -(ROW_ICON_GAP * 2 + ROW_ICON_SIZE + text:GetStringWidth()), 0, 0)
 
 	return button
+end
+
+-- Ticks the box as isChecked() says and keeps it so refreshCheckboxes reads it again.
+function ham.settingsFrame:trackCheckbox(button, isChecked)
+	checkboxReaders[button] = isChecked
+	button:SetChecked(isChecked())
+end
+
+-- A box that shows the setting ham.options[option].
+function ham.settingsFrame:trackOptionCheckbox(button, option)
+	self:trackCheckbox(button, function() return ham.options[option] end)
+end
+
+-- Ticks every box on every settings page as ham.options says, after the settings changed.
+function ham.settingsFrame:refreshCheckboxes()
+	for button, isChecked in pairs(checkboxReaders) do
+		button:SetChecked(isChecked())
+	end
 end
 
 function ham.settingsFrame:updateConfig(option, value)
@@ -355,7 +375,7 @@ function ham.settingsFrame:InitializeOptions()
 	stopCastButton:HookScript("OnLeave", function(_, btn, down)
 		GameTooltip:Hide()
 	end)
-	stopCastButton:SetChecked(ham.options.stopCast)
+	self:trackOptionCheckbox(stopCastButton, "stopCast")
 	lastStaticElement = stopCastButton
 
 	-------------  Shortest Cooldown  -------------	
@@ -367,7 +387,7 @@ function ham.settingsFrame:InitializeOptions()
 	cdResetButton:HookScript("OnClick", function(_, btn, down)
 		ham.settingsFrame:updateConfig("cdReset", cdResetButton:GetChecked())
 	end)
-	cdResetButton:SetChecked(ham.options.cdReset)
+	self:trackOptionCheckbox(cdResetButton, "cdReset")
 	lastStaticElement = cdResetButton
 
 	-------------  Healthstone Priority  -------------	
@@ -387,7 +407,7 @@ function ham.settingsFrame:InitializeOptions()
 	raidStoneButton:HookScript("OnLeave", function(_, btn, down)
 		GameTooltip:Hide()
 	end)
-	raidStoneButton:SetChecked(ham.options.raidStone)
+	self:trackOptionCheckbox(raidStoneButton, "raidStone")
 	lastStaticElement = raidStoneButton
 
 
@@ -423,7 +443,7 @@ function ham.settingsFrame:InitializeOptions()
 		witheringPotionButton:HookScript("OnLeave", function(_, btn, down)
 			GameTooltip:Hide()
 		end)
-		witheringPotionButton:SetChecked(ham.options.witheringPotion)
+		self:trackOptionCheckbox(witheringPotionButton, "witheringPotion")
 
 		---Withering Dreams Potion---
 		witheringDreamsPotionButton = createIconCheckButton(self.content,
@@ -441,7 +461,7 @@ function ham.settingsFrame:InitializeOptions()
 		witheringDreamsPotionButton:HookScript("OnLeave", function(_, btn, down)
 			GameTooltip:Hide()
 		end)
-		witheringDreamsPotionButton:SetChecked(ham.options.witheringDreamsPotion)
+		self:trackOptionCheckbox(witheringDreamsPotionButton, "witheringDreamsPotion")
 
 		---Refreshing Serum buttons could be renamed---
 		cavedwellerDelightButton = createIconCheckButton(self.content,
@@ -459,7 +479,7 @@ function ham.settingsFrame:InitializeOptions()
 		cavedwellerDelightButton:HookScript("OnLeave", function(_, btn, down)
 			GameTooltip:Hide()
 		end)
-		cavedwellerDelightButton:SetChecked(ham.options.cavedwellerDelight)
+		self:trackOptionCheckbox(cavedwellerDelightButton, "cavedwellerDelight")
 
 		---Heartseeking Health Injector---
 		-- right column: its (German) name is too long for the left one
@@ -480,7 +500,7 @@ function ham.settingsFrame:InitializeOptions()
 		heartseekingButton:HookScript("OnLeave", function(_, btn, down)
 			GameTooltip:Hide()
 		end)
-		heartseekingButton:SetChecked(ham.options.heartseekingInjector)
+		self:trackOptionCheckbox(heartseekingButton, "heartseekingInjector")
 
 		---Soulburn (Warlock only)---
 		if ham.myPlayer.englishClass == "WARLOCK" then
@@ -503,7 +523,7 @@ function ham.settingsFrame:InitializeOptions()
 			soulburnButton:HookScript("OnLeave", function(_, btn, down)
 				GameTooltip:Hide()
 			end)
-			soulburnButton:SetChecked(ham.options.soulburn)
+			self:trackOptionCheckbox(soulburnButton, "soulburn")
 		end
 
 		-- first button of the last row
@@ -518,34 +538,10 @@ function ham.settingsFrame:InitializeOptions()
 	btn:SetScript("OnClick", function()
 		HAMDB = CopyTable(ham.defaults)
 		ham.refreshOptions()
-
-		for spellID, button in pairs(classButtons) do
-			if ham.dbContains(spellID) then
-				button:SetChecked(true)
-			else
-				button:SetChecked(false)
-			end
-		end
-		stopCastButton:SetChecked(ham.options.stopCast)
-		cdResetButton:SetChecked(ham.options.cdReset)
-		raidStoneButton:SetChecked(ham.options.raidStone)
-		if ham.isRetail then
-			---@diagnostic disable-next-line: need-check-nil
-			witheringPotionButton:SetChecked(ham.options.witheringPotion)
-			---@diagnostic disable-next-line: need-check-nil
-			witheringDreamsPotionButton:SetChecked(ham.options.witheringDreamsPotion)
-			---@diagnostic disable-next-line: need-check-nil
-			cavedwellerDelightButton:SetChecked(ham.options.cavedwellerDelight)
-			---@diagnostic disable-next-line: need-check-nil
-			heartseekingButton:SetChecked(ham.options.heartseekingInjector)
-		end
-		if soulburnButton then
-			soulburnButton:SetChecked(ham.options.soulburn)
-		end
-		ham.updateHeals()
-		ham.updateMacro()
-		self:updatePrio()
-		ham.bandageSettingsFrame:updateBandagePrio()
+		self:refreshCheckboxes()
+		-- show the defaults now, rebuild the macros once combat allows
+		ham.refreshPreviews()
+		ham.requestMacroUpdate()
 		print(L["Reset successful!"])
 	end)
 end
@@ -583,9 +579,9 @@ local function createSpellButton(parent, relativeTo, offsetX, offsetY, spell)
 		GameTooltip:Hide()
 	end)
 	if spell.isGroup then
-		button:SetChecked(spell.isActive())
+		ham.settingsFrame:trackCheckbox(button, spell.isActive)
 	else
-		button:SetChecked(ham.dbContains(spell.getId()))
+		ham.settingsFrame:trackCheckbox(button, function() return ham.dbContains(spell.getId()) end)
 	end
 	classButtons[spell.getId()] = button
 	return button

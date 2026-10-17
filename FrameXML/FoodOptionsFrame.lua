@@ -174,7 +174,7 @@ function ham.foodSettingsFrame:InitializeOptions()
 	includeBuffFoodButton:HookScript("OnLeave", function(_, btn, down)
 		GameTooltip:Hide()
 	end)
-	includeBuffFoodButton:SetChecked(ham.options.includeBuffFood)
+	ham.settingsFrame:trackOptionCheckbox(includeBuffFoodButton, "includeBuffFood")
 
 	-- food priority header
 	local foodPrioTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")

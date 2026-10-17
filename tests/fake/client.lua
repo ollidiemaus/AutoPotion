@@ -368,6 +368,20 @@ function Client:clickCheckbox(label)
   Widgets.click(checkbox(self, label))
 end
 
+-- Clicks the button (not a check box) that says `text` on the open settings page.
+function Client:clickButton(text)
+  local category = self.displayedSettingsCategory()
+  if not category then error("the settings panel isn't open", 2) end
+  for _, frame in ipairs(Widgets.descendants(category.frame)) do
+    if frame:IsObjectType("Button") and not frame:IsObjectType("CheckButton") and frame:IsVisible()
+        and frame:GetText() == text then
+      Widgets.click(frame)
+      return
+    end
+  end
+  error('no button "' .. text .. '" on the open settings page', 2)
+end
+
 -- The icons the open settings page shows (FileDataIDs), top to bottom and left to right as
 -- created: the healing-spell boxes' icons and the "Current Priority" preview.
 function Client:shownIcons()
