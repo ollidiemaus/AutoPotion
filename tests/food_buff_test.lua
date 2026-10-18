@@ -6,7 +6,18 @@ local Api = require("fake.api")
 
 local WELL_FED = 19705       -- the spell the addon reads the food buff's translated name from
 local FOOD_BUFF = 1232585    -- any other Well Fed, as a food leaves it
-local SPELLS = { [WELL_FED] = { name = "Well Fed" }, [FOOD_BUFF] = { name = "Well Fed" } }
+local HEARTY_NAME = 454188        -- Retail: the spell the addon reads Hearty Well Fed's name from
+local HEARTY_WELL_FED = 462180    -- Retail: a Hearty Well Fed from hearty food
+local MANA_REGENERATION = 18194   -- Classic Era: Nightfin Soup's food buff
+local NUTRITIOUS_WELL_FED = 1249523 -- Forever: the Well Fed that Nutritious Food leaves
+local FOOD_STAMINA = 18191        -- Classic Era: an Increased Stamina that food leaves
+local OTHER_STAMINA = 999001      -- an Increased Stamina that no food leaves
+local SPELLS = {
+  [WELL_FED] = { name = "Well Fed" }, [FOOD_BUFF] = { name = "Well Fed" },
+  [HEARTY_NAME] = { name = "Hearty Well Fed" }, [HEARTY_WELL_FED] = { name = "Hearty Well Fed" },
+  [MANA_REGENERATION] = { name = "Mana Regeneration" }, [NUTRITIOUS_WELL_FED] = { name = "Well Fed" },
+  [FOOD_STAMINA] = { name = "Increased Stamina" }, [OTHER_STAMINA] = { name = "Increased Stamina" },
+}
 
 -- Conjured food, buff food and normal food on each flavor, in their order in the food list.
 local CLASSIC_ERA_FOOD = { conjured = 8076, buff = 13928, normal = 8952 } -- Conjured Sweet Roll, Grilled Squid, Roasted Quail
@@ -41,6 +52,7 @@ end
 local function workDone(client)
   return {
     auraLookups = client:apiCallCount("C_UnitAuras.GetAuraDataBySpellName"),
+    auraLookupsById = client:apiCallCount("C_UnitAuras.GetPlayerAuraBySpellID"),
     itemCounts = client:apiCallCount("C_Item.GetItemCount"),
   }
 end
@@ -155,3 +167,43 @@ for _, flavor in ipairs(Client.FLAVOR_NAMES) do
     assertEqual(client:isEnabled("Only when the buff is missing"), true, "with Include Buff Food on")
   end)
 end
+
+-- Every food buff of the flavor's buff food counts, not only the plain Well Fed.
+local OTHER_FOOD_BUFFS = {
+  retail = { name = "Hearty Well Fed", spellId = HEARTY_WELL_FED },
+  classic = { name = "Mana Regeneration", spellId = MANA_REGENERATION },
+  forever = { name = "Nutritious Food's Well Fed", spellId = NUTRITIOUS_WELL_FED },
+}
+
+for _, flavor in ipairs(Client.FLAVOR_NAMES) do
+  local food, buff = FOOD[flavor], OTHER_FOOD_BUFFS[flavor]
+
+  test(flavor .. ": gaining " .. buff.name .. " puts buff food after normal food", function()
+    local client = character(flavor, { "buff", "normal" })
+    preferBuffFood(client)
+    client:gainAura(buff.spellId)
+    client:nextFrame()
+    assertEqual(client:macroText("AutoFood"), eats(food.normal), "with the food buff")
+    client:loseAura(buff.spellId)
+    client:nextFrame()
+    assertEqual(client:macroText("AutoFood"), eats(food.buff), "after it fell off")
+  end)
+
+  test(flavor .. ": logging in with " .. buff.name .. " puts buff food last", function()
+    local client = character(flavor, { "buff", "normal" }, { auras = { buff.spellId } })
+    preferBuffFood(client)
+    client = client:reload()
+    assertEqual(client:macroText("AutoFood"), eats(food.normal))
+  end)
+end
+
+test("classic: a stat food buff counts, a non-food buff of the same name doesn't", function()
+  local client = character("classic", { "buff", "normal" })
+  preferBuffFood(client)
+  client:gainAura(OTHER_STAMINA)
+  client:nextFrame()
+  assertEqual(client:macroText("AutoFood"), eats(CLASSIC_ERA_FOOD.buff), "with the non-food buff")
+  client:gainAura(FOOD_STAMINA)
+  client:nextFrame()
+  assertEqual(client:macroText("AutoFood"), eats(CLASSIC_ERA_FOOD.normal), "with the food buff")
+end)

@@ -663,7 +663,7 @@ end
 
 -- How often the addon called this API function since the client started, for the ones the fake
 -- counts (C_Item.GetItemCount: every macro rebuild asks it for each candidate item;
--- C_UnitAuras.GetAuraDataBySpellName: aura lookups by name;
+-- C_UnitAuras.GetAuraDataBySpellName and GetPlayerAuraBySpellID: aura lookups by name and by ID;
 -- C_Item.GetItemIconByID and C_Spell.GetSpellTexture: icon lookups, which only the settings
 -- pages make).
 function Client:apiCallCount(name)

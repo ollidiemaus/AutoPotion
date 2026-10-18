@@ -1,15 +1,38 @@
 ---@diagnostic disable: undefined-global
 local addonName, ham = ...
 
--- Whether the player has the food buff, for "only when the buff is missing". It's found by its
--- translated name, Well Fed, whatever its strength, source or time left.
+-- Whether the player has the food buff, for "only when the buff is missing": any buff that the
+-- flavor's buff food leaves, whatever its strength, source or time left. Well Fed and Retail's
+-- Hearty Well Fed are found by their translated names. The older flavors' stat food buffs are
+-- found by spell ID: their names ("Increased Stamina", ...) also belong to buffs no food leaves.
 
-local WELL_FED = 19705 -- one of the hundreds of Well Fed spells, for the name in the client's language
-local foodBuffName
-if C_Spell and C_Spell.GetSpellName then
-  foodBuffName = C_Spell.GetSpellName(WELL_FED)
-else
-  foodBuffName = GetSpellInfo(WELL_FED)
+local function spellName(spellId)
+  if C_Spell and C_Spell.GetSpellName then return C_Spell.GetSpellName(spellId) end
+  return (GetSpellInfo(spellId))
+end
+
+-- one spell of each name (there are hundreds of Well Fed), for the name in the client's language
+local NAMED_BY = { 19705 } -- Well Fed
+if ham.isRetail then
+  table.insert(NAMED_BY, 454188) -- Hearty Well Fed
+end
+local foodBuffNames = {} -- { [name] = true }
+for _, spellId in ipairs(NAMED_BY) do
+  local name = spellName(spellId)
+  if name then foodBuffNames[name] = true end
+end
+
+-- Classic Era to Mists: food buffs whose name isn't Well Fed. Forever's food leaves Well Fed.
+local foodBuffSpells = {} -- { [spellId] = true }
+if not ham.isRetail and not ham.isForever then
+  for _, spellId in ipairs({
+    25661, 18191, 145635,  -- Increased Stamina (145635: Mists' Mightfish Steak)
+    18192, 22730, 18193,   -- Increased Agility, Intellect, Spirit
+    18194, 18125, 43722,   -- Mana Regeneration, Blessed Sunfruit, Enlightened
+    111840, 127784, 127881, -- Healthy, Grummlecake, Squirmy Feeling
+  }) do
+    foodBuffSpells[spellId] = true
+  end
 end
 
 local known = false     -- hasBuff follows the player's auras; false while nothing needs it
@@ -22,21 +45,49 @@ local function usable(value)
   return not (issecretvalue and issecretvalue(value))
 end
 
--- The player's food buff by name: whether they have it, and its aura instance ID. Wrath's client
--- may lack the C_UnitAuras lookups, so AuraUtil's (FrameXML) is the fallback. The old global
--- UnitBuff isn't used: Retail and Forever don't have it.
-local function findFoodBuff()
-  if not foodBuffName then return false, nil end
+-- Whether an aura lookup's answer is a food buff, its aura instance ID, and whether it was
+-- readable (not secret).
+local function fromAura(aura)
+  if not usable(aura) then return false, nil, false end
+  if aura == nil then return false, nil, true end
+  local instance = aura.auraInstanceID
+  if not usable(instance) then return false, nil, false end
+  return true, instance, true
+end
+
+-- The same for the player's buff of this name. Wrath's client may lack the C_UnitAuras lookups,
+-- so AuraUtil's (FrameXML) is the fallback. The old global UnitBuff isn't used: Retail and
+-- Forever don't have it.
+local function findByName(name)
   if C_UnitAuras and C_UnitAuras.GetAuraDataBySpellName then
-    local aura = C_UnitAuras.GetAuraDataBySpellName("player", foodBuffName, "HELPFUL")
-    if not usable(aura) then return hasBuff, buffInstance end
-    if aura == nil then return false, nil end
-    local instance = aura.auraInstanceID
-    if not usable(instance) then return hasBuff, buffInstance end
-    return true, instance
+    return fromAura(C_UnitAuras.GetAuraDataBySpellName("player", name, "HELPFUL"))
   end
   if AuraUtil and AuraUtil.FindAuraByName then
-    return AuraUtil.FindAuraByName(foodBuffName, "player", "HELPFUL") ~= nil, nil
+    return AuraUtil.FindAuraByName(name, "player", "HELPFUL") ~= nil, nil, true
+  end
+  return false, nil, true
+end
+
+-- The same by spell ID, for the flavors with foodBuffSpells; their API docs all list this lookup.
+local function findBySpell(spellId)
+  if C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID then
+    return fromAura(C_UnitAuras.GetPlayerAuraBySpellID(spellId))
+  end
+  return false, nil, true
+end
+
+-- Whether the player has a food buff, and its aura instance ID where the client reports one.
+-- Secret data leaves the remembered state as it is.
+local function findFoodBuff()
+  for name in pairs(foodBuffNames) do
+    local found, instance, readable = findByName(name)
+    if not readable then return hasBuff, buffInstance end
+    if found then return true, instance end
+  end
+  for spellId in pairs(foodBuffSpells) do
+    local found, instance, readable = findBySpell(spellId)
+    if not readable then return hasBuff, buffInstance end
+    if found then return true, instance end
   end
   return false, nil
 end
@@ -74,8 +125,9 @@ local function changesFoodBuff(updateInfo)
   local added = updateInfo.addedAuras
   if added then
     for _, aura in ipairs(added) do
-      local name = aura.name
-      if usable(name) and name == foodBuffName then return true end
+      local name, spellId = aura.name, aura.spellId
+      if usable(name) and foodBuffNames[name] then return true end
+      if usable(spellId) and foodBuffSpells[spellId] then return true end
     end
   end
   return false

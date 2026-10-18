@@ -165,6 +165,7 @@ local function installAuras(client, env)
   end
   env.C_UnitAuras = {
     GetPlayerAuraBySpellID = function(spellId)
+      client.apiCalls["C_UnitAuras.GetPlayerAuraBySpellID"] = client:apiCallCount("C_UnitAuras.GetPlayerAuraBySpellID") + 1
       return find("player", function(aura) return aura.spellId == spellId end)
     end,
     GetAuraDataBySpellName = function(unit, spellName, filter)
