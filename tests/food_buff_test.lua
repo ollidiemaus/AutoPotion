@@ -168,6 +168,25 @@ for _, flavor in ipairs(Client.FLAVOR_NAMES) do
   end)
 end
 
+-- Retail and Forever hide auras from addons in encounters, M+ and PvP: the lookups find nothing.
+for _, flavor in ipairs({ "retail", "forever" }) do
+  local food = FOOD[flavor]
+
+  test(flavor .. ": while auras are hidden, the remembered food buff stays", function()
+    local client = character(flavor, { "buff", "normal" })
+    preferBuffFood(client)
+    client:gainAura(FOOD_BUFF)
+    client:nextFrame()
+    client:hideAuras()
+    client:loseAura(FOOD_BUFF)
+    client:nextFrame()
+    assertEqual(client:macroText("AutoFood"), eats(food.normal), "with auras hidden")
+    client:showAuras()
+    client:nextFrame()
+    assertEqual(client:macroText("AutoFood"), eats(food.buff), "with auras visible again")
+  end)
+end
+
 -- Every food buff of the flavor's buff food counts, not only the plain Well Fed.
 local OTHER_FOOD_BUFFS = {
   retail = { name = "Hearty Well Fed", spellId = HEARTY_WELL_FED },

@@ -612,6 +612,10 @@ local eventHandlers = {
   UNIT_AURA = function(_, _, updateInfo)
     ham.onPlayerAura(updateInfo)
   end,
+  -- encounters, M+ and PvP hide auras from addons; after one, they can be read again
+  ADDON_RESTRICTION_STATE_CHANGED = function()
+    ham.onRestrictionChanged()
+  end,
   -- run what was requested during combat
   PLAYER_REGEN_ENABLED = function()
     log("event: PLAYER_REGEN_ENABLED")
@@ -631,6 +635,9 @@ end
 -- the event, and registering an unknown event is a Lua error
 if C_EventUtils.IsEventValid("TRAIT_CONFIG_UPDATED") then
   updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
+end
+if C_EventUtils.IsEventValid("ADDON_RESTRICTION_STATE_CHANGED") then
+  updateFrame:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")
 end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 -- only the player's own pet, not every group member's

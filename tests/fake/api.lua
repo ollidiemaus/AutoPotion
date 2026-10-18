@@ -155,9 +155,11 @@ end
 
 -- The unit's auras. Every aura the fake knows is a buff (HELPFUL). All three flavors list
 -- C_UnitAuras.GetPlayerAuraBySpellID and GetAuraDataBySpellName; AuraUtil.FindAuraByName is
--- FrameXML (Blizzard_FrameXMLUtil) on all three.
+-- FrameXML (Blizzard_FrameXMLUtil) on all three. All three list C_Secrets.ShouldAurasBeSecret too,
+-- the report that the lookups find nothing while the game hides auras (Client:hideAuras).
 local function installAuras(client, env)
   local function find(unit, matches, filter)
+    if client.aurasHidden then return nil end
     if filter and filter:find("HARMFUL") then return nil end
     for _, aura in ipairs(client.auras[unit] or {}) do
       if matches(aura) then return Api.copyTable(aura) end
@@ -172,6 +174,9 @@ local function installAuras(client, env)
       client.apiCalls["C_UnitAuras.GetAuraDataBySpellName"] = client:apiCallCount("C_UnitAuras.GetAuraDataBySpellName") + 1
       return find(unit, function(aura) return aura.name == spellName end, filter)
     end,
+  }
+  env.C_Secrets = {
+    ShouldAurasBeSecret = function() return client.aurasHidden end,
   }
   env.AuraUtil = {
     -- AuraUtil.UnpackAuraData's returns

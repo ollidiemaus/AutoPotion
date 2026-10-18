@@ -118,6 +118,7 @@ function Client.new(options)
     -- { [unit] = { aura data, ... } } in the order gained, see Client:gainAura
     auras = {},
     lastAuraInstance = 0,
+    aurasHidden = false, -- see Client:hideAuras
     savedVariables = copy(options.savedVariables or {}),
     macros = { account = {}, character = {} },
     maxAccountMacros = options.maxAccountMacros or 120,
@@ -426,6 +427,21 @@ function Client:loseAura(spellId, unit)
     end
   end
   error(unit .. " has no aura " .. tostring(spellId), 2)
+end
+
+-- The game hides auras from addons (an encounter, M+, PvP): the aura lookups return nothing and
+-- C_Secrets.ShouldAurasBeSecret reports true until showAuras. ADDON_RESTRICTION_STATE_CHANGED
+-- comes before the restriction becomes active and after it ends.
+local ENCOUNTER = 1                         -- Enum.AddOnRestrictionType.Encounter
+local INACTIVE, ACTIVATING = 0, 1           -- Enum.AddOnRestrictionState
+function Client:hideAuras()
+  self:fireEvent("ADDON_RESTRICTION_STATE_CHANGED", ENCOUNTER, ACTIVATING)
+  self.aurasHidden = true
+end
+
+function Client:showAuras()
+  self.aurasHidden = false
+  self:fireEvent("ADDON_RESTRICTION_STATE_CHANGED", ENCOUNTER, INACTIVE)
 end
 
 -- The player learns a spell (a trainer, a talent) and the client fires SPELLS_CHANGED.

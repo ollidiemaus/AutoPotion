@@ -50,6 +50,12 @@ local function usable(value)
   return not (issecretvalue and issecretvalue(value))
 end
 
+-- The game also hides auras from addons (Retail and Forever: encounters, M+, PvP, sometimes out
+-- of combat): the lookups then find nothing, which says nothing about the buff.
+local function aurasHidden()
+  return C_Secrets ~= nil and C_Secrets.ShouldAurasBeSecret ~= nil and C_Secrets.ShouldAurasBeSecret()
+end
+
 -- Whether an aura lookup's answer is the buff, its aura instance ID, and whether it was
 -- readable (not secret).
 local function fromAura(aura)
@@ -87,32 +93,35 @@ local function newBuffWatch(names, spells)
   local known = false     -- hasBuff follows the player's auras; false while nothing needs it
   local hasBuff = false
   local buffInstance = nil -- the buff's aura instance ID, where the client reports one
+  local stale = false      -- the last rescan couldn't read the auras; hasBuff is remembered
 
-  -- Whether the player has the buff, and its aura instance ID where the client reports one.
-  -- Secret data leaves the remembered state as it is.
+  -- Whether the player has the buff, its aura instance ID where the client reports one, and
+  -- whether the auras could be read (not hidden, not secret).
   local function find()
+    if aurasHidden() then return false, nil, false end
     for name in pairs(names) do
       local found, instance, readable = findByName(name)
-      if not readable then return hasBuff, buffInstance end
-      if found then return true, instance end
+      if not readable or found then return found, instance, readable end
     end
     for spellId in pairs(spells) do
       local found, instance, readable = findBySpell(spellId)
-      if not readable then return hasBuff, buffInstance end
-      if found then return true, instance end
+      if not readable or found then return found, instance, readable end
     end
-    return false, nil
+    return false, nil, true
   end
 
+  -- Auras that can't be read leave the remembered state as it is, until a later rescan can.
   local function rescan()
-    hasBuff, buffInstance = find()
+    local found, instance, readable = find()
+    if readable then hasBuff, buffInstance = found, instance end
+    stale = not readable
     known = true
   end
 
   -- Whether this aura update could have changed the buff, as far as it says: without update
   -- info (Wrath may send none) or with a full update, only a rescan can tell.
   local function changes(updateInfo)
-    if updateInfo == nil or updateInfo.isFullUpdate then return true end
+    if stale or updateInfo == nil or updateInfo.isFullUpdate then return true end
     if hasBuff then
       if buffInstance == nil then return true end
       local removed = updateInfo.removedAuraInstanceIDs
@@ -146,12 +155,26 @@ local function newBuffWatch(names, spells)
     known = false
   end
 
-  -- Follows an aura update; returns whether the buff came or went.
-  function watch.update(updateInfo)
-    if not known or not changes(updateInfo) then return false end
+  local function rescanChanged()
     local had = hasBuff
     rescan()
     return hasBuff ~= had
+  end
+
+  -- Follows an aura update; returns whether the buff came or went. While auras are hidden the
+  -- update's own data may be secret too, so any update marks the buff for a later rescan.
+  function watch.update(updateInfo)
+    if not known then return false end
+    if aurasHidden() then
+      stale = true
+      return false
+    end
+    return changes(updateInfo) and rescanChanged()
+  end
+
+  -- Rescans if an earlier rescan couldn't read the auras; returns whether the buff came or went.
+  function watch.recheckIfStale()
+    return known and stale and rescanChanged()
   end
 
   return watch
@@ -202,8 +225,16 @@ local function watching()
   return options ~= nil and options.includeBuffFood and options.buffFoodOnlyWhenMissing
 end
 
--- UNIT_AURA for the player. A change of the food buff or Relaxed rebuilds the macros and redraws
--- the open settings pages' previews. While the sub-option is off nothing follows the auras, and
+-- A change of the food buff or Relaxed rebuilds the macros and redraws the open settings pages'
+-- previews.
+local function rebuildIf(changed)
+  if changed then
+    ham.refreshPreviews()
+    ham.requestMacroUpdate()
+  end
+end
+
+-- UNIT_AURA for the player. While the sub-option is off nothing follows the auras, and
 -- the next lookup rescans.
 function ham.onPlayerAura(updateInfo)
   if not watching() then
@@ -212,8 +243,13 @@ function ham.onPlayerAura(updateInfo)
     return
   end
   local foodBuffChanged = foodBuff.update(updateInfo)
-  if relaxed.update(updateInfo) or foodBuffChanged then
-    ham.refreshPreviews()
-    ham.requestMacroUpdate()
-  end
+  rebuildIf(relaxed.update(updateInfo) or foodBuffChanged)
+end
+
+-- ADDON_RESTRICTION_STATE_CHANGED: an encounter, M+ or PvP match began or ended. Once auras can
+-- be read again, what changed while they were hidden counts.
+function ham.onRestrictionChanged()
+  if not watching() then return end
+  local foodBuffChanged = foodBuff.recheckIfStale()
+  rebuildIf(relaxed.recheckIfStale() or foodBuffChanged)
 end
