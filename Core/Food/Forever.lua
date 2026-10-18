@@ -1,7 +1,8 @@
 ---@diagnostic disable: undefined-global
 local addonName, ham = ...
 
--- Forever is Vanilla-based; reuse the Classic Era list until beta testing shows otherwise.
+-- Forever is Vanilla-based; the Classic Era list, except where Forever's client differs
+-- (Boiled Clams are plain food there).
 function ham.getFoodForForever()
   return {
     -- Conjured food first: free and doesn't consume bag space or gold
@@ -54,7 +55,6 @@ function ham.getFoodForForever()
     ham.crispyLizardTail,
     ham.smokedSagefish,
     ham.redridgeGoulash,
-    ham.boiledClams,
     ham.coyoteSteak,
     ham.crabCake,
     ham.dryPorkRibs,
@@ -171,6 +171,7 @@ function ham.getFoodForForever()
     ham.rainbowFinAlbacore,
     ham.smokedBearMeat,
     ham.toughJerky,
+    ham.boiledClamsForever,
     ham.beanSoup,
     ham.brilliantSmallfish,
     ham.candyCane,

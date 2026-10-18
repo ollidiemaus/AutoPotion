@@ -158,6 +158,8 @@ ham.worldRootsBanquet = ham.Item.new(260287, "World Roots Banquet")
 
 -- Classic - vendor/cooked food (no stats)
 ham.toughJerky = ham.Item.new(117, "Tough Jerky")
+-- Forever's Boiled Clams cast plain Food and give no food buff
+ham.boiledClamsForever = ham.Item.new(5525, "Boiled Clams")
 ham.haunchOfMeat = ham.Item.new(2287, "Haunch of Meat")
 ham.muttonChop = ham.Item.new(3770, "Mutton Chop")
 ham.wildHogShank = ham.Item.new(3771, "Wild Hog Shank")
