@@ -21,6 +21,9 @@ L["Shows the mana potion that will currently be used, based on what is in your b
 L["Include Buff Food"] = "Include Buff Food"
 L["Include \"Well Fed\"/\"Relaxed\" buff food and drink items (with situational secondary-stat bonuses) in the food and drink priority lists."] =
 "Include \"Well Fed\"/\"Relaxed\" buff food and drink items (with situational secondary-stat bonuses) in the food and drink priority lists."
+L["Only when the buff is missing"] = "Only when the buff is missing"
+L["Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"Relaxed\" for drinks), even before conjured food. While you have it, buff food comes last and is only eaten when nothing else is left."] =
+"Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"Relaxed\" for drinks), even before conjured food. While you have it, buff food comes last and is only eaten when nothing else is left."
 L["Heartseeking Health Injector (tinker)"] = "Heartseeking Health Injector (tinker)"
 L["Include /stopcasting in the macro"] = "Include /stopcasting in the macro"
 L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"] =

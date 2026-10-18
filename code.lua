@@ -608,6 +608,10 @@ local eventHandlers = {
     end
   end,
   TRAIT_CONFIG_UPDATED = requestOn("event: TRAIT_CONFIG_UPDATED"),
+  -- the food buff, for "only when the buff is missing"
+  UNIT_AURA = function(_, _, updateInfo)
+    ham.onPlayerAura(updateInfo)
+  end,
   -- run what was requested during combat
   PLAYER_REGEN_ENABLED = function()
     log("event: PLAYER_REGEN_ENABLED")
@@ -631,6 +635,7 @@ end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 -- only the player's own pet, not every group member's
 updateFrame:RegisterUnitEvent("UNIT_PET", "player")
+updateFrame:RegisterUnitEvent("UNIT_AURA", "player")
 updateFrame:SetScript("OnEvent", function(self, event, ...)
   eventHandlers[event](self, ...)
 end)

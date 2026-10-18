@@ -5,6 +5,7 @@ local addonName, ham = ...
 ---@class Frame
 ham.foodSettingsFrame = CreateFrame("Frame")
 local PADDING = 25
+local SUB_OPTION_INDENT = 20
 
 -- Resize the scrollable content to fit down to the food preview row.
 function ham.foodSettingsFrame:recalculateContentHeight()
@@ -83,9 +84,28 @@ function ham.foodSettingsFrame:InitializeOptions()
 	end)
 	ham.settingsFrame:trackOptionCheckbox(includeBuffFoodButton, "includeBuffFood")
 
+	-- "only when the buff is missing", a refinement of "Include Buff Food": indented below it and
+	-- greyed out while it's unticked
+	local onlyWhenMissingButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
+	onlyWhenMissingButton:SetPoint("TOPLEFT", includeBuffFoodButton, "BOTTOMLEFT", SUB_OPTION_INDENT, 0)
+	onlyWhenMissingButton.Text:SetText(L["Only when the buff is missing"])
+	onlyWhenMissingButton:HookScript("OnClick", function(_, btn, down)
+		ham.settingsFrame:updateConfig("buffFoodOnlyWhenMissing", onlyWhenMissingButton:GetChecked())
+	end)
+	onlyWhenMissingButton:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(onlyWhenMissingButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetText(L["Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"Relaxed\" for drinks), even before conjured food. While you have it, buff food comes last and is only eaten when nothing else is left."])
+		GameTooltip:Show()
+	end)
+	onlyWhenMissingButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	ham.settingsFrame:trackOptionCheckbox(onlyWhenMissingButton, "buffFoodOnlyWhenMissing")
+	ham.settingsFrame:trackEnabled(onlyWhenMissingButton, function() return ham.options.includeBuffFood end)
+
 	-- food priority header
 	local foodPrioTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
-	foodPrioTitle:SetPoint("TOPLEFT", includeBuffFoodButton, "BOTTOMLEFT", 0, -PADDING)
+	foodPrioTitle:SetPoint("TOPLEFT", onlyWhenMissingButton, "BOTTOMLEFT", -SUB_OPTION_INDENT, -PADDING)
 	foodPrioTitle:SetText(L["Food Priority"])
 
 	self.priorityTitle = foodPrioTitle

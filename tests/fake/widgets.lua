@@ -336,6 +336,10 @@ function Button:GetText()
   return self[0].fontString and self[0].fontString:GetText()
 end
 
+-- A disabled button ignores clicks.
+function Button:SetEnabled(enabled) self[0].disabled = not enabled end
+function Button:IsEnabled() return not self[0].disabled end
+
 -- CheckButton --------------------------------------------------------------------------------
 
 function CheckButton:SetChecked(checked) self[0].checked = checked and true or false end
@@ -347,8 +351,10 @@ function Widgets.checkboxLabel(button)
   return button[0].label and button[0].label:GetText()
 end
 
--- A left click as the player makes it: a check button toggles before its OnClick runs.
+-- A left click as the player makes it: a check button toggles before its OnClick runs, a
+-- disabled button does nothing.
 function Widgets.click(button)
+  if not button:IsEnabled() then return end
   if button:IsObjectType("CheckButton") then button:SetChecked(not button:GetChecked()) end
   runScript(button, "OnClick", "LeftButton", false)
 end
@@ -424,6 +430,7 @@ function FontString:GetText() return self[0].text end
 function FontString:GetStringWidth() return #(self[0].text or "") * 6 end
 function FontString:SetJustifyH(justify) self[0].justifyH = justify end
 function FontString:SetFontObject(font) self[0].fontObject = font end
+function FontString:SetTextColor(r, g, b, a) self[0].textColor = { r, g, b, a or 1 } end
 
 -- Font objects -------------------------------------------------------------------------------
 

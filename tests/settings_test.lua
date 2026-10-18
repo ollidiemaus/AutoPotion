@@ -3,6 +3,8 @@
 local Client = require("fake.client")
 local copy = require("fake.api").copyTable
 
+local WELL_FED = 19705 -- the food buff
+
 
 -- The fresh install's settings with every box the other way round and two of the default
 -- healing spells left, in reverse order.
@@ -33,7 +35,8 @@ end
 
 -- A character for whom every option on the settings pages changes a macro: no item that a
 -- better one would hide (no regular health potion on Retail, so the Withering potions get in),
--- buff food as the only food, a mana potion that only counts as a Rejuvenation potion, and a
+-- buff food ahead of normal food and the food buff, so that "only when the buff is missing" puts
+-- buff food last, a mana potion that only counts as a Rejuvenation potion, and a
 -- spell with a cooldown for "reset on the shortest cooldown". The Retail one is a Warlock, the
 -- only class with the Soulburn box, and wears the Heartseeking Health Injector tinker.
 local CLASSIC_ERA_CHARACTER = {
@@ -42,10 +45,12 @@ local CLASSIC_ERA_CHARACTER = {
     [9421] = 1,  -- Major Healthstone
     [13446] = 5, -- Major Healing Potion
     [13928] = 5, -- Grilled Squid (buff food)
+    [8952] = 5,  -- Roasted Quail
     [18253] = 5, -- Major Rejuvenation Potion
   },
-  spells = { [12975] = { baseCooldown = 180000 } }, -- Last Stand
+  spells = { [12975] = { baseCooldown = 180000 }, [WELL_FED] = { name = "Well Fed" } }, -- Last Stand
   knownSpells = { 12975 },
+  auras = { WELL_FED },
 }
 local HELM_WITH_TINKER = 1 -- any helm, the tinker is its use effect
 local CHARACTERS = {
@@ -57,11 +62,13 @@ local CHARACTERS = {
       [191371] = 5, -- Potion of Withering Vitality (R3)
       [207041] = 5, -- Potion of Withering Dreams (R3)
       [242747] = 5, -- Hearty Royal Roast (buff food)
+      [264992] = 5, -- Blood Knight Burger
     },
     items = { [HELM_WITH_TINKER] = { spell = { name = "Heartseeking Health Injector", id = 452767 } } },
     equipped = { [1] = HELM_WITH_TINKER },
-    spells = { [108416] = { baseCooldown = 60000 } }, -- Dark Pact
+    spells = { [108416] = { baseCooldown = 60000 }, [WELL_FED] = { name = "Well Fed" } }, -- Dark Pact
     knownSpells = { 108416, 385899 },                 -- Dark Pact, Soulburn
+    auras = { WELL_FED },
   },
   classic = CLASSIC_ERA_CHARACTER,
   forever = CLASSIC_ERA_CHARACTER,
@@ -76,6 +83,9 @@ local function characterFor(flavor, label)
   if spellId then table.insert(options.knownSpells, tonumber(spellId)) end
   return options
 end
+
+-- The box each box that refines another needs ticked before it can be clicked.
+local REFINES = { ["Only when the buff is missing"] = "Include Buff Food" }
 
 -- The saved settings a session that starts with `stored` leaves behind.
 local function settingsAfterSession(flavor, stored)
@@ -162,6 +172,10 @@ for _, flavor in ipairs(Client.FLAVOR_NAMES) do
         local client = Client.new(characterFor(flavor, label))
         client:login()
         client:openSettings(unpack(page))
+        if not client:isEnabled(label) then
+          client:clickCheckbox(REFINES[label])
+          client:nextFrame()
+        end
         local before = macros(client)
         client:clickCheckbox(label)
         client:nextFrame()

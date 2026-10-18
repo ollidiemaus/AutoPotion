@@ -840,18 +840,30 @@ local function getRawFood()
   return {}
 end
 
--- Return a prioritized list of food items for the current client, excluding
--- "buff food" (situational Well Fed stat food) unless the user opted in.
+-- Return a prioritized list of food items for the current client. Buff food is left out unless
+-- the user opted in. With "only when the buff is missing" it goes first, ahead of conjured food,
+-- while the player lacks the food buff, and last while they have it.
 function ham.getFood()
   local list = getRawFood()
-  if ham.options.includeBuffFood then
+  local options = ham.options
+  if options.includeBuffFood and not options.buffFoodOnlyWhenMissing then
     return list
   end
-  local filtered = {}
+  local buffFood, otherFood = {}, {}
   for _, item in ipairs(list) do
-    if not item.hasTag("buffFood") then
-      table.insert(filtered, item)
+    if item.hasTag("buffFood") then
+      table.insert(buffFood, item)
+    else
+      table.insert(otherFood, item)
     end
   end
-  return filtered
+  if not options.includeBuffFood then
+    return otherFood
+  end
+  local first, last = buffFood, otherFood
+  if ham.hasFoodBuff() then first, last = otherFood, buffFood end
+  for _, item in ipairs(last) do
+    table.insert(first, item)
+  end
+  return first
 end

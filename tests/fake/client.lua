@@ -84,6 +84,7 @@ end
 --                    folder: C_Item.GetItemInfo reports an item only once it has loaded
 --   spells           { [spellId] = { name =, icon =, baseCooldown = } }, all optional
 --   knownSpells      { spellId, ... } in the player's spell book; petSpells the same for the pet
+--   auras            { spellId, ... } the auras (buffs) the player has, named as `spells` says
 --   savedVariables   { [name] = value } as stored by an earlier session
 --   accountMacros    { name, ... } general macros the player already has
 --   maxAccountMacros the client's limit of general macros, 120 by default
@@ -114,6 +115,9 @@ function Client.new(options)
     spells = copy(options.spells or {}),
     knownSpells = toSet(options.knownSpells),
     petSpells = toSet(options.petSpells),
+    -- { [unit] = { aura data, ... } } in the order gained, see Client:gainAura
+    auras = {},
+    lastAuraInstance = 0,
     savedVariables = copy(options.savedVariables or {}),
     macros = { account = {}, character = {} },
     maxAccountMacros = options.maxAccountMacros or 120,
@@ -133,6 +137,7 @@ function Client.new(options)
     lockdown = false,
   }, Client)
 
+  for _, spellId in ipairs(options.auras or {}) do self:addAura("player", spellId) end
   for _, name in ipairs(options.accountMacros or {}) do
     table.insert(self.macros.account, { name = name, icon = "INV_Misc_QuestionMark", body = "" })
   end
@@ -261,10 +266,13 @@ function Client:reload()
   local knownSpells, petSpells = {}, {}
   for spellId in pairs(self.knownSpells) do table.insert(knownSpells, spellId) end
   for spellId in pairs(self.petSpells) do table.insert(petSpells, spellId) end
+  local auras = {}
+  for i, aura in ipairs(self.auras.player or {}) do auras[i] = aura.spellId end
   local client = Client.new({
     flavor = self.flavorName, class = self.class, faction = self.faction,
     instanceType = self.instanceType, mapId = self.mapId, bags = self.bags, items = self.items,
     equipped = self.equipped, spells = self.spells, knownSpells = knownSpells, petSpells = petSpells,
+    auras = auras,
     savedVariables = saved, maxAccountMacros = self.maxAccountMacros, megaMacro = self.megaMacroNames,
   })
   -- the macro API holds on to the macros table, so fill it rather than replacing it
@@ -381,6 +389,45 @@ function Client:equip(slots)
   end
 end
 
+-- Auras ---------------------------------------------------------------------------------------
+
+-- Puts an aura on the unit without telling anyone; returns its AuraData.
+function Client:addAura(unit, spellId)
+  self.lastAuraInstance = self.lastAuraInstance + 1
+  local spell = self.spells[spellId] or {}
+  local aura = {
+    auraInstanceID = self.lastAuraInstance, spellId = spellId,
+    name = spell.name or ("Spell " .. spellId), icon = spell.icon or Api.spellIcon(spellId),
+    isHelpful = true, isHarmful = false, applications = 0, duration = 3600,
+    expirationTime = self.time + 3600, sourceUnit = unit,
+  }
+  self.auras[unit] = self.auras[unit] or {}
+  table.insert(self.auras[unit], aura)
+  return aura
+end
+
+-- The unit ("player" by default, or "party1", "pet", ...) gains the buff of this spell, as from
+-- eating, and the client fires UNIT_AURA with what was added.
+function Client:gainAura(spellId, unit)
+  unit = unit or "player"
+  local aura = self:addAura(unit, spellId)
+  self:fireEvent("UNIT_AURA", unit, { isFullUpdate = false, addedAuras = { copy(aura) } })
+end
+
+-- The unit's buff of this spell falls off (it expires, the player dies, ...), and the client
+-- fires UNIT_AURA with the removed aura's instance ID.
+function Client:loseAura(spellId, unit)
+  unit = unit or "player"
+  for position, aura in ipairs(self.auras[unit] or {}) do
+    if aura.spellId == spellId then
+      table.remove(self.auras[unit], position)
+      self:fireEvent("UNIT_AURA", unit, { isFullUpdate = false, removedAuraInstanceIDs = { aura.auraInstanceID } })
+      return
+    end
+  end
+  error(unit .. " has no aura " .. tostring(spellId), 2)
+end
+
 -- The player learns a spell (a trainer, a talent) and the client fires SPELLS_CHANGED.
 function Client:learnSpell(spellId)
   self.knownSpells[spellId] = true
@@ -482,6 +529,11 @@ end
 -- Whether the check box with this label on the open settings page is ticked.
 function Client:isChecked(label)
   return checkbox(self, label):GetChecked()
+end
+
+-- Whether the check box with this label on the open settings page can be clicked.
+function Client:isEnabled(label)
+  return checkbox(self, label):IsEnabled()
 end
 
 -- Clicks the check box with this label on the open settings page.
@@ -611,6 +663,7 @@ end
 
 -- How often the addon called this API function since the client started, for the ones the fake
 -- counts (C_Item.GetItemCount: every macro rebuild asks it for each candidate item;
+-- C_UnitAuras.GetAuraDataBySpellName: aura lookups by name;
 -- C_Item.GetItemIconByID and C_Spell.GetSpellTexture: icon lookups, which only the settings
 -- pages make).
 function Client:apiCallCount(name)

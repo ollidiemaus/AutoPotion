@@ -153,6 +153,36 @@ local function installSpells(client, env)
   end
 end
 
+-- The unit's auras. Every aura the fake knows is a buff (HELPFUL). All three flavors list
+-- C_UnitAuras.GetPlayerAuraBySpellID and GetAuraDataBySpellName; AuraUtil.FindAuraByName is
+-- FrameXML (Blizzard_FrameXMLUtil) on all three.
+local function installAuras(client, env)
+  local function find(unit, matches, filter)
+    if filter and filter:find("HARMFUL") then return nil end
+    for _, aura in ipairs(client.auras[unit] or {}) do
+      if matches(aura) then return Api.copyTable(aura) end
+    end
+  end
+  env.C_UnitAuras = {
+    GetPlayerAuraBySpellID = function(spellId)
+      return find("player", function(aura) return aura.spellId == spellId end)
+    end,
+    GetAuraDataBySpellName = function(unit, spellName, filter)
+      client.apiCalls["C_UnitAuras.GetAuraDataBySpellName"] = client:apiCallCount("C_UnitAuras.GetAuraDataBySpellName") + 1
+      return find(unit, function(aura) return aura.name == spellName end, filter)
+    end,
+  }
+  env.AuraUtil = {
+    -- AuraUtil.UnpackAuraData's returns
+    FindAuraByName = function(auraName, unit, filter)
+      local aura = env.C_UnitAuras.GetAuraDataBySpellName(unit, auraName, filter)
+      if not aura then return nil end
+      return aura.name, aura.icon, aura.applications, nil, aura.duration, aura.expirationTime,
+        aura.sourceUnit, false, false, aura.spellId
+    end,
+  }
+end
+
 -- A stand-in for the MegaMacro addon, installed and loaded before AutoPotion: its global macros
 -- (one per name in client.megaMacroNames) and the UpdateCode call AutoPotion writes them with,
 -- recorded in client.macroCalls.
@@ -328,6 +358,7 @@ function Api.install(client, env)
   installUnitAndWorld(client, env)
   installItems(client, env)
   installSpells(client, env)
+  installAuras(client, env)
   installAddOns(client, env)
   installMacros(client, env)
   installSettings(client, env)
@@ -335,6 +366,12 @@ function Api.install(client, env)
   for name, id in pairs(client.flavor.projectIds) do env[name] = id end
   env.WOW_PROJECT_ID = client.flavor.projectId
   env.GREEN_FONT_COLOR_CODE = "|cff20ff20"
+  -- ColorMixin objects from SharedColorConstants
+  local function color(r, g, b)
+    return { r = r, g = g, b = b, a = 1, GetRGB = function(self) return self.r, self.g, self.b end }
+  end
+  env.HIGHLIGHT_FONT_COLOR = color(1, 1, 1)
+  env.GRAY_FONT_COLOR = color(0.5, 0.5, 0.5)
   env.FONT_COLOR_CODE_CLOSE = "|r"
   env.SlashCmdList = {}
   env.C_Timer = {
@@ -344,6 +381,8 @@ function Api.install(client, env)
     end,
   }
   env.geterrorhandler = function() return client.errorHandler end
+  -- the fake hands out no secret values
+  env.issecretvalue = function() return false end
 end
 
 return Api

@@ -19,6 +19,7 @@ local HEARTSEEKING_SPELL_ID = 452767
 local classButtons = {}
 -- every check box on the settings pages with what reads its state, { [button] = isChecked }
 local checkboxReaders = {}
+local enabledReaders = {} -- [button] = function that says whether the box can be clicked
 local currentPrioTitle = nil
 local lastStaticElement = nil
 
@@ -78,17 +79,40 @@ function ham.settingsFrame:trackOptionCheckbox(button, option)
 	self:trackCheckbox(button, function() return ham.options[option] end)
 end
 
+-- Enables the box, or greys it out with its label.
+local function showEnabled(button, enabled)
+	button:SetEnabled(enabled)
+	local color = enabled and HIGHLIGHT_FONT_COLOR or GRAY_FONT_COLOR
+	---@diagnostic disable-next-line: undefined-field
+	button.Text:SetTextColor(color:GetRGB())
+end
+
+-- A box that can only be clicked while isEnabled() is true, such as an option that refines another.
+function ham.settingsFrame:trackEnabled(button, isEnabled)
+	enabledReaders[button] = isEnabled
+	showEnabled(button, isEnabled())
+end
+
+-- Enables every box on every settings page whose option depends on another, as ham.options says.
+local function refreshEnabled()
+	for button, isEnabled in pairs(enabledReaders) do
+		showEnabled(button, isEnabled())
+	end
+end
+
 -- Ticks every box on every settings page as ham.options says, after the settings changed.
 function ham.settingsFrame:refreshCheckboxes()
 	for button, isChecked in pairs(checkboxReaders) do
 		button:SetChecked(isChecked())
 	end
+	refreshEnabled()
 end
 
 function ham.settingsFrame:updateConfig(option, value)
 	if ham.options[option] ~= nil then
 		HAMDB[option] = value
 		ham.refreshOptions()
+		refreshEnabled()
 	else
 		print(L["Invalid option: "] .. tostring(option))
 	end

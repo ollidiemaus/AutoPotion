@@ -14,6 +14,8 @@ ham.defaults = {
     cavedwellerDelight = true,
     heartseekingInjector = false,
     includeBuffFood = false,
+    -- with includeBuffFood: buff food first while the food buff is missing, last while it's there
+    buffFoodOnlyWhenMissing = false,
     includeRejuvenation = true,
     soulburn = false,
     -- ham.bitterImmunity is deliberately left out - it was removed outright in patch
