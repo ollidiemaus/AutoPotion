@@ -88,13 +88,19 @@ local function installItems(client, env)
     GetItemCount = function(itemId)
       return client.bags[tonumber(itemId)] or 0
     end,
+    -- an item the cache lacks reports nothing; the request loads it by the next frame
     GetItemInfo = function(itemId)
       local id, data = item(itemId)
       if not id then return nil end
+      if not client:isItemCached(id) then
+        client:requestItem(id)
+        return nil
+      end
       local name = data.name or ("Item " .. id)
       local link = "|cffffffff|Hitem:" .. id .. "::::::::::::::|h[" .. name .. "]|h|r"
       return name, link, 1, 1, 1, "Consumable", "Consumable", 20, "", data.icon or Api.itemIcon(id), 0, 0, 0, 0, 0, nil, false
     end,
+    -- reads the client's item data, not the cache
     GetItemIconByID = function(itemId)
       local id, data = item(itemId)
       return id and (data.icon or Api.itemIcon(id))

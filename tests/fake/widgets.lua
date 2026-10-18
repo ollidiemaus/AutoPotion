@@ -172,6 +172,22 @@ function Region:SetPoint(point, ...)
   table.insert(points, anchor)
 end
 
+-- Where `region`'s top left corner sits: the first region up its anchor chain that isn't placed
+-- by its own top left corner, and the x, y offset from that region's top left. Each step follows a
+-- TOPLEFT point anchored to another region's TOPLEFT and adds its offset, as the game lays it out.
+function Widgets.topLeftOffset(region)
+  local x, y = 0, 0
+  while true do
+    local anchor
+    for _, point in ipairs(region[0].points) do
+      if point.point == "TOPLEFT" and point.relativePoint == "TOPLEFT" then anchor = point end
+    end
+    if not anchor or not anchor.relativeTo then return region, x, y end
+    x, y = x + anchor.x, y + anchor.y
+    region = anchor.relativeTo
+  end
+end
+
 function Region:SetAllPoints(relativeTo)
   self:ClearAllPoints()
   self:SetPoint("TOPLEFT", relativeTo or self[0].parent, "TOPLEFT", 0, 0)
@@ -366,6 +382,9 @@ function Tooltip:SetSpellByID(spellId) addTooltipLine(self, "spell:" .. tostring
 function Tooltip:SetItemByID(itemId) addTooltipLine(self, "item:" .. tostring(itemId)) end
 function Tooltip:SetInventoryItem(unit, slot) addTooltipLine(self, unit .. ":slot:" .. tostring(slot)) end
 
+-- What the tooltip shows, a line for each entry: "spell:<id>", "item:<id>", "player:slot:<slot>" or text.
+function Widgets.tooltipLines(tooltip) return tooltip[0].lines or {} end
+
 -- Texture ------------------------------------------------------------------------------------
 
 function Texture:SetTexture(texture) self[0].texture = texture end
@@ -431,8 +450,8 @@ function Widgets.CreateFrame(client, frameType, name, parent, template, id)
   if parent then table.insert(parent[0].children, frame) end
   if id then frame:SetID(id) end
   table.insert(client.frames, frame)
-  -- AutoPotion's preview icons pass UIParent as the template and the game accepts that, so
-  -- anything but a string is ignored
+  -- the Food, Drink, Bandage and Mana Potion previews pass UIParent as the template and the game
+  -- accepts that, so anything but a string is ignored
   if type(template) == "string" then
     for templateName in template:gmatch("[^,%s]+") do
       local apply = templates[templateName]

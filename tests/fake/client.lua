@@ -66,6 +66,8 @@ end
 --   bags             { [itemId] = count }
 --   items            { [itemId] = { name =, icon =, spell = { name =, id = } } }, all optional
 --   equipped         { [inventorySlot] = itemId }
+--   emptyItemCache   true to start with no item in the item cache, as after clearing the Cache
+--                    folder: C_Item.GetItemInfo reports an item only once it has loaded
 --   spells           { [spellId] = { name =, icon =, baseCooldown = } }, all optional
 --   knownSpells      { spellId, ... } in the player's spell book; petSpells the same for the pet
 --   savedVariables   { [name] = value } as stored by an earlier session
@@ -91,6 +93,9 @@ function Client.new(options)
     bags = copy(options.bags or {}),
     items = copy(options.items or {}),
     equipped = copy(options.equipped or {}),
+    -- { [itemId] = true } for the items loaded, nil when every item is
+    itemCache = options.emptyItemCache and {} or nil,
+    itemRequests = {},
     spells = copy(options.spells or {}),
     knownSpells = toSet(options.knownSpells),
     petSpells = toSet(options.petSpells),
@@ -166,6 +171,18 @@ function Client:blockProtected(func)
   table.insert(self.blockedActions, { addon = self.addonName, func = func })
   self:fireEvent("ADDON_ACTION_BLOCKED", self.addonName, func .. "()")
   return true
+end
+
+function Client:isItemCached(itemId)
+  return self.itemCache == nil or self.itemCache[itemId] == true
+end
+
+-- Asks the server for an item the cache lacks; it arrives on the next frame.
+function Client:requestItem(itemId)
+  if not self.itemRequests[itemId] then
+    self.itemRequests[itemId] = true
+    table.insert(self.itemRequests, itemId)
+  end
 end
 
 function Client:after(seconds, callback)
@@ -261,11 +278,19 @@ function Client:fireEvent(event, ...)
   end
 end
 
--- Draws one frame: OnUpdate on every visible frame, then the timers that are due. A timer
--- started during this frame runs on a later one, even with a delay of 0.
+-- Draws one frame: the requested items arrive (GET_ITEM_INFO_RECEIVED), OnUpdate runs on every
+-- visible frame, then the timers that are due. A timer started during this frame runs on a later
+-- one, even with a delay of 0.
 function Client:nextFrame(elapsed)
   elapsed = elapsed or FRAME_TIME
   self.time = self.time + elapsed
+  local requested = {}
+  for i, itemId in ipairs(self.itemRequests) do requested[i] = itemId end
+  self.itemRequests = {}
+  for _, itemId in ipairs(requested) do
+    self.itemCache[itemId] = true
+    self:fireEvent("GET_ITEM_INFO_RECEIVED", itemId, true)
+  end
   local startedBefore = self.order
   local frames = {}
   for i, frame in ipairs(self.frames) do frames[i] = frame end
@@ -427,6 +452,54 @@ function Client:shownIcons()
     end
   end
   return icons
+end
+
+-- The "Current Priority" preview icons on the open settings page, left to right as the player
+-- sees them: { icon = FileDataID, x =, y = } with the offset of each icon's top left corner.
+-- A preview icon is a frame (not a button) that shows an icon and a tooltip on hover.
+local function previewFrames(self)
+  local category = self.displayedSettingsCategory()
+  if not category then error("the settings panel isn't open", 3) end
+  local found, root = {}, nil
+  for _, frame in ipairs(Widgets.descendants(category.frame)) do
+    if not frame:IsObjectType("Button") and frame:IsVisible() and Widgets.hasHandler(frame, "OnEnter") then
+      for _, texture in ipairs(Widgets.textures(frame)) do
+        if texture:IsVisible() and type(texture:GetTexture()) == "number" then
+          local origin, x, y = Widgets.topLeftOffset(frame)
+          if root and origin ~= root then error("the preview icons aren't laid out in one row", 3) end
+          root = origin
+          table.insert(found, { frame = frame, icon = texture:GetTexture(), x = x, y = y })
+          break
+        end
+      end
+    end
+  end
+  table.sort(found, function(a, b)
+    if a.y ~= b.y then return a.y > b.y end
+    return a.x < b.x
+  end)
+  return found
+end
+
+function Client:previewIcons()
+  local icons = {}
+  for i, found in ipairs(previewFrames(self)) do
+    icons[i] = { icon = found.icon, x = found.x, y = found.y }
+  end
+  return icons
+end
+
+-- Moves the mouse onto the nth preview icon from the left and off again. Returns the lines of the
+-- tooltip it showed, nil when it showed none.
+function Client:hoverPreviewIcon(n)
+  local found = previewFrames(self)[n]
+  if not found then error("no preview icon " .. n, 2) end
+  local tooltip = self.env.GameTooltip
+  tooltip:Hide()
+  Widgets.runScript(found.frame, "OnEnter", false)
+  local lines = tooltip:IsShown() and Widgets.tooltipLines(tooltip) or nil
+  Widgets.runScript(found.frame, "OnLeave", false)
+  return lines
 end
 
 -- What the player and the client see ---------------------------------------------------------

@@ -4,7 +4,6 @@ local addonName, ham = ...
 
 ---@class Frame
 ham.settingsFrame = CreateFrame("Frame")
-local ICON_SIZE = 50
 local PADDING_CATERGORY = 45
 local PADDING = 25
 local PADDING_HORIZONTAL = 300 -- column width; two columns leave room for an icon next to each name
@@ -20,11 +19,6 @@ local HEARTSEEKING_SPELL_ID = 452767
 local classButtons = {}
 -- every check box on the settings pages with what reads its state, { [button] = isChecked }
 local checkboxReaders = {}
-local prioFrames = {}
-local prioTextures = {}
-local prioFramesCounter = 0
-local firstIcon = nil
-local positionx = 0
 local currentPrioTitle = nil
 local lastStaticElement = nil
 
@@ -37,7 +31,7 @@ local FOOTER_ICON_GAP = PADDING -- gap between the title and the icon row below 
 local FOOTER_BUTTON_GAP = 16
 local FOOTER_BUTTON_HEIGHT = 22
 local FOOTER_BOTTOM_PADDING = 16
-local FOOTER_HEIGHT = FOOTER_TOP_PADDING + FOOTER_TITLE_HEIGHT + FOOTER_ICON_GAP + ICON_SIZE +
+local FOOTER_HEIGHT = FOOTER_TOP_PADDING + FOOTER_TITLE_HEIGHT + FOOTER_ICON_GAP + ham.PREVIEW_ROW_HEIGHT +
 	FOOTER_BUTTON_GAP + FOOTER_BUTTON_HEIGHT + FOOTER_BOTTOM_PADDING
 
 local CLASS_ORDER = {
@@ -45,15 +39,7 @@ local CLASS_ORDER = {
 	"SHAMAN", "MAGE", "WARLOCK", "MONK", "DRUID", "EVOKER",
 }
 
-local function getSpellIcon(spellId)
-	-- Feature-detect C_Spell rather than branching on ham.isRetail: Forever runs the
-	-- Mainline client engine (C_Spell.*, no GetSpellTexture global) despite ham.isRetail
-	-- being false for it. See Core/Spell.lua for the same pattern.
-	if C_Spell and C_Spell.GetSpellTexture then
-		return C_Spell.GetSpellTexture(spellId)
-	end
-	return GetSpellTexture(spellId)
-end
+local getSpellIcon = ham.getSpellIcon
 
 -- Spellbook-style checkbox: the box, then the spell/item icon, then its name. Clicking the
 -- icon or the name toggles the box too, just like the template's own label.
@@ -157,134 +143,28 @@ function ham.settingsFrame:recalculateContentHeight()
 	end
 end
 
-function ham.settingsFrame:createPrioFrame(id, iconTexture, positionx, isSpell, isTinker)
-	local icon = CreateFrame("Frame", nil, self.priorityFooter, UIParent)
-	icon:SetFrameStrata("MEDIUM")
-	icon:SetWidth(ICON_SIZE)
-	icon:SetHeight(ICON_SIZE)
-	icon:HookScript("OnEnter", function(_, btn, down)
-		GameTooltip:SetOwner(icon, "ANCHOR_TOPRIGHT")
-		if isSpell == true then
-			GameTooltip:SetSpellByID(id)
-		elseif isTinker then
-			GameTooltip:SetInventoryItem("player", id)
-		else
-			GameTooltip:SetItemByID(id)
-		end
-		GameTooltip:Show()
-	end)
-	icon:HookScript("OnLeave", function(_, btn, down)
-		GameTooltip:Hide()
-	end)
-	local texture = icon:CreateTexture(nil, "BACKGROUND")
-	texture:SetTexture(iconTexture)
-	texture:SetAllPoints(icon)
-	---@diagnostic disable-next-line: inject-field
-	icon.texture = texture
-
-	if firstIcon == nil then
-		icon:SetPoint("TOPLEFT", currentPrioTitle, 0, -PADDING)
-		firstIcon = icon
-	else
-		icon:SetPoint("TOPLEFT", firstIcon, positionx, 0)
-	end
-	icon:Show()
-	table.insert(prioFrames, icon)
-	table.insert(prioTextures, texture)
-	prioFramesCounter = prioFramesCounter + 1
-	return icon
-end
-
+-- Shows the current priorities in the "Current Priority" row: the healing spells, then the items.
 function ham.settingsFrame:updatePrio()
-	local spellCounter = 0
-	local itemCounter = 0
-
-	for i, frame in pairs(prioFrames) do
-		frame:Hide()
-	end
-
-	-- Add spells to priority frames (skip Recuperate in instanced PvP - not allowed)
-	if next(ham.mySpells) ~= nil then
-		for i, spell in ipairs(ham.mySpells) do
-			if spell.getId() == ham.recuperate.getId() and ham.isInInstancedPvP and ham.isInInstancedPvP() then
-				-- Recuperate not shown in instanced PvP
-			else
-				local iconTexture = getSpellIcon(spell.getId())
-				spellCounter = spellCounter + 1
-				local currentFrame = prioFrames[spellCounter]
-				local currentTexture = prioTextures[spellCounter]
-				if currentFrame ~= nil then
-					currentFrame:SetScript("OnEnter", nil)
-					currentFrame:SetScript("OnLeave", nil)
-					currentFrame:HookScript("OnEnter", function(_, btn, down)
-						GameTooltip:SetOwner(currentFrame, "ANCHOR_TOPRIGHT")
-						GameTooltip:SetSpellByID(spell.getId())
-						GameTooltip:Show()
-					end)
-					currentFrame:HookScript("OnLeave", function(_, btn, down)
-						GameTooltip:Hide()
-					end)
-					currentTexture:SetTexture(iconTexture)
-					currentTexture:SetAllPoints(currentFrame)
-					currentFrame.texture = currentTexture
-					currentFrame:Show()
-				else
-					local positionx = (spellCounter - 1) * (ICON_SIZE + (ICON_SIZE / 2))
-					self:createPrioFrame(spell.getId(), iconTexture, positionx, true, false)
-				end
-			end
+	local row = self.priorityRow
+	if row == nil then return end
+	row:reset()
+	for _, spell in ipairs(ham.mySpells) do
+		local spellId = spell.getId()
+		-- Recuperate isn't allowed in instanced PvP
+		if spellId ~= ham.recuperate.getId() or not (ham.isInInstancedPvP and ham.isInInstancedPvP()) then
+			row:add("spell", spellId)
 		end
 	end
-
-	-- Add items to priority frames
-	if next(ham.itemIdList) ~= nil then
-		for i, id in ipairs(ham.itemIdList) do
-			local entry
-			local iconTexture
-			local isTinker = false
-
-			-- if the entry is a gear slot (ie: tinker)
-			if type(id) == "string" and id:match("^slot:") then
-				local slot = assert(tonumber(id:sub(6)), "Invalid slot number")
-				entry = GetInventoryItemID("player", slot)
-				iconTexture = GetInventoryItemTexture("player", slot)
-				isTinker = true
-				-- otherwise its a normal item id
-			else
-				local _, _, _, _, _, _, _, _, _, tmpTexture = C_Item.GetItemInfo(id)
-				entry = id
-				iconTexture = tmpTexture
-			end
-
-			local currentFrame = prioFrames[i + spellCounter]
-			local currentTexture = prioTextures[i + spellCounter]
-
-			if currentFrame ~= nil then
-				currentFrame:SetScript("OnEnter", nil)
-				currentFrame:SetScript("OnLeave", nil)
-				currentFrame:HookScript("OnEnter", function(_, btn, down)
-					GameTooltip:SetOwner(currentFrame, "ANCHOR_TOPRIGHT")
-					if isTinker then
-						GameTooltip:SetInventoryItem("player", ham.tinkerSlot)
-					else
-						GameTooltip:SetItemByID(id)
-					end
-					GameTooltip:Show()
-				end)
-				currentFrame:HookScript("OnLeave", function(_, btn, down)
-					GameTooltip:Hide()
-				end)
-				currentTexture:SetTexture(iconTexture)
-				currentTexture:SetAllPoints(currentFrame)
-				currentFrame.texture = currentTexture
-				currentFrame:Show()
-			else
-				self:createPrioFrame(entry, iconTexture, positionx, false, isTinker)
-				positionx = positionx + (ICON_SIZE + (ICON_SIZE / 2))
-			end
-			itemCounter = itemCounter + 1
+	for _, id in ipairs(ham.itemIdList) do
+		-- a gear slot (the tinker) is "slot:<inventory slot>"
+		local slot = type(id) == "string" and tonumber(id:match("^slot:(%d+)$"))
+		if slot then
+			row:add("slot", slot)
+		else
+			row:add("item", id)
 		end
 	end
+	row:finish()
 end
 
 function ham.settingsFrame:InitializeOptions()
@@ -314,6 +194,7 @@ function ham.settingsFrame:InitializeOptions()
 	currentPrioTitle = self.priorityFooter:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
 	currentPrioTitle:SetPoint("TOPLEFT", self.priorityFooter, "TOPLEFT", 16, -FOOTER_TOP_PADDING)
 	currentPrioTitle:SetText(L["Current Priority"])
+	self.priorityRow = ham.newPreviewRow(self.priorityFooter, currentPrioTitle, 0, -PADDING)
 
 	local btn = CreateFrame("Button", nil, self.priorityFooter, "UIPanelButtonTemplate")
 	btn:SetPoint("BOTTOMLEFT", self.priorityFooter, "BOTTOMLEFT", 17, FOOTER_BOTTOM_PADDING)

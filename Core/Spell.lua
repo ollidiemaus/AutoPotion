@@ -18,6 +18,16 @@ local function isSpellKnown(spellId, isPet)
     return IsSpellKnown(spellId, isPet)
 end
 
+-- The spell's icon (FileDataID). Feature-detect C_Spell rather than branching on ham.isRetail:
+-- Forever runs the Mainline client engine (C_Spell.*, no GetSpellTexture global) despite
+-- ham.isRetail being false for it.
+function ham.getSpellIcon(spellId)
+    if C_Spell and C_Spell.GetSpellTexture then
+        return C_Spell.GetSpellTexture(spellId)
+    end
+    return GetSpellTexture(spellId)
+end
+
 ham.Spell.new = function(id, class)
     local self = {}
 
