@@ -1,10 +1,11 @@
 ---@diagnostic disable: undefined-global
 local addonName, ham = ...
 
--- Whether the player has the food buff, for "only when the buff is missing": any buff that the
--- flavor's buff food leaves, whatever its strength, source or time left. Well Fed and Retail's
--- Hearty Well Fed are found by their translated names. The older flavors' stat food buffs are
--- found by spell ID: their names ("Increased Stamina", ...) also belong to buffs no food leaves.
+-- Whether the player has the food buff or Relaxed, for "only when the buff is missing", and the
+-- order of buff food that follows from it. The food buff is any buff that the flavor's buff food
+-- leaves, whatever its strength, source or time left. Well Fed and Retail's Hearty Well Fed are
+-- found by their translated names. The older flavors' stat food buffs are found by spell ID:
+-- their names ("Increased Stamina", ...) also belong to buffs no food leaves.
 
 local function spellName(spellId)
   if C_Spell and C_Spell.GetSpellName then return C_Spell.GetSpellName(spellId) end
@@ -35,9 +36,13 @@ if not ham.isRetail and not ham.isForever then
   end
 end
 
-local known = false     -- hasBuff follows the player's auras; false while nothing needs it
-local hasBuff = false
-local buffInstance = nil -- the food buff's aura instance ID, where the client reports one
+-- Retail's buff drinks leave Relaxed, found by its translated name. It's separate from the food
+-- buff: the food buff orders AutoFood, Relaxed orders AutoDrink.
+local relaxedNames = {} -- { [name] = true }
+if ham.isRetail then
+  local name = spellName(1269152) -- one of the Relaxed spells, for the name
+  if name then relaxedNames[name] = true end
+end
 
 -- Retail and Forever hand out secret aura data in restricted states (combat, encounters, M+);
 -- comparing or indexing a secret is an error, so such data leaves the remembered state as it is.
@@ -45,7 +50,7 @@ local function usable(value)
   return not (issecretvalue and issecretvalue(value))
 end
 
--- Whether an aura lookup's answer is a food buff, its aura instance ID, and whether it was
+-- Whether an aura lookup's answer is the buff, its aura instance ID, and whether it was
 -- readable (not secret).
 local function fromAura(aura)
   if not usable(aura) then return false, nil, false end
@@ -76,25 +81,119 @@ local function findBySpell(spellId)
   return false, nil, true
 end
 
--- Whether the player has a food buff, and its aura instance ID where the client reports one.
--- Secret data leaves the remembered state as it is.
-local function findFoodBuff()
-  for name in pairs(foodBuffNames) do
-    local found, instance, readable = findByName(name)
-    if not readable then return hasBuff, buffInstance end
-    if found then return true, instance end
+-- Follows whether the player has one buff, any aura with one of these names ({ [name] = true })
+-- or spell IDs ({ [spellId] = true }).
+local function newBuffWatch(names, spells)
+  local known = false     -- hasBuff follows the player's auras; false while nothing needs it
+  local hasBuff = false
+  local buffInstance = nil -- the buff's aura instance ID, where the client reports one
+
+  -- Whether the player has the buff, and its aura instance ID where the client reports one.
+  -- Secret data leaves the remembered state as it is.
+  local function find()
+    for name in pairs(names) do
+      local found, instance, readable = findByName(name)
+      if not readable then return hasBuff, buffInstance end
+      if found then return true, instance end
+    end
+    for spellId in pairs(spells) do
+      local found, instance, readable = findBySpell(spellId)
+      if not readable then return hasBuff, buffInstance end
+      if found then return true, instance end
+    end
+    return false, nil
   end
-  for spellId in pairs(foodBuffSpells) do
-    local found, instance, readable = findBySpell(spellId)
-    if not readable then return hasBuff, buffInstance end
-    if found then return true, instance end
+
+  local function rescan()
+    hasBuff, buffInstance = find()
+    known = true
   end
-  return false, nil
+
+  -- Whether this aura update could have changed the buff, as far as it says: without update
+  -- info (Wrath may send none) or with a full update, only a rescan can tell.
+  local function changes(updateInfo)
+    if updateInfo == nil or updateInfo.isFullUpdate then return true end
+    if hasBuff then
+      if buffInstance == nil then return true end
+      local removed = updateInfo.removedAuraInstanceIDs
+      if removed then
+        for _, id in ipairs(removed) do
+          if usable(id) and id == buffInstance then return true end
+        end
+      end
+      return false
+    end
+    local added = updateInfo.addedAuras
+    if added then
+      for _, aura in ipairs(added) do
+        local name, spellId = aura.name, aura.spellId
+        if usable(name) and names[name] then return true end
+        if usable(spellId) and spells[spellId] then return true end
+      end
+    end
+    return false
+  end
+
+  local watch = {}
+
+  function watch.has()
+    if not known then rescan() end
+    return hasBuff
+  end
+
+  -- Forget the buff: nothing follows the auras until the next has() rescans.
+  function watch.forget()
+    known = false
+  end
+
+  -- Follows an aura update; returns whether the buff came or went.
+  function watch.update(updateInfo)
+    if not known or not changes(updateInfo) then return false end
+    local had = hasBuff
+    rescan()
+    return hasBuff ~= had
+  end
+
+  return watch
 end
 
-local function rescan()
-  hasBuff, buffInstance = findFoodBuff()
-  known = true
+local foodBuff = newBuffWatch(foodBuffNames, foodBuffSpells)
+local relaxed = newBuffWatch(relaxedNames, {})
+
+function ham.hasFoodBuff()
+  return foodBuff.has()
+end
+
+function ham.isRelaxed()
+  return relaxed.has()
+end
+
+-- Buff food (items tagged buffFood) of a food or drink list for the options: left out unless
+-- "Include Buff Food" is on. With "only when the buff is missing" it goes first, ahead of
+-- conjured food, while buffActive() says the player lacks its buff (the food buff or Relaxed),
+-- and last while they have it. Either way it keeps its relative order.
+function ham.orderBuffFood(list, buffActive)
+  local options = ham.options
+  if options.includeBuffFood and not options.buffFoodOnlyWhenMissing then
+    return list
+  end
+  local buffFood, otherFood = {}, {}
+  for _, item in ipairs(list) do
+    if item.hasTag("buffFood") then
+      table.insert(buffFood, item)
+    else
+      table.insert(otherFood, item)
+    end
+  end
+  if not options.includeBuffFood then
+    return otherFood
+  end
+  local first, last = buffFood, otherFood
+  if buffActive() then first, last = otherFood, buffFood end
+  for _, item in ipairs(last) do
+    table.insert(first, item)
+  end
+  return first
 end
 
 -- ham.options is there from ADDON_LOADED on
@@ -103,48 +202,17 @@ local function watching()
   return options ~= nil and options.includeBuffFood and options.buffFoodOnlyWhenMissing
 end
 
-function ham.hasFoodBuff()
-  if not known then rescan() end
-  return hasBuff
-end
-
--- Whether this aura update could have changed the food buff, as far as it says: without update
--- info (Wrath may send none) or with a full update, only a rescan can tell.
-local function changesFoodBuff(updateInfo)
-  if updateInfo == nil or updateInfo.isFullUpdate then return true end
-  if hasBuff then
-    if buffInstance == nil then return true end
-    local removed = updateInfo.removedAuraInstanceIDs
-    if removed then
-      for _, id in ipairs(removed) do
-        if usable(id) and id == buffInstance then return true end
-      end
-    end
-    return false
-  end
-  local added = updateInfo.addedAuras
-  if added then
-    for _, aura in ipairs(added) do
-      local name, spellId = aura.name, aura.spellId
-      if usable(name) and foodBuffNames[name] then return true end
-      if usable(spellId) and foodBuffSpells[spellId] then return true end
-    end
-  end
-  return false
-end
-
--- UNIT_AURA for the player. A change of the food buff rebuilds the macros and redraws the open
--- settings pages' previews. While the sub-option is off nothing follows the auras, and the next
--- ham.hasFoodBuff rescans.
+-- UNIT_AURA for the player. A change of the food buff or Relaxed rebuilds the macros and redraws
+-- the open settings pages' previews. While the sub-option is off nothing follows the auras, and
+-- the next lookup rescans.
 function ham.onPlayerAura(updateInfo)
   if not watching() then
-    known = false
+    foodBuff.forget()
+    relaxed.forget()
     return
   end
-  if not known or not changesFoodBuff(updateInfo) then return end
-  local had = hasBuff
-  rescan()
-  if hasBuff ~= had then
+  local foodBuffChanged = foodBuff.update(updateInfo)
+  if relaxed.update(updateInfo) or foodBuffChanged then
     ham.refreshPreviews()
     ham.requestMacroUpdate()
   end

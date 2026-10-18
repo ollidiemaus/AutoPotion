@@ -151,18 +151,7 @@ local function getRawDrink()
   return {}
 end
 
--- Return a prioritized list of drink items for the current client, excluding
--- "buff drink" (situational Relaxed stat drink) unless the user opted in.
+-- Return a prioritized list of drink items for the current client, buff drinks placed by Relaxed.
 function ham.getDrink()
-  local list = getRawDrink()
-  if ham.options.includeBuffFood then
-    return list
-  end
-  local filtered = {}
-  for _, item in ipairs(list) do
-    if not item.hasTag("buffFood") then
-      table.insert(filtered, item)
-    end
-  end
-  return filtered
+  return ham.orderBuffFood(getRawDrink(), ham.isRelaxed)
 end
