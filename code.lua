@@ -54,6 +54,8 @@ local function isTinkerSlot(slot)
   return false
 end
 
+-- Takes a finished message; a caller that builds one from parts checks ham.debug first, so
+-- logging builds no string while debug mode is off.
 local function log(message)
   if ham.debug then
     print("|cffb48ef9AutoPotion:|r " .. message)
@@ -104,7 +106,7 @@ local function addPotIfAvailable(useDelightPots)
   useDelightPots = useDelightPots or false
   local pots = useDelightPots and ham.getDelightPots() or ham.getPots()
   for i, value in ipairs(pots) do
-    log("Item: " .. tostring(value.getId()) .. " Count: " .. tostring(value.getCount()))
+    if ham.debug then log("Item: " .. tostring(value.getId()) .. " Count: " .. tostring(value.getCount())) end
     if value.getCount() > 0 then
       table.insert(ham.itemIdList, value.getId())
       --we break because all Pots share a cd so we only want the highest healing one
@@ -241,7 +243,7 @@ local function updateMegaMacro(name, text)
   for _, macro in pairs(MegaMacroGlobalData.Macros) do
     if macro.DisplayName == name then
       MegaMacro.UpdateCode(macro, text)
-      log("MegaMacro updated (" .. name .. ") with: " .. text)
+      if ham.debug then log("MegaMacro updated (" .. name .. ") with: " .. text) end
       return true
     end
   end
@@ -290,7 +292,7 @@ local function writeMacro(name, text)
     return
   end
   writtenText[name] = text
-  log(name .. " macro updated.")
+  if ham.debug then log(name .. " macro updated.") end
 end
 
 local function checkMegaMacroAddon()
@@ -522,16 +524,21 @@ function ham.updateManaPotionMacro()
   writeMacro(manaPotionMacroName, buildManaPotionMacroString())
 end
 
--- Works out the current priorities from the bags and shows them on the settings pages. It makes
--- no protected calls, so it also runs in combat.
+-- A hidden page's preview is left alone: its OnShow refreshes it when the player opens it.
+local function isShown(page)
+  return page.panel ~= nil and page.panel:IsVisible()
+end
+
+-- Works out the current priorities from the bags and shows them on the settings pages that are
+-- open. It makes no protected calls, so it also runs in combat.
 function ham.refreshPreviews()
   ham.checkTinker()
   ham.updateHeals()
-  ham.settingsFrame:updatePrio()
-  ham.bandageSettingsFrame:updateBandagePrio()
-  ham.foodSettingsFrame:updateFoodPrio()
-  ham.drinkSettingsFrame:updateDrinkPrio()
-  ham.manaPotionSettingsFrame:updateManaPotionPrio()
+  if isShown(ham.settingsFrame) then ham.settingsFrame:updatePrio() end
+  if isShown(ham.bandageSettingsFrame) then ham.bandageSettingsFrame:updateBandagePrio() end
+  if isShown(ham.foodSettingsFrame) then ham.foodSettingsFrame:updateFoodPrio() end
+  if isShown(ham.drinkSettingsFrame) then ham.drinkSettingsFrame:updateDrinkPrio() end
+  if isShown(ham.manaPotionSettingsFrame) then ham.manaPotionSettingsFrame:updateManaPotionPrio() end
 end
 
 local function rebuildMacros()
@@ -573,7 +580,7 @@ function ham.requestMacroUpdate()
   C_Timer.After(0, onNextFrame)
 end
 
--- `message` is a constant, so logging builds no string while debug mode is off
+-- `message` is a constant, so it costs nothing while debug mode is off
 local function requestOn(message)
   return function()
     log(message)

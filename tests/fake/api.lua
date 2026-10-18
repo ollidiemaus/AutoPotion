@@ -106,6 +106,7 @@ local function installItems(client, env)
     end,
     -- reads the client's item data, not the cache
     GetItemIconByID = function(itemId)
+      client.apiCalls["C_Item.GetItemIconByID"] = client:apiCallCount("C_Item.GetItemIconByID") + 1
       local id, data = item(itemId)
       return id and (data.icon or Api.itemIcon(id))
     end,
@@ -135,7 +136,10 @@ local function installSpells(client, env)
   end
   env.C_Spell = {
     GetSpellName = function(spellId) return spell(spellId).name or ("Spell " .. spellId) end,
-    GetSpellTexture = function(spellId) return spell(spellId).icon or Api.spellIcon(spellId) end,
+    GetSpellTexture = function(spellId)
+      client.apiCalls["C_Spell.GetSpellTexture"] = client:apiCallCount("C_Spell.GetSpellTexture") + 1
+      return spell(spellId).icon or Api.spellIcon(spellId)
+    end,
     GetSpellCooldown = function()
       return { startTime = 0, duration = 0, isEnabled = true, modRate = 1 }
     end,
@@ -302,6 +306,7 @@ local function installSettings(client, env)
     canvas:Show()
   end
   client.displaySettingsCategory = display
+  client.settingsPanel = panel
   client.displayedSettingsCategory = function() return current end
 
   env.Settings = {

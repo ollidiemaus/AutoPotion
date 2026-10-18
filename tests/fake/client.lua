@@ -445,6 +445,11 @@ function Client:openSettings(...)
   error("no settings page " .. path, 2)
 end
 
+-- Closes the game's settings panel; the page that was open stays its page for the next opening.
+function Client:closeSettings()
+  self.settingsPanel:Hide()
+end
+
 local function visibleCheckboxes(self)
   local category = self.displayedSettingsCategory()
   if not category then error("the settings panel isn't open", 3) end
@@ -562,6 +567,21 @@ function Client:hoverPreviewIcon(n)
   return lines
 end
 
+-- The player types a slash command in the chat box ("/ap debug"); the client runs the handler
+-- an addon registered for it with SLASH_<KEY><n> and SlashCmdList[KEY].
+function Client:typeCommand(line)
+  local command, rest = line:match("^(%S+)%s*(.-)$")
+  command = command:lower()
+  for name, value in pairs(self.env) do
+    local key = type(name) == "string" and name:match("^SLASH_(.-)%d+$")
+    if key and type(value) == "string" and value:lower() == command and self.env.SlashCmdList[key] then
+      self:call(self.env.SlashCmdList[key], rest, nil)
+      return
+    end
+  end
+  error("no slash command " .. command, 2)
+end
+
 -- What the player and the client see ---------------------------------------------------------
 
 -- The body of the macro with this name, or nil when there's none.
@@ -590,7 +610,9 @@ function Client:macroWrites(names)
 end
 
 -- How often the addon called this API function since the client started, for the ones the fake
--- counts (C_Item.GetItemCount: every macro rebuild asks it for each candidate item).
+-- counts (C_Item.GetItemCount: every macro rebuild asks it for each candidate item;
+-- C_Item.GetItemIconByID and C_Spell.GetSpellTexture: icon lookups, which only the settings
+-- pages make).
 function Client:apiCallCount(name)
   return self.apiCalls[name] or 0
 end
