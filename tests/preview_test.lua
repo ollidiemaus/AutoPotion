@@ -24,9 +24,9 @@ local function previewOf(client)
   return icons
 end
 
--- Bag changes reach the addon after its 3 second debounce.
+-- Bag changes reach the macros and previews the frame after the bags settle.
 local function waitForBagUpdate(client)
-  client:advance(3)
+  client:nextFrame()
 end
 
 -- Fails unless no two preview icons share a position.

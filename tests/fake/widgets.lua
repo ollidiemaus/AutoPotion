@@ -93,8 +93,14 @@ function Widgets.runScript(frame, script, ...)
 end
 local runScript = Widgets.runScript
 
--- The order the frame registered for the event in, or nil when it isn't registered.
-function Widgets.registrationOrder(frame, event) return frame[0].events[event] end
+-- The order the frame registered for the event in, or nil when it isn't registered or, for a
+-- unit event registered with RegisterUnitEvent, when `unit` isn't one of its units.
+function Widgets.registrationOrder(frame, event, unit)
+  local registration = frame[0].events[event]
+  if not registration then return nil end
+  if registration.units and not registration.units[unit] then return nil end
+  return registration.order
+end
 
 function Widgets.hasHandler(frame, script)
   return frame[0].scripts[script] ~= nil or frame[0].hooks[script] ~= nil
@@ -270,7 +276,15 @@ function Frame:HookScript(script, hook)
 end
 
 function Frame:RegisterEvent(event)
-  self[0].events[event] = self[0].client:nextOrder()
+  self[0].events[event] = { order = self[0].client:nextOrder() }
+  return true
+end
+
+-- A unit event that reaches the frame only for these units (the event's first argument).
+function Frame:RegisterUnitEvent(event, unit1, unit2)
+  local units = { [unit1] = true }
+  if unit2 then units[unit2] = true end
+  self[0].events[event] = { order = self[0].client:nextOrder(), units = units }
   return true
 end
 

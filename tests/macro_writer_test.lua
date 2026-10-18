@@ -35,7 +35,7 @@ for _, flavor in ipairs(Client.FLAVOR_NAMES) do
     local client = Client.new({ flavor = flavor })
     client:login()
     client:addToBags(1251, 5) -- Linen Bandage
-    client:advance(5)
+    client:nextFrame()
     local expected = everyMacro(1)
     expected.AutoBandage = 2
     assertEqual(macroWrites(client), expected)
@@ -77,7 +77,7 @@ for _, flavor in ipairs(Client.FLAVOR_NAMES) do
     client:login()
     rebuild(client)
     client:addToBags(1251, 5) -- Linen Bandage
-    client:advance(5)
+    client:nextFrame()
 
     assertEqual(client.errors, {})
     for _, name in ipairs({ "AutoFood", "AutoDrink", "AutoManaPotion" }) do
@@ -121,7 +121,7 @@ test("retail: with MegaMacro, rebuilding with unchanged bags and settings writes
   assertEqual(client.errors, {})
 
   client:addToBags(1251, 5) -- Linen Bandage
-  client:advance(5)
+  client:nextFrame()
   local expected = everyMacro(1)
   expected.AutoBandage = 2
   assertEqual(macroWrites(client), expected)

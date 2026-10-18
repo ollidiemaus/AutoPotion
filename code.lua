@@ -22,8 +22,7 @@ local itemsMacroString = ''
 local macroStr = ''
 local resetType = "combat"
 local shortestCD = nil
-local bagUpdates = false -- debounce watcher for BAG_UPDATE events
-local debounceTime = 3   -- seconds
+local megaMacroRetryTime = 3 -- seconds between MegaMacro checks
 
 -- MegaMacro addon compatibility
 local megaMacro = {
@@ -309,7 +308,7 @@ local function checkMegaMacroAddon()
   -- Retry loading if not yet loaded
   if megaMacro.retries < 3 then
     megaMacro.retries = megaMacro.retries + 1
-    C_Timer.After(debounceTime, function()
+    C_Timer.After(megaMacroRetryTime, function()
       checkMegaMacroAddon()
       -- the macros wait for this check
       if megaMacro.checked then ham.requestMacroUpdate() end
@@ -562,19 +561,6 @@ function ham.requestMacroUpdate()
   C_Timer.After(0, onNextFrame)
 end
 
--- debounce handler for BAG_UPDATE events which can fire very rapidly
-local function onBagUpdate()
-  if bagUpdates then
-    return
-  end
-  log("event: BAG_UPDATE")
-  bagUpdates = true
-  C_Timer.After(debounceTime, function()
-    ham.requestMacroUpdate()
-    bagUpdates = false
-  end)
-end
-
 -- `message` is a constant, so logging builds no string while debug mode is off
 local function requestOn(message)
   return function()
@@ -590,7 +576,8 @@ local eventHandlers = {
     log("event: ADDON_LOADED")
     ham.requestMacroUpdate()
   end,
-  BAG_UPDATE = onBagUpdate,
+  -- fires once a burst of BAG_UPDATEs has settled
+  BAG_UPDATE_DELAYED = requestOn("event: BAG_UPDATE_DELAYED"),
   UNIT_PET = requestOn("event: UNIT_PET"),
   -- also on zoning: the instanced-PvP rules depend on the zone
   PLAYER_ENTERING_WORLD = requestOn("event: PLAYER_ENTERING_WORLD"),
@@ -605,14 +592,15 @@ local eventHandlers = {
 
 local updateFrame = CreateFrame("Frame")
 updateFrame:RegisterEvent("ADDON_LOADED")
-updateFrame:RegisterEvent("BAG_UPDATE")
+updateFrame:RegisterEvent("BAG_UPDATE_DELAYED")
 updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 updateFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 if ham.isClassic == false then
   updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-updateFrame:RegisterEvent("UNIT_PET")
+-- only the player's own pet, not every group member's
+updateFrame:RegisterUnitEvent("UNIT_PET", "player")
 updateFrame:SetScript("OnEvent", function(self, event, ...)
   eventHandlers[event](self, ...)
 end)

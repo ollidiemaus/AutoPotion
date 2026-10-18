@@ -262,17 +262,19 @@ end
 
 -- Events, frames and timers ------------------------------------------------------------------
 
--- Delivers an event to every frame registered for it, in registration order.
+-- Delivers an event to every frame registered for it, in registration order. A frame that
+-- registered it with RegisterUnitEvent gets it only for its units (the first argument).
 function Client:fireEvent(event, ...)
+  local unit = ...
   local receivers = {}
   for _, frame in ipairs(self.frames) do
-    local order = Widgets.registrationOrder(frame, event)
+    local order = Widgets.registrationOrder(frame, event, unit)
     if order then table.insert(receivers, { frame = frame, order = order }) end
   end
   table.sort(receivers, function(a, b) return a.order < b.order end)
   for _, receiver in ipairs(receivers) do
     -- a handler that ran earlier may have unregistered it
-    if Widgets.registrationOrder(receiver.frame, event) then
+    if Widgets.registrationOrder(receiver.frame, event, unit) then
       Widgets.runScript(receiver.frame, "OnEvent", event, ...)
     end
   end
@@ -321,10 +323,33 @@ function Client:advance(seconds)
   for _ = 1, frames do self:nextFrame(seconds / frames) end
 end
 
--- Puts items in the bags (a negative count takes them out) and fires BAG_UPDATE as the client does.
+local function putInBags(client, itemId, count)
+  client.bags[itemId] = math.max((client.bags[itemId] or 0) + count, 0)
+  client:fireEvent("BAG_UPDATE", 0)
+end
+
+-- Puts items in the bags (a negative count takes them out) and fires BAG_UPDATE, then
+-- BAG_UPDATE_DELAYED once the bags have settled, as the client does.
 function Client:addToBags(itemId, count)
-  self.bags[itemId] = math.max((self.bags[itemId] or 0) + count, 0)
-  self:fireEvent("BAG_UPDATE", 0)
+  putInBags(self, itemId, count)
+  self:fireEvent("BAG_UPDATE_DELAYED")
+end
+
+-- Several bag changes the server sends over consecutive frames, as when looting a whole corpse:
+-- `changes` is { { item =, count = }, ... }. Each fires BAG_UPDATE in its own frame, and
+-- BAG_UPDATE_DELAYED fires once after the last.
+function Client:changeBagsOverFrames(changes)
+  for i, change in ipairs(changes) do
+    if i > 1 then self:nextFrame() end
+    putInBags(self, change.item, change.count)
+  end
+  self:fireEvent("BAG_UPDATE_DELAYED")
+end
+
+-- The player learns a spell (a trainer, a talent) and the client fires SPELLS_CHANGED.
+function Client:learnSpell(spellId)
+  self.knownSpells[spellId] = true
+  self:fireEvent("SPELLS_CHANGED")
 end
 
 -- The player deletes this macro in the macro window (/macro).
