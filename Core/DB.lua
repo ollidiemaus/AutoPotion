@@ -18,6 +18,8 @@ ham.defaults = {
     buffFoodOnlyWhenMissing = false,
     includeRejuvenation = true,
     soulburn = false,
+    -- Forever: the AutoBandage macro casts Rapid Regeneration (Troll racial) before the bandage
+    rapidRegenerationBandage = true,
     -- ham.bitterImmunity is deliberately left out - it was removed outright in patch
     -- 12.0.0 with no replacement, and was never offered on any Classic flavor either, so
     -- there's no longer a checkbox anywhere for this default to correspond to.

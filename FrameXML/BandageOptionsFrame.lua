@@ -14,11 +14,16 @@ function ham.bandageSettingsFrame:recalculateContentHeight()
 	self.content:SetHeight(contentTop - titleTop + PADDING + ham.PREVIEW_ROW_HEIGHT + PADDING)
 end
 
--- Update the Bandage Priority section with the bandage items in the bags, best first
+-- Update the Bandage Priority section with the bandage spell the macro casts first, if any, then
+-- the bandage items in the bags, best first
 function ham.bandageSettingsFrame:updateBandagePrio()
 	local row = self.priorityRow
 	if row == nil then return end
-	row:showItemsInBags(ham.getBandages())
+	row:reset()
+	local spell = ham.getBandageSpell()
+	if spell then row:add("spell", spell.getId()) end
+	row:addItemsInBags(ham.getBandages())
+	row:finish()
 	self:recalculateContentHeight()
 end
 
@@ -66,9 +71,23 @@ function ham.bandageSettingsFrame:InitializeOptions()
 	subtitle:SetPoint("TOPLEFT", 0, -40)
 	subtitle:SetText(L["Shows the bandage that will currently be used, based on what is in your bags."])
 
+	-- Forever: Rapid Regeneration (Troll racial) before the bandage; offered to every character,
+	-- like the healing spells on the AutoPotion page
+	local lastElement = subtitle
+	if ham.isForever then
+		local rapidRegenerationButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
+		rapidRegenerationButton:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 0, -PADDING)
+		rapidRegenerationButton.Text:SetText(L["Use Rapid Regeneration (Troll racial) before bandages"])
+		rapidRegenerationButton:HookScript("OnClick", function(_, btn, down)
+			ham.settingsFrame:updateConfig("rapidRegenerationBandage", rapidRegenerationButton:GetChecked())
+		end)
+		ham.settingsFrame:trackOptionCheckbox(rapidRegenerationButton, "rapidRegenerationBandage")
+		lastElement = rapidRegenerationButton
+	end
+
 	-- bandage priority header
 	local bandagePrioTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
-	bandagePrioTitle:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 0, -PADDING)
+	bandagePrioTitle:SetPoint("TOPLEFT", lastElement, "BOTTOMLEFT", 0, -PADDING)
 	bandagePrioTitle:SetText(L["Bandage Priority"])
 
 	self.priorityTitle = bandagePrioTitle

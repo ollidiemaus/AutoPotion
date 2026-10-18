@@ -332,6 +332,9 @@ local function checkMegaMacroAddon()
   end
 end
 
+-- Rapid Regeneration's cooldown in seconds: the bandage spell's castsequence starts over after it
+local BANDAGE_SPELL_COOLDOWN = 180
+
 -- Build bandage macro string (highest available bandage first)
 local function buildBandageMacroString()
   local sequence = {}
@@ -341,6 +344,16 @@ local function buildBandageMacroString()
       table.insert(sequence, "item:" .. tostring(item.getId()))
       break
     end
+  end
+
+  -- Neither the spell nor the bandage triggers the global cooldown, so two lines would fire both
+  -- on one press: a castsequence takes the bandage while the spell is on its cooldown
+  local spell = ham.getBandageSpell()
+  if spell then
+    if #sequence == 0 then
+      return "#showtooltip\n/cast " .. spell.getName()
+    end
+    return "#showtooltip\n/castsequence [@player] reset=combat/" .. BANDAGE_SPELL_COOLDOWN .. " " .. spell.getName() .. ", " .. sequence[1]
   end
 
   if #sequence == 0 then

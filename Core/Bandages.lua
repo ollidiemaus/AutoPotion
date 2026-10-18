@@ -91,3 +91,10 @@ function ham.getBandages()
   if ham.getBandagesForRetail then return ham.getBandagesForRetail() end
   return {}
 end
+
+-- The spell the AutoBandage macro casts before the bandage, or nil when there's none: Rapid
+-- Regeneration on Forever, while its option is ticked and the player knows it.
+function ham.getBandageSpell()
+  local spell = ham.rapidRegeneration
+  if spell and ham.options.rapidRegenerationBandage and spell.isKnown() then return spell end
+end

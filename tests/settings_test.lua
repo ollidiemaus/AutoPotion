@@ -74,12 +74,17 @@ local CHARACTERS = {
   forever = CLASSIC_ERA_CHARACTER,
 }
 
--- The character for the check box with this label: a healing spell's box ("Spell <id>", the
--- name the fake client gives spells) only changes the macro for a character who knows it.
+-- The boxes for a spell that aren't named after it, and their spell.
+local SPELL_BOXES = { ["Use Rapid Regeneration (Troll racial) before bandages"] = 1260270 }
+
+-- The character for the check box with this label: a spell's box (a healing spell's is named
+-- "Spell <id>", the name the fake client gives spells) only changes the macro for a character
+-- who knows it.
 local function characterFor(flavor, label)
   local options = copy(CHARACTERS[flavor])
   options.flavor = flavor
-  local spellId = label:match("^Spell (%d+)$")
+  options.knownSpells = options.knownSpells or {}
+  local spellId = SPELL_BOXES[label] or label:match("^Spell (%d+)$")
   if spellId then table.insert(options.knownSpells, tonumber(spellId)) end
   return options
 end

@@ -81,13 +81,18 @@ function PreviewRow:finish()
 	end
 end
 
--- Fills the row with the items of `items` (ham.Item, best first) that are in the bags.
-function PreviewRow:showItemsInBags(items)
-	self:reset()
+-- Adds the items of `items` (ham.Item, best first) that are in the bags.
+function PreviewRow:addItemsInBags(items)
 	for _, item in ipairs(items) do
 		if item.getCount() > 0 then
 			self:add("item", item.getId())
 		end
 	end
+end
+
+-- Fills the row with the items of `items` (ham.Item, best first) that are in the bags.
+function PreviewRow:showItemsInBags(items)
+	self:reset()
+	self:addItemsInBags(items)
 	self:finish()
 end
