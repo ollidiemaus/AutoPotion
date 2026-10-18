@@ -57,6 +57,20 @@ local function toSet(list)
   return result
 end
 
+-- { [event] = true } for the events a flavor's client knows, from tests/fake/events/<flavor>.txt
+-- (written by update.sh there from the client's generated API docs).
+local validEvents = {}
+local function eventsOf(flavorName)
+  if not validEvents[flavorName] then
+    local events = {}
+    for line in io.lines("tests/fake/events/" .. flavorName .. ".txt") do
+      if not line:find("^#") then events[line] = true end
+    end
+    validEvents[flavorName] = events
+  end
+  return validEvents[flavorName]
+end
+
 -- options:
 --   flavor           "retail" (default), "classic" or "forever"
 --   class            the player's class token, "WARRIOR" by default
@@ -84,6 +98,7 @@ function Client.new(options)
   local self = setmetatable({
     flavorName = flavorName,
     flavor = flavor,
+    events = eventsOf(flavorName),
     addonName = "AutoPotion",
     addonLoaded = false,
     class = options.class or "WARRIOR",
@@ -108,6 +123,7 @@ function Client.new(options)
     printed = {},
     macroCalls = {},
     blockedActions = {},
+    apiCalls = {},
     -- internals
     frames = {},
     timers = {},
@@ -265,6 +281,7 @@ end
 -- Delivers an event to every frame registered for it, in registration order. A frame that
 -- registered it with RegisterUnitEvent gets it only for its units (the first argument).
 function Client:fireEvent(event, ...)
+  if not self.events[event] then error("the " .. self.flavorName .. " client has no event " .. event, 2) end
   local unit = ...
   local receivers = {}
   for _, frame in ipairs(self.frames) do
@@ -344,6 +361,24 @@ function Client:changeBagsOverFrames(changes)
     putInBags(self, change.item, change.count)
   end
   self:fireEvent("BAG_UPDATE_DELAYED")
+end
+
+-- The player changes gear, `slots` is { [inventorySlot] = itemId or false for empty }: by hand
+-- one slot, with an equipment set several at once. Each slot that changed fires
+-- PLAYER_EQUIPMENT_CHANGED, all in the same frame.
+function Client:equip(slots)
+  local changed = {}
+  for slot, itemId in pairs(slots) do
+    itemId = itemId or nil
+    if self.equipped[slot] ~= itemId then
+      self.equipped[slot] = itemId
+      table.insert(changed, slot)
+    end
+  end
+  table.sort(changed)
+  for _, slot in ipairs(changed) do
+    self:fireEvent("PLAYER_EQUIPMENT_CHANGED", slot, self.equipped[slot] ~= nil)
+  end
 end
 
 -- The player learns a spell (a trainer, a talent) and the client fires SPELLS_CHANGED.
@@ -552,6 +587,12 @@ function Client:macroWrites(names)
     if counts[name] then counts[name] = counts[name] + 1 end
   end
   return counts
+end
+
+-- How often the addon called this API function since the client started, for the ones the fake
+-- counts (C_Item.GetItemCount: every macro rebuild asks it for each candidate item).
+function Client:apiCallCount(name)
+  return self.apiCalls[name] or 0
 end
 
 -- Names of the globals that weren't there before the addon loaded, sorted.

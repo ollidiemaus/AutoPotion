@@ -35,12 +35,24 @@ local megaMacro = {
 
 -- Slots to check for tinkers
 -- As of 2024-10-27, only Head, Wrist and Guns can have tinkers.
-local tinkerSlots = {
+local TINKER_SLOTS = {
   1,  -- Head
   9,  -- Wrist
   18, -- Gun
-  14, -- Trinket 2 (for debugging)
 }
+-- in debug mode Trinket 2 counts too, so a trinket with a use effect can stand in for a tinker
+local DEBUG_TINKER_SLOTS = { 1, 9, 18, 14 }
+
+local function tinkerSlots()
+  return ham.debug and DEBUG_TINKER_SLOTS or TINKER_SLOTS
+end
+
+local function isTinkerSlot(slot)
+  for _, tinkerSlot in ipairs(tinkerSlots()) do
+    if slot == tinkerSlot then return true end
+  end
+  return false
+end
 
 local function log(message)
   if ham.debug then
@@ -411,7 +423,7 @@ end
 function ham.checkTinker()
   if not ham.isRetail then return end
   ham.tinkerSlot = nil -- always reset
-  for _, slot in ipairs(tinkerSlots) do
+  for _, slot in ipairs(tinkerSlots()) do
     local itemID = GetInventoryItemID("player", slot)
     if itemID then
       local spellName, spellID = C_Item.GetItemSpell(itemID)
@@ -581,7 +593,13 @@ local eventHandlers = {
   UNIT_PET = requestOn("event: UNIT_PET"),
   -- also on zoning: the instanced-PvP rules depend on the zone
   PLAYER_ENTERING_WORLD = requestOn("event: PLAYER_ENTERING_WORLD"),
-  PLAYER_EQUIPMENT_CHANGED = requestOn("event: PLAYER_EQUIPMENT_CHANGED"),
+  -- only a tinker slot can change what the macros use; a gear set fires this once per slot
+  PLAYER_EQUIPMENT_CHANGED = function(_, slot)
+    if isTinkerSlot(slot) then
+      log("event: PLAYER_EQUIPMENT_CHANGED")
+      ham.requestMacroUpdate()
+    end
+  end,
   TRAIT_CONFIG_UPDATED = requestOn("event: TRAIT_CONFIG_UPDATED"),
   -- run what was requested during combat
   PLAYER_REGEN_ENABLED = function()
@@ -594,8 +612,13 @@ local updateFrame = CreateFrame("Frame")
 updateFrame:RegisterEvent("ADDON_LOADED")
 updateFrame:RegisterEvent("BAG_UPDATE_DELAYED")
 updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-updateFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-if ham.isClassic == false then
+-- tinkers are Retail content
+if ham.isRetail then
+  updateFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+end
+-- talents (trait configs) can teach or remove healing spells; only clients that have them know
+-- the event, and registering an unknown event is a Lua error
+if C_EventUtils.IsEventValid("TRAIT_CONFIG_UPDATED") then
   updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")

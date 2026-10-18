@@ -168,7 +168,7 @@ for _, flavor in ipairs(Client.FLAVOR_NAMES) do
   test(flavor .. ": several update requests in one frame rewrite a changed macro once", function()
     local client = loggedIn(flavor)
     local before = macroWrites(client)
-    client:fireEvent("PLAYER_EQUIPMENT_CHANGED", 1, false)
+    client:fireEvent("PLAYER_ENTERING_WORLD", false, false) -- zoning
     client:fireEvent("UNIT_PET", "player")
     client:openSettings("AutoPotion", "AutoPotion")
     client:clickCheckbox("Low Priority Healthstones")

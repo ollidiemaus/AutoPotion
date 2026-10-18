@@ -15,7 +15,7 @@ end
 
 -- Something that makes the addon rebuild its macros without changing what's in them.
 local function rebuild(client)
-  client:fireEvent("PLAYER_EQUIPMENT_CHANGED", 1, false)
+  client:fireEvent("PLAYER_ENTERING_WORLD", false, false) -- zoning
   client:nextFrame()
 end
 

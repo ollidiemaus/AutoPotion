@@ -69,6 +69,9 @@ local function installUnitAndWorld(client, env)
       IsRatedBattleground = function() return false end,
     }
   end
+  env.C_EventUtils = {
+    IsEventValid = function(event) return client.events[event] == true end,
+  }
   env.InCombatLockdown = function() return client.lockdown end
   env.GetLocale = function() return "enUS" end
   env.IsMacClient = function() return false end
@@ -86,6 +89,7 @@ local function installItems(client, env)
   end
   env.C_Item = {
     GetItemCount = function(itemId)
+      client.apiCalls["C_Item.GetItemCount"] = client:apiCallCount("C_Item.GetItemCount") + 1
       return client.bags[tonumber(itemId)] or 0
     end,
     -- an item the cache lacks reports nothing; the request loads it by the next frame

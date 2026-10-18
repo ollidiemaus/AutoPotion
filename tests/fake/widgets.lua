@@ -275,13 +275,21 @@ function Frame:HookScript(script, hook)
   table.insert(hooks[script], hook)
 end
 
+local function checkEvent(frame, method, event)
+  if not frame[0].client.events[event] then
+    error(frame:GetObjectType() .. ":" .. method .. '(): Attempt to register unknown event "' .. tostring(event) .. '"', 3)
+  end
+end
+
 function Frame:RegisterEvent(event)
+  checkEvent(self, "RegisterEvent", event)
   self[0].events[event] = { order = self[0].client:nextOrder() }
   return true
 end
 
 -- A unit event that reaches the frame only for these units (the event's first argument).
 function Frame:RegisterUnitEvent(event, unit1, unit2)
+  checkEvent(self, "RegisterUnitEvent", event)
   local units = { [unit1] = true }
   if unit2 then units[unit2] = true end
   self[0].events[event] = { order = self[0].client:nextOrder(), units = units }

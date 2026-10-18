@@ -183,6 +183,9 @@ Then the headless tests (the addon in a fake client on Retail, Classic Era and F
 tests/run.sh
 ```
 
+The fake client only accepts the events each flavor's API docs list. After a patch that adds or
+removes events, refresh those lists with `tests/fake/events/update.sh`.
+
 Then check every item against the game client data on wago.tools:
 
 ```bash
