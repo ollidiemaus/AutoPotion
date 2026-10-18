@@ -8,12 +8,13 @@ local SPELLS = { [RAPID_REGENERATION] = { name = "Rapid Regeneration" } }
 local HEAVY_RUNECLOTH = 14530 -- the best bandage below
 local RUNECLOTH = 14529
 
--- A logged-in Forever character with these bags, knowing Rapid Regeneration unless told otherwise.
+-- A logged-in Forever character with these bags (and saved variables), knowing Rapid Regeneration
+-- unless told otherwise.
 local function troll(bags, options)
   options = options or {}
   local client = Client.new({
     flavor = options.flavor or "forever", bags = bags, spells = SPELLS,
-    knownSpells = options.unknown and {} or { RAPID_REGENERATION },
+    knownSpells = options.unknown and {} or { RAPID_REGENERATION }, savedVariables = options.savedVariables,
   })
   client:login()
   return client
@@ -110,4 +111,21 @@ test("forever: the preview leaves the spell out for a character that doesn't kno
   local client = troll({ [HEAVY_RUNECLOTH] = 5 }, { unknown = true })
   client:openSettings("AutoPotion", "AutoBandage")
   assertEqual(previewOf(client), { Api.itemIcon(HEAVY_RUNECLOTH) })
+end)
+
+-- The spell is only a bandage spell: the AutoPotion macro and page leave it out.
+local HEALTHSTONE = 5512
+
+test("forever: the AutoPotion page has no box for the spell", function()
+  local client = troll({})
+  client:openSettings("AutoPotion", "AutoPotion")
+  for _, label in ipairs(client:checkboxLabels()) do
+    assert(label ~= SPELLS[RAPID_REGENERATION].name, "the AutoPotion page offers Rapid Regeneration")
+  end
+end)
+
+test("forever: the AutoPotion macro leaves the spell out even when the saved spell list has it", function()
+  local client = troll({ [HEALTHSTONE] = 1 },
+    { savedVariables = { HAMDB = { activatedSpells = { RAPID_REGENERATION } } } })
+  assertEqual(client:macroText("AutoPotion"), "#showtooltip \n/castsequence [@player] reset=combat item:" .. HEALTHSTONE)
 end)
