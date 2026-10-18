@@ -80,3 +80,14 @@ function PreviewRow:finish()
 		self.icons[i]:Hide()
 	end
 end
+
+-- Fills the row with the items of `items` (ham.Item, best first) that are in the bags.
+function PreviewRow:showItemsInBags(items)
+	self:reset()
+	for _, item in ipairs(items) do
+		if item.getCount() > 0 then
+			self:add("item", item.getId())
+		end
+	end
+	self:finish()
+end

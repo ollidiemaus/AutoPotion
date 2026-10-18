@@ -4,114 +4,21 @@ local addonName, ham = ...
 
 ---@class Frame
 ham.manaPotionSettingsFrame = CreateFrame("Frame")
-local ICON_SIZE = 50
 local PADDING = 25
 
-local manaPotionFrames = {}
-local manaPotionTextures = {}
-local manaPotionFirstIcon = nil
-local manaPotionPositionX = 0
-local manaPotionAnchor = nil
-
--- Resize the scrollable content to fit the mana potion icon row.
+-- Resize the scrollable content to fit down to the mana potion preview row.
 function ham.manaPotionSettingsFrame:recalculateContentHeight()
 	if self.content == nil then return end
-	local contentTop = self.content:GetTop()
-	if contentTop == nil then return end
-
-	local lowest = nil
-	local function considerBottom(frame)
-		if frame and frame:IsShown() then
-			local bottom = frame:GetBottom()
-			if bottom and (lowest == nil or bottom < lowest) then
-				lowest = bottom
-			end
-		end
-	end
-
-	considerBottom(manaPotionAnchor)
-	for _, frame in pairs(manaPotionFrames) do considerBottom(frame) end
-
-	if lowest ~= nil then
-		self.content:SetHeight((contentTop - lowest) + PADDING)
-	end
+	local contentTop, titleTop = self.content:GetTop(), self.priorityTitle:GetTop()
+	if contentTop == nil or titleTop == nil then return end
+	self.content:SetHeight(contentTop - titleTop + PADDING + ham.PREVIEW_ROW_HEIGHT + PADDING)
 end
 
--- Create a mana potion priority icon frame
-function ham.manaPotionSettingsFrame:createManaPotionPrioFrame(id, iconTexture, positionx)
-	local icon = CreateFrame("Frame", nil, self.content, UIParent)
-	icon:SetFrameStrata("MEDIUM")
-	icon:SetWidth(ICON_SIZE)
-	icon:SetHeight(ICON_SIZE)
-	icon:HookScript("OnEnter", function(_, btn, down)
-		GameTooltip:SetOwner(icon, "ANCHOR_TOPRIGHT")
-		GameTooltip:SetItemByID(id)
-		GameTooltip:Show()
-	end)
-	icon:HookScript("OnLeave", function(_, btn, down)
-		GameTooltip:Hide()
-	end)
-	local texture = icon:CreateTexture(nil, "BACKGROUND")
-	texture:SetTexture(iconTexture)
-	texture:SetAllPoints(icon)
-	---@diagnostic disable-next-line: inject-field
-	icon.texture = texture
-
-	if manaPotionFirstIcon == nil then
-		icon:SetPoint("TOPLEFT", manaPotionAnchor, 0, -PADDING)
-		manaPotionFirstIcon = icon
-	else
-		icon:SetPoint("TOPLEFT", manaPotionFirstIcon, positionx, 0)
-	end
-	icon:Show()
-	table.insert(manaPotionFrames, icon)
-	table.insert(manaPotionTextures, texture)
-	return icon
-end
-
--- Update the Mana Potion Priority section.
+-- Update the Mana Potion Priority section with the mana potion items in the bags, best first
 function ham.manaPotionSettingsFrame:updateManaPotionPrio()
-	-- hide existing
-	for _, frame in pairs(manaPotionFrames) do
-		frame:Hide()
-	end
-
-	manaPotionPositionX = 0
-
-	-- Build the prioritized mana potion list for the current context
-	if ham.getManaPotions then
-		local potions = ham.getManaPotions()
-		local shown = 0
-		for _, item in ipairs(potions) do
-			if item.getCount and item.getCount() > 0 then
-				local id = item.getId()
-				local _, _, _, _, _, _, _, _, _, iconTexture = C_Item.GetItemInfo(id)
-				local idx = shown + 1
-				local currentFrame = manaPotionFrames[idx]
-				local currentTexture = manaPotionTextures[idx]
-				if currentFrame ~= nil then
-					currentFrame:SetScript("OnEnter", nil)
-					currentFrame:SetScript("OnLeave", nil)
-					currentFrame:HookScript("OnEnter", function(_, btn, down)
-						GameTooltip:SetOwner(currentFrame, "ANCHOR_TOPRIGHT")
-						GameTooltip:SetItemByID(id)
-						GameTooltip:Show()
-					end)
-					currentFrame:HookScript("OnLeave", function(_, btn, down)
-						GameTooltip:Hide()
-					end)
-					currentTexture:SetTexture(iconTexture)
-					currentTexture:SetAllPoints(currentFrame)
-					currentFrame.texture = currentTexture
-					currentFrame:Show()
-				else
-					self:createManaPotionPrioFrame(id, iconTexture, manaPotionPositionX)
-					manaPotionPositionX = manaPotionPositionX + (ICON_SIZE + (ICON_SIZE / 2))
-				end
-				shown = shown + 1
-			end
-		end
-	end
+	local row = self.priorityRow
+	if row == nil then return end
+	row:showItemsInBags(ham.getManaPotions())
 	self:recalculateContentHeight()
 end
 
@@ -181,6 +88,6 @@ function ham.manaPotionSettingsFrame:InitializeOptions()
 	manaPotionPrioTitle:SetPoint("TOPLEFT", includeRejuvenationButton, "BOTTOMLEFT", 0, -PADDING)
 	manaPotionPrioTitle:SetText(L["Mana Potion Priority"])
 
-	manaPotionAnchor = manaPotionPrioTitle
-	self:recalculateContentHeight()
+	self.priorityTitle = manaPotionPrioTitle
+	self.priorityRow = ham.newPreviewRow(self.content, manaPotionPrioTitle, 0, -PADDING)
 end

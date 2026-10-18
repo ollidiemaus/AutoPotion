@@ -1,5 +1,6 @@
--- The "Current Priority" preview on the main AutoPotion page: the right icon for every entry,
--- left to right in priority order, no two on the same spot, and the tooltip of the entry it shows.
+-- The "Current Priority" previews on the main AutoPotion page and the Food, Drink, Bandage and
+-- Mana Potion pages: the right icon for every entry, left to right in priority order, no two on
+-- the same spot, and the tooltip of the entry it shows.
 local Client = require("fake.client")
 local Api = require("fake.api")
 
@@ -140,3 +141,62 @@ test("retail: after refreshes each preview icon shows the tooltip of its current
   assertEqual(tooltips(client), { { "spell:" .. DESPERATE_PRAYER }, { "player:slot:1" } })
   assertEqual(#client.errors, 0, table.concat(client.errors, "\n\n"))
 end)
+
+-- The other pages, with each flavor's best two items of the page, best first (wow-data: wow.py item).
+local CLASSIC_ERA_PAGE_ITEMS = {
+  AutoFood = { 22895, 8076 },       -- Conjured Cinnamon Roll, Conjured Sweet Roll
+  AutoDrink = { 8079, 8078 },       -- Conjured Crystal Water, Conjured Sparkling Water
+  AutoBandage = { 14530, 14529 },   -- Heavy Runecloth Bandage, Runecloth Bandage
+  AutoManaPotion = { 13444, 13443 }, -- Major Mana Potion, Superior Mana Potion
+}
+local PAGE_ITEMS = {
+  retail = {
+    AutoFood = { 113509, 265096 },      -- Conjured Mana Bun, Conjured Souffle
+    AutoDrink = { 265099, 113509 },     -- Conjured Tea, Conjured Mana Bun
+    AutoBandage = { 239713, 239711 },   -- Bright Linen Bandage (R2, R1)
+    AutoManaPotion = { 241300, 241301 }, -- Lightfused Mana Potion (R2, R1)
+  },
+  classic = CLASSIC_ERA_PAGE_ITEMS,
+  forever = CLASSIC_ERA_PAGE_ITEMS,
+}
+local PAGES = { "AutoFood", "AutoDrink", "AutoBandage", "AutoManaPotion" }
+
+local function onPage(flavor, page, bags)
+  local client = Client.new({ flavor = flavor, emptyItemCache = true, bags = bags })
+  client:login()
+  client:openSettings("AutoPotion", page)
+  return client
+end
+
+for _, flavor in ipairs(Client.FLAVOR_NAMES) do
+  for _, page in ipairs(PAGES) do
+    local best, second = PAGE_ITEMS[flavor][page][1], PAGE_ITEMS[flavor][page][2]
+
+    test(flavor .. ": with an empty item cache the " .. page .. " preview shows every item's icon", function()
+      local client = onPage(flavor, page, bagsWith(best, second))
+      assertEqual(previewOf(client), { Api.itemIcon(best), Api.itemIcon(second) })
+      assertNoOverlaps(client)
+      assertEqual(#client.errors, 0, table.concat(client.errors, "\n\n"))
+    end)
+
+    test(flavor .. ": the " .. page .. " preview follows the bags while the page is open", function()
+      local client = onPage(flavor, page, bagsWith(second))
+      assertEqual(previewOf(client), { Api.itemIcon(second) })
+      local first = client:previewIcons()[1]
+
+      client:addToBags(best, 1)
+      waitForBagUpdate(client)
+      assertEqual(previewOf(client), { Api.itemIcon(best), Api.itemIcon(second) })
+      assertNoOverlaps(client)
+      local shown = client:previewIcons()[1]
+      assertEqual({ shown.x, shown.y }, { first.x, first.y }, "the first icon moved")
+      assertEqual(tooltips(client), { { "item:" .. best }, { "item:" .. second } })
+
+      client:addToBags(best, -1)
+      waitForBagUpdate(client)
+      assertEqual(previewOf(client), { Api.itemIcon(second) })
+      assertEqual(tooltips(client), { { "item:" .. second } })
+      assertEqual(#client.errors, 0, table.concat(client.errors, "\n\n"))
+    end)
+  end
+end
