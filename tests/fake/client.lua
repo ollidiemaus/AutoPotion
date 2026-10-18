@@ -82,7 +82,9 @@ end
 --   equipped         { [inventorySlot] = itemId }
 --   emptyItemCache   true to start with no item in the item cache, as after clearing the Cache
 --                    folder: C_Item.GetItemInfo reports an item only once it has loaded
---   spells           { [spellId] = { name =, icon =, baseCooldown = } }, all optional
+--   locale           what GetLocale reports, "enUS" by default
+--   spells           { [spellId] = { name =, names =, icon =, baseCooldown = } }, all optional;
+--                    names = { [locale] = name } for the name in each locale, see Client:spellName
 --   knownSpells      { spellId, ... } in the player's spell book; petSpells the same for the pet
 --   auras            { spellId, ... } the auras (buffs) the player has, named as `spells` says
 --   savedVariables   { [name] = value } as stored by an earlier session
@@ -106,6 +108,7 @@ function Client.new(options)
     faction = options.faction or "Alliance",
     instanceType = options.instanceType or "none",
     mapId = options.mapId or 1429,
+    locale = options.locale or "enUS",
     bags = copy(options.bags or {}),
     items = copy(options.items or {}),
     equipped = copy(options.equipped or {}),
@@ -270,7 +273,7 @@ function Client:reload()
   local auras = {}
   for i, aura in ipairs(self.auras.player or {}) do auras[i] = aura.spellId end
   local client = Client.new({
-    flavor = self.flavorName, class = self.class, faction = self.faction,
+    flavor = self.flavorName, locale = self.locale, class = self.class, faction = self.faction,
     instanceType = self.instanceType, mapId = self.mapId, bags = self.bags, items = self.items,
     equipped = self.equipped, spells = self.spells, knownSpells = knownSpells, petSpells = petSpells,
     auras = auras,
@@ -392,13 +395,20 @@ end
 
 -- Auras ---------------------------------------------------------------------------------------
 
+-- The spell's name in the client's locale, as C_Spell.GetSpellName and the auras report it: its
+-- `names` entry for the locale, else its `name`, else "Spell <id>".
+function Client:spellName(spellId)
+  local spell = self.spells[spellId] or {}
+  return spell.names and spell.names[self.locale] or spell.name or ("Spell " .. spellId)
+end
+
 -- Puts an aura on the unit without telling anyone; returns its AuraData.
 function Client:addAura(unit, spellId)
   self.lastAuraInstance = self.lastAuraInstance + 1
   local spell = self.spells[spellId] or {}
   local aura = {
     auraInstanceID = self.lastAuraInstance, spellId = spellId,
-    name = spell.name or ("Spell " .. spellId), icon = spell.icon or Api.spellIcon(spellId),
+    name = self:spellName(spellId), icon = spell.icon or Api.spellIcon(spellId),
     isHelpful = true, isHarmful = false, applications = 0, duration = 3600,
     expirationTime = self.time + 3600, sourceUnit = unit,
   }

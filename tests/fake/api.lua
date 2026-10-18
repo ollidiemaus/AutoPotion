@@ -73,7 +73,7 @@ local function installUnitAndWorld(client, env)
     IsEventValid = function(event) return client.events[event] == true end,
   }
   env.InCombatLockdown = function() return client.lockdown end
-  env.GetLocale = function() return "enUS" end
+  env.GetLocale = function() return client.locale end
   env.IsMacClient = function() return false end
   env.GetBuildInfo = function()
     local flavor = client.flavor
@@ -135,7 +135,7 @@ local function installSpells(client, env)
     return client.spells[spellId] or {}
   end
   env.C_Spell = {
-    GetSpellName = function(spellId) return spell(spellId).name or ("Spell " .. spellId) end,
+    GetSpellName = function(spellId) return client:spellName(spellId) end,
     GetSpellTexture = function(spellId)
       client.apiCalls["C_Spell.GetSpellTexture"] = client:apiCallCount("C_Spell.GetSpellTexture") + 1
       return spell(spellId).icon or Api.spellIcon(spellId)
