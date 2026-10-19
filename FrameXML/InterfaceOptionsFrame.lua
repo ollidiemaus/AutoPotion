@@ -263,7 +263,7 @@ function ham.settingsFrame:InitializeOptions()
 	behaviourTitle:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 0, -PADDING)
 	behaviourTitle:SetText(L["Addon Behaviour"])
 
-	-------------  Stop Casting  -------------	
+	-------------  Stop Casting  -------------
 	local stopCastButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 	stopCastButton:SetPoint("TOPLEFT", behaviourTitle, 0, -PADDING)
 	---@diagnostic disable-next-line: undefined-field
@@ -283,7 +283,7 @@ function ham.settingsFrame:InitializeOptions()
 	self:trackOptionCheckbox(stopCastButton, "stopCast")
 	lastStaticElement = stopCastButton
 
-	-------------  Shortest Cooldown  -------------	
+	-------------  Shortest Cooldown  -------------
 	local cdResetButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 	cdResetButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
 	---@diagnostic disable-next-line: undefined-field
@@ -295,7 +295,7 @@ function ham.settingsFrame:InitializeOptions()
 	self:trackOptionCheckbox(cdResetButton, "cdReset")
 	lastStaticElement = cdResetButton
 
-	-------------  Healthstone Priority  -------------	
+	-------------  Healthstone Priority  -------------
 	local raidStoneButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 	raidStoneButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
 	---@diagnostic disable-next-line: undefined-field

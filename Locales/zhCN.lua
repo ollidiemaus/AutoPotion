@@ -7,7 +7,7 @@ L["Auto Potion Settings"] = "Auto Potion 设置"
 L["Cavedweller's Delight"] = "洞穴住民的挚爱"
 L["Refreshing Serum"] = "复苏血清"
 L["Class/Racial Spells"] = "职业/种族技能"
-L["Configure the behavior of the addon. IE: if you want to include class spells"] = 
+L["Configure the behavior of the addon. IE: if you want to include class spells"] =
 "您可以在此设置技能。例如：是否包含职业/种族回血技能"
 L["Current Priority"] = "当前优先级"
 L["Bandage Priority"] = "绷带优先级"
@@ -35,7 +35,7 @@ L["Potion of Withering Vitality"] = "枯萎活力药水"
 L["Prioritize health potions over a healthstone."] = "治疗药水优先于治疗石使用。"
 L["Reset successful!"] = "重置成功！"
 L["Reset to Default"] = "重置为默认"
-L["Shows the bandage that will currently be used, based on what is in your bags."] = 
+L["Shows the bandage that will currently be used, based on what is in your bags."] =
 "显示当前将使用的绷带（依据背包物品）。"
 L["Shows the food that will currently be used, based on what is in your bags."] =
 "显示当前将使用的食物（依据背包物品）。"
