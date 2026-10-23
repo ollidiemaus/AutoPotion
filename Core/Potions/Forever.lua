@@ -36,7 +36,6 @@ function ham.getHealthstonesForForever()
     ham.greater1,
     ham.wipperRootTuber,
     ham.healtsthone2,
-    ham.lilyRoot,
     ham.healtsthone0,
     ham.crystalFlakeThroatLozenge,
     ham.healtsthone1,
