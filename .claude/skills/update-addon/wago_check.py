@@ -246,7 +246,10 @@ class Client:
             loaded |= todo
             wanted |= {int(num(r["EffectTriggerSpell"])) for s in todo for r in self.effects[s]
                        if r["Effect"] in ("64", "140") and num(r["EffectTriggerSpell"]) > 0}
-        durations = {r["ID"]: num(r["Duration"]) for r in rows(cache, self.build, "SpellDuration")}
+        # A new build's layout can come without column names yet (12.1.7 PTR:
+        # Field_12_1_7_70493_000..); its first field is still Duration.
+        durations = {r["ID"]: num(r.get("Duration", next((v for k, v in r.items() if k.startswith("Field_")), "0")))
+                     for r in rows(cache, self.build, "SpellDuration")}
         self.duration = {int(r["SpellID"]): durations.get(r["DurationIndex"], 0)
                          for r in rows(cache, self.build, "SpellMisc")
                          if int(r["SpellID"]) in loaded and r.get("DifficultyID", "0") == "0"}
