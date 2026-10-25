@@ -40,7 +40,6 @@ function ham.getDrinkForTBC()
     ham.enrichedMannaBiscuit,
     ham.alteracMannaBiscuit,
     ham.graccusMinceMeatFruitcake,
-    ham.bobbingApple,
     ham.refreshingRedApple,
     ham.cookedCrabClaw,
     ham.sengginRoot,

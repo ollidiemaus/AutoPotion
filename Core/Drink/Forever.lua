@@ -17,10 +17,8 @@ function ham.getDrinkForForever()
     ham.enrichedMannaBiscuit,
     ham.alteracMannaBiscuit,
     ham.graccusMinceMeatFruitcake,
-    ham.bobbingApple,
     ham.refreshingRedApple,
     ham.sengginRoot,
-    ham.cookedCrabClaw,
     ham.greenTeaLeaf,
     -- Plain vendor water (no stats), highest tier first
     ham.hyjalNectar,
