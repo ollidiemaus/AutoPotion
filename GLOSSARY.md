@@ -5,6 +5,26 @@ per category (potions and heals, bandages, food, drink, mana potions).
 
 ## Language
 
+### Cast sequence
+
+**First entry**:
+What a macro's sequence starts with, a spell or an item. A sequence reset always goes back to it.
+_Avoid_: First spell, top of the sequence
+
+**Sequence reset**:
+The macro's sequence starting over at its first entry: when combat starts or ends, or when the
+reset timer runs out.
+_Avoid_: Reset (also means Reset to Default), macro reset
+
+**Reset timer**:
+The number of seconds without a press of the macro after which a sequence reset happens.
+_Avoid_: Reset, cooldown reset, reset condition
+
+**Cooldown talent**:
+A talent that takes a fixed number of seconds off the cooldown of one of the addon's spells, like
+Angel's Mercy for Desperate Prayer. Talents that shorten a cooldown while it runs are not ones.
+_Avoid_: Talent modifier, CD reduction
+
 ### Food and drink
 
 **Buff food**:
