@@ -12,6 +12,8 @@ build of each listed interface version (cached between runs) and reports:
   ORDER    an entry restores more than an entry listed above it in the same list section,
            or a lower crafting quality is listed above a higher one of the same item
            (Fleeting variants count as the same item)
+  ERROR    a cooldown talent (ham.cooldownTalents in Core/Spells/<Flavor>.lua) is not in
+           that flavor's talent tree, or doesn't take off the seconds the addon says
   NOTE     the item is only partly in wago's data for that flavor (encrypted or hotfix item);
            confirm it on Wowhead
 
@@ -19,11 +21,13 @@ A list section is the run of entries below one comment block. Sections whose com
 says "order doesn't matter" are not order-checked. Amounts come from the item's spell
 data. Flat amounts and percentages are compared separately; amounts that scale with the
 player's level (all Retail potions and bandages, old food in Mists) can't be compared,
-so those entries are skipped.
+so those entries are skipped. Cooldown talents are checked against the newest build
+of each flavor that has them.
 
 usage: wago_check.py [--flavor NAME ...] [--no-order] [--dump] [--verbose] [--cache DIR]
   --flavor   only check these flavors (retail classic tbc wrath cata mists forever)
-  --no-order skip the ordering check (needs only the small item tables)
+  --no-order skip the ordering check (needs only the small item tables, plus SpellEffect
+             for flavors with cooldown talents)
   --dump     print the amount of every list entry, to place a new item correctly
   --verbose  also list names that differ only because the item was renamed in a client
   --cache    download directory (default: $AUTOPOTION_WAGO_CACHE, else the wow-data skill's
@@ -68,9 +72,18 @@ UNORDERED = r"order (?:\w+ )*doesn't matter"  # also "order among them doesn't m
 # ones are buffs like "restores 6 health every 5 sec for 10 min", not the restore itself.
 MAX_RESTORE_MS = 120000
 
+TALENT_TABLES = ["TraitDefinition", "SpellEffect"]
+# cooldown-modifying auras: 341 modifies a spell category's cooldown (misc value = category),
+# 107/219 are spell modifiers whose misc value 11 means cooldown
+CATEGORY_COOLDOWN_AURA = "341"
+SPELL_MOD_AURAS = {"107", "219"}
+SPELL_MOD_COOLDOWN = "11"
+
 DEF_RE = re.compile(r'^ham\.(\w+)\s*=\s*ham\.Item\.new\((\d+),\s*"((?:[^"\\]|\\.)*)"')
 ENTRY_RE = re.compile(r'ham\.(\w+),?\s*(--.*)?')
 FUNC_RE = re.compile(r'function\s+(ham\.\w+)')
+TALENT_RE = re.compile(r'^ham\.cooldownTalents\[(\d+)\]\s*=\s*\{\s*spell\s*=\s*ham\.(\w+),\s*'
+                       r'seconds\s*=\s*(\d+)\s*\}\s*(?:--\s*(.*))?')
 
 
 # ---- addon side ---------------------------------------------------------------------
@@ -94,6 +107,24 @@ def read_definitions():
                 defs[m.group(1)] = dict(var=m.group(1), id=int(m.group(2)), name=m.group(3).replace('\\"', '"'),
                                         where=f"{path.relative_to(ROOT)}:{n}")
     return defs
+
+
+def read_cooldown_talents(files):
+    """{flavor: [dict(id, spell, seconds, name, where)]} from Core/Spells/<File>.lua."""
+    talents = {}
+    for fl, fname in files.items():
+        path = ROOT / "Core" / "Spells" / f"{fname}.lua"
+        if not path.exists():
+            continue
+        for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            m = TALENT_RE.match(line)
+            if m:
+                talents.setdefault(fl, []).append(dict(
+                    id=int(m.group(1)), seconds=int(m.group(3)),
+                    name=(m.group(4) or "").strip() or m.group(2), where=f"{path.relative_to(ROOT)}:{n}"))
+            elif "ham.cooldownTalents[" in line and not line.lstrip().startswith("--"):
+                raise SystemExit(f"{path.relative_to(ROOT)}:{n}: can't read this cooldown talent entry")
+    return talents
 
 
 def read_sections(path, defs):
@@ -407,6 +438,32 @@ def check_order(flavor, cat, fname, sections, defs, client, dump, out):
                                f"above {later['var']} (quality {later['tier']}) of the same item")
 
 
+def check_cooldown_talents(cache, flavor, build, talents, out):
+    """Each talent is in the build's talent tree and has a cooldown aura of -seconds."""
+    ids = {t["id"] for t in talents}
+    traits = list(rows(cache, build, "TraitDefinition"))
+    if not traits:
+        out.append(f"ERROR    [{flavor}] TraitDefinition of {build} is missing, cooldown talents not checked")
+        return
+    in_tree = {int(r["SpellID"]) for r in traits} & ids
+    amounts = defaultdict(list)
+    for r in rows(cache, build, "SpellEffect"):
+        sid = int(r["SpellID"])
+        if sid in ids and r["Effect"] == "6" and r.get("DifficultyID", "0") == "0" and (
+                r["EffectAura"] == CATEGORY_COOLDOWN_AURA
+                or (r["EffectAura"] in SPELL_MOD_AURAS and r["EffectMiscValue_0"] == SPELL_MOD_COOLDOWN)):
+            amounts[sid].append(num(r["EffectBasePointsF"]))
+    for t in talents:
+        what = f"[{flavor}] {t['where']} cooldown talent {t['name']} ({t['id']})"
+        if t["id"] not in in_tree:
+            out.append(f"ERROR    {what} is not in the talent tree of {build}")
+        elif not amounts[t["id"]]:
+            out.append(f"ERROR    {what} has no cooldown-modifying aura in {build}")
+        elif -t["seconds"] * 1000 not in amounts[t["id"]]:
+            found = ", ".join(f"{-a / 1000:g}" for a in amounts[t["id"]])
+            out.append(f"ERROR    {what} takes off {found} s in {build}, not {t['seconds']} s")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--flavor", nargs="*")
@@ -429,9 +486,11 @@ def main():
     defs = read_definitions()
     lists = read_lists(defs, files)
     item_ids = {d["id"] for d in defs.values()}
+    talents = read_cooldown_talents(files)
 
     builds = resolve_builds(args.cache, versions)
     download_tables(args.cache, builds, ITEM_TABLES + ([] if args.no_order else SPELL_TABLES))
+    download_tables(args.cache, {fl: bs[-1:] for fl, bs in builds.items() if fl in talents}, TALENT_TABLES)
     clients = {fl: [Client(args.cache, b, item_ids, with_spells=not args.no_order and b == bs[-1]) for b in bs]
                for fl, bs in builds.items()}
     for fl, cs in clients.items():
@@ -496,6 +555,10 @@ def main():
         if not args.no_order:
             for cat, sections in cats.items():
                 check_order(fl, cat, files[fl], sections, defs, cs[-1], args.dump, out)
+
+    for fl, ts in talents.items():
+        if builds.get(fl):
+            check_cooldown_talents(args.cache, fl, builds[fl][-1], ts, out)
 
     for line in out:
         print(line)

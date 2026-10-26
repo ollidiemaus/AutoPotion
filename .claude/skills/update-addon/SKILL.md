@@ -195,10 +195,14 @@ python3 .claude/skills/update-addon/wago_check.py
 It reads the interface versions from `AutoPotion.toc`, downloads the item and spell tables
 of the newest client build for each of them (about 600 MB on the first run, cached in the
 wow-data cache `~/.cache/wow-data/db2`, so `wow.py` and this check share downloads;
-`AUTOPOTION_WAGO_CACHE` overrides it, `--no-order` skips the large spell tables) and must exit 0:
+`AUTOPOTION_WAGO_CACHE` overrides it, `--no-order` skips the large spell tables except for
+flavors with cooldown talents) and must exit 0:
 - `ERROR`: the item ID does not exist in that flavor, is "UNUSED ITEM" there, points to an
   item with another name (a wrong ID), is not a consumable, or its R1/R2/R3 suffix does not
   match its crafting quality. Fix the ID or remove the entry from that flavor's list.
+- `ERROR` on a cooldown talent (`ham.cooldownTalents` in `Core/Spells/<Flavor>.lua`): the
+  talent left that flavor's talent tree, or its cooldown aura takes off a different number of
+  seconds than the entry says. Fix the seconds, or remove the entry if the talent is gone.
 - `ORDER`: an entry restores more than one listed above it in the same section, or a lower
   quality of an item is listed above a higher one. Move it.
 - `NOTE`: wago only has part of the item (its export lacks encrypted and hotfix-only rows).
