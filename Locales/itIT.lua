@@ -13,8 +13,6 @@ L["Current Priority"] = "Priorità Corrente"
 L["Bandage Priority"] = "Priorità Bende"
 L["Heartseeking Health Injector (tinker)"] = "Iniettore di Salute Cercacuore (Artificio)"
 L["Include /stopcasting in the macro"] = "Includi /stopcasting nella macro"
-L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"] =
-"Include il Tempo di Recupero più breve nella Condizione di Reset di Castsequence. !!USA CON ATTENZIONE!!"
 L["Invalid option: "] = "Opzione non valida: "
 L["Items"] = "Oggetti"
 L["Low Priority Healthstones"] = "Pietre della Salute a Bassa Priorità"

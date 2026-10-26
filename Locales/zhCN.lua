@@ -24,8 +24,6 @@ L["Include \"Well Fed\"/\"Relaxed\" buff food and drink items (with situational 
 "将\"进食充分\"/\"悠闲\"增益食物和饮料（含情境性副属性加成）纳入食物和饮料优先级列表。"
 L["Heartseeking Health Injector (tinker)"] = "觅心生命注射器（匠械）"
 L["Include /stopcasting in the macro"] = "添加停止施法（/stopcasting）到宏内（需重载界面）"
-L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"] =
-"在队列施法（Castsequence）的重置条件中加入最短冷却时间|cffff0000!!请谨慎使用!!|r"
 L["Invalid option: "] = "无效选项："
 L["Items"] = "物品"
 L["Low Priority Healthstones"] = "降低治疗石使用优先级"

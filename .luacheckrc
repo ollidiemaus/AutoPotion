@@ -28,7 +28,7 @@ read_globals = {
     "CreateMacro", "EditMacro", "GetMacroInfo", "GetNumMacros", "MAX_ACCOUNT_MACROS",
     "MegaMacro", "MegaMacroGlobalData",
     -- Items, spells, units
-    "GetInventoryItemID", "GetInventoryItemTexture", "GetSpellBaseCooldown", "GetSpellInfo",
+    "GetInventoryItemID", "GetInventoryItemTexture", "GetItemSpell", "GetSpellBaseCooldown", "GetSpellInfo",
     "GetSpellTexture", "IsSpellKnown", "UnitClass", "UnitFactionGroup", "LOCALIZED_CLASS_NAMES_MALE",
     "InCombatLockdown", "IsInInstance",
     -- Client and flavor

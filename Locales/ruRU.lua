@@ -13,8 +13,6 @@ L["Current Priority"] = "Текущий приоритет"
 L["Bandage Priority"] = "Приоритет при перевязке"
 L["Heartseeking Health Injector (tinker)"] = "Сердечный инжектор здоровья (гаджет)"
 L["Include /stopcasting in the macro"] = "Включить /stopcasting в макрос"
-L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"] =
-"Самое короткое время восстановления в условии сброса последовательности. !!ОСТОРОЖНО!!"
 L["Invalid option: "] = "Неверные настройки: "
 L["Items"] = "Предметы"
 L["Low Priority Healthstones"] = "Камни здоровья с низким приоритетом"

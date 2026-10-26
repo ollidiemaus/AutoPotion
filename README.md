@@ -51,7 +51,7 @@ You never have to edit these macros yourself – Auto Potion keeps them updated 
 - **Macro content (high level)**:
   - Uses standard macro commands like `/cast`, `/castsequence` and `/use` with `[@player]` where appropriate.
   - Can optionally include `/stopcasting` at the top of the macro if you enable that in the settings.
-  - Uses a `reset=` condition that can factor in the shortest cooldown of your selected healing spells if you enable the **CD reset** option.
+  - The `/castsequence` starts over when combat ends (`reset=combat`). With the **Go back to your first heal once its cooldown is over** option it also starts over once you haven't pressed the macro for as long as the first heal's cooldown, talents that shorten it included (`reset=combat/120` for a 2-minute spell). The timer comes from the first entry only: a spell, or a Healthstone when no spell comes first. A potion or anything else first leaves it at `reset=combat`.
 - **Performance-friendly**:
   - The macros are rebuilt once a burst of bag changes has settled, not for every change, and other players' pets cause no work.
   - Macro updates are postponed while in combat to comply with WoW's secure execution rules.
@@ -78,8 +78,8 @@ Open the settings via `/ap` or **Interface → AddOns → AutoPotion**. `/ap` op
   - Choose which supported self-healing spells and racials should be part of the sequence for your class.
 - **Include `/stopcasting` in the macro**:
   - Useful for casters; immediately stop your current cast before using a heal.
-- **Include shortest cooldown in reset**:
-  - Optionally include the shortest cooldown of your selected heals in the castsequence `reset=` condition. **Use carefully** if you are not familiar with castsequence behavior.
+- **Go back to your first heal once its cooldown is over**:
+  - If you don't press the macro for as long as your first heal's cooldown (talents included), the macro starts over with it, so a castsequence never waits on a later heal while the first one is ready again. Works when the first heal is a spell or a Healthstone; a potion first leaves the macro as it is with the option off. The one catch left: a later heal with a longer cooldown than the first can still make the macro wait for it.
 - **Low Priority Healthstones**:
   - Let health potions be used before Healthstones (or leave disabled to prefer Healthstones first).
 - **Potion of Withering Vitality / Potion of Withering Dreams**:

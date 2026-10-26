@@ -567,6 +567,18 @@ function Client:clickCheckbox(label)
   Widgets.click(checkbox(self, label))
 end
 
+-- Moves the mouse onto the check box with this label on the open settings page and off again.
+-- Returns the lines of the tooltip it showed, nil when it showed none.
+function Client:hoverCheckbox(label)
+  local box = checkbox(self, label)
+  local tooltip = self.env.GameTooltip
+  tooltip:Hide()
+  Widgets.runScript(box, "OnEnter", false)
+  local lines = tooltip:IsShown() and Widgets.tooltipLines(tooltip) or nil
+  Widgets.runScript(box, "OnLeave", false)
+  return lines
+end
+
 -- Clicks the button (not a check box) that says `text` on the open settings page.
 function Client:clickButton(text)
   local category = self.displayedSettingsCategory()

@@ -20,8 +20,6 @@ ham.myPlayer = ham.Player.new()
 local spellsMacroString = ''
 local itemsMacroString = ''
 local macroStr = ''
-local resetType = "combat"
-local shortestCD = nil
 local megaMacroRetryTime = 3 -- seconds between MegaMacro checks
 
 -- MegaMacro addon compatibility
@@ -89,14 +87,6 @@ local function addHealthstoneIfAvailable()
     end
     if ham.demonicHealthstone.getCount() > 0 then
       table.insert(ham.itemIdList, ham.demonicHealthstone.getId())
-      if ham.options.cdReset then
-        if shortestCD == nil then
-          shortestCD = 60
-        end
-        if 60 < shortestCD then
-          shortestCD = 60
-        end
-      end
     end
   end
 end
@@ -146,30 +136,6 @@ function ham.updateHeals()
   end
 end
 
-local function setShortestSpellCD(newSpell)
-  if ham.options.cdReset then
-    -- GetSpellBaseCooldown exists on every flavor (confirmed in-game on Forever), but can
-    -- return nil for a spell id absent from the client's spell data
-    local baseCd = GetSpellBaseCooldown(newSpell)
-    if not baseCd then return end
-    local cd = baseCd / 1000
-    if shortestCD == nil then
-      shortestCD = cd
-    end
-    if cd < shortestCD then
-      shortestCD = cd
-    end
-  end
-end
-
-local function setResetType()
-  if ham.options.cdReset == true and shortestCD ~= nil then
-    resetType = "combat/" .. shortestCD
-  else
-    resetType = "combat"
-  end
-end
-
 -- Spells that are only usable out of combat (Recuperate, the Earthen racial Quiet
 -- Contemplation). They can't go in the castsequence, so they get their own [nocombat] line.
 local function isOutOfCombatSpell(id)
@@ -189,6 +155,47 @@ local function getOutOfCombatSpell()
   return nil
 end
 
+-- The spell's base cooldown in seconds, nil when the client reports none or 0 (spells with
+-- charges like Healing Elixir). GetSpellBaseCooldown exists on every flavor (confirmed in-game on
+-- Forever), but can return nil for a spell id absent from the client's spell data.
+local function baseCooldown(spellId)
+  local cooldown = spellId and GetSpellBaseCooldown(spellId)
+  if cooldown and cooldown > 0 then return cooldown / 1000 end
+  return nil
+end
+
+local function isHealthstone(itemId)
+  if itemId == ham.healthstone.getId() or itemId == ham.demonicHealthstone.getId() then return true end
+  for _, healthstone in ipairs(ham.getHealthstonesClassic()) do
+    if itemId == healthstone.getId() then return true end
+  end
+  return false
+end
+
+-- The cooldown in seconds of the castsequence's first entry, nil when unknown: the first spell's
+-- base cooldown, else a Healthstone's on-use spell's. Other items (potions, the tinker slot) are
+-- unknown.
+local function firstEntryCooldown()
+  for _, spell in ipairs(ham.mySpells) do
+    if not isOutOfCombatSpell(spell.getId()) then
+      return baseCooldown(spell.getId())
+    end
+  end
+  local itemId = ham.itemIdList[1]
+  if type(itemId) ~= "number" or not isHealthstone(itemId) then return nil end
+  local getItemSpell = C_Item and C_Item.GetItemSpell or GetItemSpell
+  local _, spellId = getItemSpell(itemId)
+  return baseCooldown(spellId)
+end
+
+-- What follows reset= in the castsequence: combat, plus the first entry's cooldown as the reset
+-- timer with the option on
+local function sequenceResetArgument()
+  local cooldown = ham.options.cdReset and firstEntryCooldown()
+  if cooldown then return "combat/" .. cooldown end
+  return "combat"
+end
+
 local function buildSpellMacroString()
   spellsMacroString = ''
 
@@ -200,7 +207,6 @@ local function buildSpellMacroString()
         --we don't want to add these because even though they are spells they are only usable out of combat
       else
         name = spell.getName();
-        setShortestSpellCD(spell.getId())
 
         --TODO HEALING Elixir Twice because it has two charges ?! kinda janky but will work for now
         if spell.getId() == ham.healingElixir.getId() then
@@ -469,10 +475,8 @@ function ham.updateMacro()
       macroStr = macroStr .. "\n/stopcasting \n"
     end
   else
-    resetType = "combat"
     buildItemMacroString()
     buildSpellMacroString()
-    setResetType()
     macroStr = "#showtooltip \n"
     if ham.options.stopCast then
       macroStr = macroStr .. "/stopcasting \n"
@@ -486,7 +490,7 @@ function ham.updateMacro()
       macroStr = macroStr .. "/cast [nocombat] " .. outOfCombatSpell.getName() .. "\n"
     end
 
-    local sequenceStr = "/castsequence [@player" .. combatCondition .. "] reset=" .. resetType .. " "
+    local sequenceStr = "/castsequence [@player" .. combatCondition .. "] reset=" .. sequenceResetArgument() .. " "
     if spellsMacroString ~= "" then
       sequenceStr = sequenceStr .. spellsMacroString
     end

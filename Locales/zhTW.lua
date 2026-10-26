@@ -12,8 +12,6 @@ L["Current Priority"] = "目前的優先順序"
 L["Bandage Priority"] = "繃帶優先"
 L["Heartseeking Health Injector (tinker)"] = "覓心生命注射器 (裝置)"
 L["Include /stopcasting in the macro"] = "包含 /在巨集中的停止施法"
-L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"] =
-"連續施放的重置條件使用最短的冷卻時間。!!請謹慎使用!!"
 L["Invalid option: "] = "無效選項："
 L["Items"] = "物品"
 L["Low Priority Healthstones"] = "低優先級治療石"

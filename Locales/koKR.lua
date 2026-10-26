@@ -13,8 +13,6 @@ if not L then return end
 --L["Bandage Priority"] = "Bandage Priority"
 --L["Heartseeking Health Injector (tinker)"] = "Heartseeking Health Injector (tinker)"
 --L["Include /stopcasting in the macro"] = "Include /stopcasting in the macro"
---L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"] =
---"Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"
 --L["Invalid option: "] = "Invalid option: "
 --L["Items"] = "Items"
 --L["Low Priority Healthstones"] = "Low Priority Healthstones"

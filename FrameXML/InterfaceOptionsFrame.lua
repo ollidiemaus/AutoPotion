@@ -283,14 +283,22 @@ function ham.settingsFrame:InitializeOptions()
 	self:trackOptionCheckbox(stopCastButton, "stopCast")
 	lastStaticElement = stopCastButton
 
-	-------------  Shortest Cooldown  -------------
+	-------------  First Heal's Cooldown  -------------
 	local cdResetButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 	cdResetButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
 	---@diagnostic disable-next-line: undefined-field
-	cdResetButton.Text:SetText(L
-		["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"])
+	cdResetButton.Text:SetText(L["Go back to your first heal once its cooldown is over"])
 	cdResetButton:HookScript("OnClick", function(_, btn, down)
 		ham.settingsFrame:updateConfig("cdReset", cdResetButton:GetChecked())
+	end)
+	cdResetButton:HookScript("OnEnter", function(_, btn, down)
+		---@diagnostic disable-next-line: param-type-mismatch
+		GameTooltip:SetOwner(cdResetButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetText(L["If you don't press the macro for as long as your first heal's cooldown (talents included), the macro starts over with it. Works when the first heal is a spell or a Healthstone. A later heal with a longer cooldown can still make the macro wait."])
+		GameTooltip:Show()
+	end)
+	cdResetButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
 	end)
 	self:trackOptionCheckbox(cdResetButton, "cdReset")
 	lastStaticElement = cdResetButton

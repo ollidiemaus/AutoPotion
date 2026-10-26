@@ -37,7 +37,7 @@ end
 -- better one would hide (no regular health potion on Retail, so the Withering potions get in),
 -- buff food ahead of normal food and the food buff, so that "only when the buff is missing" puts
 -- buff food last, a mana potion that only counts as a Rejuvenation potion, and a
--- spell with a cooldown for "reset on the shortest cooldown". The Retail one is a Warlock, the
+-- spell with a cooldown for "go back to your first heal once its cooldown is over". The Retail one is a Warlock, the
 -- only class with the Soulburn box, and wears the Heartseeking Health Injector tinker.
 local CLASSIC_ERA_CHARACTER = {
   class = "WARRIOR",

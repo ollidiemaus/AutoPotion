@@ -25,10 +25,11 @@ L["Include \"Well Fed\"/\"Relaxed\" buff food and drink items (with situational 
 L["Only when the buff is missing"] = "Only when the buff is missing"
 L["Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"Relaxed\" for drinks), even before conjured food. While you have it, buff food comes last and is only eaten when nothing else is left."] =
 "Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"Relaxed\" for drinks), even before conjured food. While you have it, buff food comes last and is only eaten when nothing else is left."
+L["Go back to your first heal once its cooldown is over"] = "Go back to your first heal once its cooldown is over"
+L["If you don't press the macro for as long as your first heal's cooldown (talents included), the macro starts over with it. Works when the first heal is a spell or a Healthstone. A later heal with a longer cooldown can still make the macro wait."] =
+"If you don't press the macro for as long as your first heal's cooldown (talents included), the macro starts over with it. Works when the first heal is a spell or a Healthstone. A later heal with a longer cooldown can still make the macro wait."
 L["Heartseeking Health Injector (tinker)"] = "Heartseeking Health Injector (tinker)"
 L["Include /stopcasting in the macro"] = "Include /stopcasting in the macro"
-L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"] =
-"Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"
 L["Invalid option: "] = "Invalid option: "
 L["Items"] = "Items"
 L["Soulburn Healthstone"] = "Soulburn Healthstone"

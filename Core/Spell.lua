@@ -36,15 +36,9 @@ ham.Spell.new = function(id, class)
     -- Feature-detect the modern C_Spell API rather than branching on ham.isRetail: Forever runs
     -- the Mainline client engine, so GetSpellInfo is nil there (confirmed via an in-game error)
     -- even though its content is Classic-based and ham.isRetail is false for it.
-    if C_Spell and C_Spell.GetSpellCooldown and C_Spell.GetSpellName then
-        -- GetSpellCooldown returns nil (not a zeroed table) for a spell ID absent from the
-        -- client's spell database entirely, e.g. a Retail-only spell on Forever's Classic-era
-        -- spell data. The legacy GetSpellBaseCooldown degraded gracefully instead, so match that.
-        local cooldownInfo = C_Spell.GetSpellCooldown(id)
-        self.cd = cooldownInfo and cooldownInfo.duration
+    if C_Spell and C_Spell.GetSpellName then
         self.name = C_Spell.GetSpellName(id)
     else
-        self.cd = GetSpellBaseCooldown(id)
         self.name = GetSpellInfo(id)
     end
 
@@ -54,10 +48,6 @@ ham.Spell.new = function(id, class)
 
     function self.getName()
         return self.name
-    end
-
-    function self.getCd()
-        return self.cd
     end
 
     function self.getClass()
