@@ -172,13 +172,36 @@ local function isHealthstone(itemId)
   return false
 end
 
+-- Whether the player knows this talent. C_SpellBook.IsSpellKnown is the current "is spell known"
+-- query (IsPlayerSpell is a deprecated wrapper around it); Cata and Wrath have no C_SpellBook
+-- version and keep the native IsSpellKnown global.
+local function isTalentKnown(talentId)
+  if C_SpellBook and C_SpellBook.IsSpellKnown then
+    return C_SpellBook.IsSpellKnown(talentId, Enum.SpellBookSpellBank.Player)
+  end
+  return IsSpellKnown(talentId)
+end
+
+-- The spell's cooldown in seconds with the cooldown talents the player knows, nil when it has no
+-- base cooldown.
+local function talentedCooldown(spellId)
+  local cooldown = baseCooldown(spellId)
+  if not cooldown then return nil end
+  for talentId, talent in pairs(ham.cooldownTalents) do
+    if talent.spell.getId() == spellId and isTalentKnown(talentId) then
+      cooldown = cooldown - talent.seconds
+    end
+  end
+  return cooldown
+end
+
 -- The cooldown in seconds of the castsequence's first entry, nil when unknown: the first spell's
--- base cooldown, else a Healthstone's on-use spell's. Other items (potions, the tinker slot) are
--- unknown.
+-- cooldown with its cooldown talents, else a Healthstone's on-use spell's. Other items (potions,
+-- the tinker slot) are unknown.
 local function firstEntryCooldown()
   for _, spell in ipairs(ham.mySpells) do
     if not isOutOfCombatSpell(spell.getId()) then
-      return baseCooldown(spell.getId())
+      return talentedCooldown(spell.getId())
     end
   end
   local itemId = ham.itemIdList[1]

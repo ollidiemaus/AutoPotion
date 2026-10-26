@@ -460,6 +460,22 @@ function Client:learnSpell(spellId)
   self:fireEvent("SPELLS_CHANGED")
 end
 
+-- The player picks or drops a talent in the talent window: its spell becomes known or unknown,
+-- then the client fires SPELLS_CHANGED, plus TRAIT_CONFIG_UPDATED on the flavors that have it.
+local function changeTalent(client, spellId, known)
+  client.knownSpells[spellId] = known or nil
+  client:fireEvent("SPELLS_CHANGED")
+  if client.events.TRAIT_CONFIG_UPDATED then client:fireEvent("TRAIT_CONFIG_UPDATED", 1) end
+end
+
+function Client:pickTalent(spellId)
+  changeTalent(self, spellId, true)
+end
+
+function Client:dropTalent(spellId)
+  changeTalent(self, spellId, false)
+end
+
 -- The player deletes this macro in the macro window (/macro).
 function Client:deleteMacro(name)
   for _, list in ipairs({ self.macros.account, self.macros.character }) do

@@ -32,6 +32,14 @@ table.insert(ham.supportedSpells, ham.SpellGroup.new({
 	ham.giftOfTheNaaruWarrior,
 }))
 
+-- Talents that shorten a spell's cooldown for good, for the macro's reset timer. Talents that
+-- shorten a running cooldown (Red Thirst, Crimson Vial's kill bonus, Exhilaration on kills) don't
+-- belong here: leaving them out only makes the sequence reset late, never early.
+ham.cooldownTalents[238100] = { spell = ham.desperatePrayer, seconds = 20 } -- Angel's Mercy
+ham.cooldownTalents[270581] = { spell = ham.exhilaration, seconds = 30 } -- Natural Mending
+ham.cooldownTalents[386686] = { spell = ham.darkPact, seconds = 15 } -- Frequent Donor
+ham.cooldownTalents[1266818] = { spell = ham.deathPact, seconds = 30 } -- Death Defiance
+
 -- More retail-only spells go here, e.g.:
 -- ham.someRetailOnlySpell = ham.Spell.new(123456, "WARRIOR") -- class token, or omit for non-class spells
 -- table.insert(ham.supportedSpells, ham.someRetailOnlySpell)

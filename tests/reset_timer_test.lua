@@ -15,6 +15,16 @@ local DEMONIC_HEALTHSTONE = 224464
 local POTION = 244838
 local LAST_STAND = 12975
 local MAJOR_HEALTHSTONE = 9421
+local GIFT_OF_THE_NAARU_PRIEST = 59544
+local EXHILARATION = 109304
+local DARK_PACT = 108416
+local DEATH_PACT = 48743
+local VAMPIRIC_BLOOD = 55233
+-- cooldown talents
+local ANGELS_MERCY = 238100
+local NATURAL_MENDING = 270581
+local FREQUENT_DONOR = 386686
+local DEATH_DEFIANCE = 1266818
 
 local SPELLS = {
   [DESPERATE_PRAYER] = { name = "Desperate Prayer", baseCooldown = 90000 },
@@ -26,6 +36,15 @@ local SPELLS = {
   [452930] = { name = "Demonic Healthstone", baseCooldown = 60000 },
   [LAST_STAND] = { name = "Last Stand", baseCooldown = 180000 },
   [11732] = { name = "Major Healthstone", baseCooldown = 120000 },
+  [GIFT_OF_THE_NAARU_PRIEST] = { name = "Gift of the Naaru", baseCooldown = 120000 },
+  [EXHILARATION] = { name = "Exhilaration", baseCooldown = 120000 },
+  [DARK_PACT] = { name = "Dark Pact", baseCooldown = 60000 },
+  [DEATH_PACT] = { name = "Death Pact", baseCooldown = 120000 },
+  [VAMPIRIC_BLOOD] = { name = "Vampiric Blood", baseCooldown = 90000 },
+  [ANGELS_MERCY] = { name = "Angel's Mercy" },
+  [NATURAL_MENDING] = { name = "Natural Mending" },
+  [FREQUENT_DONOR] = { name = "Frequent Donor" },
+  [DEATH_DEFIANCE] = { name = "Death Defiance" },
 }
 local ITEMS = {
   [HEALTHSTONE] = { spell = { name = "Healthstone", id = 6262 } },
@@ -139,6 +158,69 @@ for _, flavor in ipairs({ "classic", "forever" }) do
     assertEqual(sequenceResetArgument(client:macroText("AutoPotion")), "combat/120")
   end)
 end
+
+test("retail: Desperate Prayer with Angel's Mercy resets after its shortened cooldown", function()
+  local client = character({ class = "PRIEST", knownSpells = { DESPERATE_PRAYER, ANGELS_MERCY } })
+  assertEqual(sequenceResetArgument(client:macroText("AutoPotion")), "combat/70")
+  assertEqual(client.errors, {})
+end)
+
+test("retail: picking Angel's Mercy shortens the timer at once, dropping it restores it", function()
+  local client = character({ class = "PRIEST", knownSpells = { DESPERATE_PRAYER } })
+
+  client:pickTalent(ANGELS_MERCY)
+  client:nextFrame()
+  assertEqual(sequenceResetArgument(client:macroText("AutoPotion")), "combat/70", "picked")
+
+  client:dropTalent(ANGELS_MERCY)
+  client:nextFrame()
+  assertEqual(sequenceResetArgument(client:macroText("AutoPotion")), "combat/90", "dropped")
+  assertEqual(client.errors, {})
+end)
+
+for _, case in ipairs({
+  { class = "HUNTER", spell = EXHILARATION, talent = NATURAL_MENDING, reset = "combat/90" },
+  { class = "WARLOCK", spell = DARK_PACT, talent = FREQUENT_DONOR, reset = "combat/45" },
+  { class = "DEATHKNIGHT", spell = DEATH_PACT, talent = DEATH_DEFIANCE, reset = "combat/90" },
+}) do
+  local name = SPELLS[case.spell].name .. " with " .. SPELLS[case.talent].name
+  test("retail: " .. name .. " resets after its shortened cooldown", function()
+    local client = character({
+      class = case.class, knownSpells = { case.spell, case.talent },
+      settings = { activatedSpells = { case.spell } },
+    })
+    assertEqual(sequenceResetArgument(client:macroText("AutoPotion")), case.reset)
+    assertEqual(client.errors, {})
+  end)
+end
+
+test("retail: Angel's Mercy leaves the timer of Gift of the Naaru before Desperate Prayer", function()
+  local client = character({
+    class = "PRIEST",
+    knownSpells = { GIFT_OF_THE_NAARU_PRIEST, DESPERATE_PRAYER, ANGELS_MERCY },
+    settings = { activatedSpells = { GIFT_OF_THE_NAARU_PRIEST, DESPERATE_PRAYER } },
+  })
+  assertEqual(client:macroText("AutoPotion"),
+    "#showtooltip \n/castsequence [@player] reset=combat/120 Gift of the Naaru, Desperate Prayer")
+end)
+
+test("retail: dropping the talent that taught Death Pact gives Vampiric Blood's timer", function()
+  local client = character({
+    class = "DEATHKNIGHT",
+    knownSpells = { DEATH_PACT, VAMPIRIC_BLOOD },
+    settings = { activatedSpells = { DEATH_PACT, VAMPIRIC_BLOOD } },
+  })
+  client:dropTalent(DEATH_PACT)
+  client:nextFrame()
+  assertEqual(client:macroText("AutoPotion"),
+    "#showtooltip \n/castsequence [@player] reset=combat/90 Vampiric Blood")
+
+  client:pickTalent(DEATH_PACT)
+  client:nextFrame()
+  assertEqual(client:macroText("AutoPotion"),
+    "#showtooltip \n/castsequence [@player] reset=combat/120 Death Pact, Vampiric Blood")
+  assertEqual(client.errors, {})
+end)
 
 test("retail: the MegaMacro macro gets the same reset timer", function()
   local client = character({ class = "PRIEST", knownSpells = { DESPERATE_PRAYER }, megaMacro = { "AutoPotion" } })

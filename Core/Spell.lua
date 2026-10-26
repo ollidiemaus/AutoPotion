@@ -6,6 +6,11 @@ ham.Spell = {}
 -- Filled in by the per-flavor Core/Spells/<Flavor>.lua files.
 ham.spellRanks = {}
 
+-- Cooldown talents: a talent's spell id -> { spell = the addon's spell, seconds = what the talent
+-- takes off that spell's base cooldown }. A talent counts while the player knows its spell id.
+-- Filled in by the per-flavor Core/Spells/<Flavor>.lua files.
+ham.cooldownTalents = {}
+
 -- The global IsSpellKnown is a deprecated wrapper around C_SpellBook.IsSpellInSpellBook on
 -- every flavor that has the C_SpellBook version (Retail, Classic Era, TBC, Mists, Forever),
 -- and only exists there while the loadDeprecationFallbacks CVar is on. Cata and Wrath have
