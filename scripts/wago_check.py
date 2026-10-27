@@ -50,7 +50,7 @@ from pathlib import Path
 
 csv.field_size_limit(sys.maxsize)
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[1]
 WAGO = "https://wago.tools"
 
 # TOC line -> (flavor, file name used in Core/<Category>/<File>.lua)

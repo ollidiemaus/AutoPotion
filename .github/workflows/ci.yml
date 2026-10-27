@@ -27,7 +27,7 @@ jobs:
         run: luacheck .
 
       - name: Static checks
-        run: .claude/skills/update-addon/check.sh
+        run: scripts/check.sh
 
       - name: Test
         run: tests/run.sh

@@ -4,3 +4,4 @@ ignore:
   - docs
   - GLOSSARY.md
   - tests
+  - scripts
