@@ -51,6 +51,7 @@ ham.melonJuice = ham.Item.new(1205, "Melon Juice")
 ham.sweetNectar = ham.Item.new(1708, "Sweet Nectar")
 ham.moonberryJuice = ham.Item.new(1645, "Moonberry Juice")
 ham.morningGloryDew = ham.Item.new(8766, "Morning Glory Dew")
+ham.morningGloryDewForever = ham.Item.new(287964, "Morning Glory Dew") -- Forever only, level 1 version
 
 -- Classic - more plain vendor/drop water (no stats), reskins of the same mana-restore
 -- mechanic at the same level tiers as the list above

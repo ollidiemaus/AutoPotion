@@ -82,10 +82,13 @@ ham.majorManaPotion = ham.Item.new(13444, "Major Mana Potion")
 ham.majorRejuvenationPotion = ham.Item.new(18253, "Major Rejuvenation Potion", { rejuvenation = true })
 ham.combatManaPotion = ham.Item.new(18841, "Combat Mana Potion")
 ham.superiorManaPotion = ham.Item.new(13443, "Superior Mana Potion")
+ham.superiorManaPotionForever = ham.Item.new(288897, "Superior Mana Potion") -- Forever only, level 1 version
 ham.greaterManaPotion = ham.Item.new(6149, "Greater Mana Potion")
 ham.manaPotion = ham.Item.new(3827, "Mana Potion")
 ham.lesserManaPotion = ham.Item.new(3385, "Lesser Mana Potion")
+ham.lesserManaPotionForever = ham.Item.new(287969, "Lesser Mana Potion") -- Forever only, level 1 version
 ham.minorManaPotion = ham.Item.new(2455, "Minor Mana Potion")
+ham.minorManaPotionForever = ham.Item.new(287968, "Minor Mana Potion") -- Forever only, level 1 version
 ham.minorRejuvenationPotion = ham.Item.new(2456, "Minor Rejuvenation Potion", { rejuvenation = true })
 -- Classic/TBC PvP battleground-only draughts
 ham.majorManaDraught = ham.Item.new(17351, "Major Mana Draught")

@@ -8,10 +8,13 @@ function ham.getManaPotionsForForever()
     ham.majorRejuvenationPotion,
     ham.combatManaPotion,
     ham.superiorManaPotion,
+    ham.superiorManaPotionForever,
     ham.greaterManaPotion,
     ham.manaPotion,
     ham.lesserManaPotion,
+    ham.lesserManaPotionForever,
     ham.minorManaPotion,
+    ham.minorManaPotionForever,
     ham.minorRejuvenationPotion,
   }
 

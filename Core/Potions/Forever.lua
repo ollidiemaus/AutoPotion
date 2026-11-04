@@ -8,10 +8,14 @@ function ham.getPotsForForever()
     ham.major,
     ham.combat,
     ham.superior,
+    ham.superiorForever,
     ham.greater,
+    ham.greaterForever,
     ham.healingPotion,
     ham.lesser,
-    ham.minor
+    ham.lesserForever,
+    ham.minor,
+    ham.minorForever
   }
 
   -- If in a PvP battleground, prioritize battleground draughts
