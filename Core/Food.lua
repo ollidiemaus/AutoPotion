@@ -165,9 +165,11 @@ ham.muttonChop = ham.Item.new(3770, "Mutton Chop")
 ham.wildHogShank = ham.Item.new(3771, "Wild Hog Shank")
 ham.curedHamSteak = ham.Item.new(4599, "Cured Ham Steak")
 ham.roastedQuail = ham.Item.new(8952, "Roasted Quail")
+ham.roastedQuailForever = ham.Item.new(287963, "Roasted Quail") -- Forever only, level 1 version
 
 -- Classic - stat ("Well Fed") food, highly situational, opt-in via the includeBuffFood option
 ham.grilledSquid = ham.Item.new(13928, "Grilled Squid", { buffFood = true }) -- Agility
+ham.grilledSquidForever = ham.Item.new(287974, "Grilled Squid", { buffFood = true }) -- Forever only, level 1 version
 ham.nightfinSoup = ham.Item.new(13931, "Nightfin Soup", { buffFood = true }) -- Mana regen
 ham.runnTumTuberSurprise = ham.Item.new(18254, "Runn Tum Tuber Surprise", { buffFood = true }) -- Intellect
 ham.smokedDesertDumplings = ham.Item.new(20452, "Smoked Desert Dumplings", { buffFood = true }) -- Strength
@@ -241,6 +243,7 @@ ham.spiderSausage = ham.Item.new(17222, "Spider Sausage", { buffFood = true })
 ham.striderStew = ham.Item.new(5477, "Strider Stew", { buffFood = true })
 ham.tastyLionSteak = ham.Item.new(3728, "Tasty Lion Steak", { buffFood = true })
 ham.tenderWolfSteak = ham.Item.new(18045, "Tender Wolf Steak", { buffFood = true })
+ham.tenderWolfSteakForever = ham.Item.new(287973, "Tender Wolf Steak", { buffFood = true }) -- Forever only, level 1 version
 ham.winterVeilCookie = ham.Item.new(21254, "Winter Veil Cookie", { buffFood = true })
 
 -- Classic - dual restore (health AND mana, no stats). Shared with Core/Drink.lua's priority

@@ -71,11 +71,15 @@ ham.auchenai = ham.Item.new(32947, "Auchenai Healing Potion")
 ham.super = ham.Item.new(22829, "Super Healing Potion")
 ham.major = ham.Item.new(13446, "Major Healing Potion")
 ham.lesser = ham.Item.new(858, "Lesser Healing Potion")
+ham.lesserForever = ham.Item.new(287967, "Lesser Healing Potion") -- Forever only, level 1 version
 ham.combat = ham.Item.new(18839, "Combat Healing Potion")
 --superior has probably wrong scaling
 ham.superior = ham.Item.new(3928, "Superior Healing Potion")
+ham.superiorForever = ham.Item.new(288896, "Superior Healing Potion") -- Forever only, level 1 version
 ham.minor = ham.Item.new(118, "Minor Healing Potion")
+ham.minorForever = ham.Item.new(287966, "Minor Healing Potion") -- Forever only, level 1 version
 ham.greater = ham.Item.new(1710, "Greater Healing Potion")
+ham.greaterForever = ham.Item.new(287977, "Greater Healing Potion") -- Forever only, level 1 version
 ham.healingPotion = ham.Item.new(929, "Healing Potion")
 -- Classic PvP battleground-only draughts
 ham.majorHealingDraught = ham.Item.new(17348, "Major Healing Draught")
