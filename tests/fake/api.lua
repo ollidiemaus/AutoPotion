@@ -58,6 +58,10 @@ local function installUnitAndWorld(client, env)
   env.IsInInstance = function()
     return client.instanceType ~= "none", client.instanceType
   end
+  -- only the returns the addon reads; the eighth is the instance map, which the open world has too
+  env.GetInstanceInfo = function()
+    return "", client.instanceType, 0, "", 0, 0, false, client.instanceMapId
+  end
   env.C_Map = {
     GetBestMapForUnit = function(unit)
       if unit == "player" then return client.mapId end

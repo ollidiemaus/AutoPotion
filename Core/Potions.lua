@@ -78,6 +78,12 @@ ham.superior = ham.Item.new(3928, "Superior Healing Potion")
 ham.superiorForever = ham.Item.new(288896, "Superior Healing Potion") -- Forever only, level 1 version
 ham.minor = ham.Item.new(118, "Minor Healing Potion")
 ham.minorForever = ham.Item.new(287966, "Minor Healing Potion") -- Forever only, level 1 version
+ham.perishableHealingPotion = ham.Item.new(268883, "Perishable Healing Potion") -- Forever only
+ham.perishableLesserHealingPotion = ham.Item.new(268882, "Perishable Lesser Healing Potion") -- Forever only
+ham.perishableMinorHealingPotion = ham.Item.new(268881, "Perishable Minor Healing Potion") -- Forever only
+ham.tessasTonic = ham.Item.new(274935, "Tessa's Tonic") -- Forever only, restores mana too
+-- Forever only, zone-locked to Zephras Isle. Shares the potion cooldown, restores mana too.
+ham.windstone = ham.Item.new(255663, "Windstone")
 ham.greater = ham.Item.new(1710, "Greater Healing Potion")
 ham.greaterForever = ham.Item.new(287977, "Greater Healing Potion") -- Forever only, level 1 version
 ham.healingPotion = ham.Item.new(929, "Healing Potion")

@@ -1,9 +1,10 @@
 ---@diagnostic disable: undefined-global
 local addonName, ham = ...
 
--- WoW Forever is based on Classic, starting from the same bandage list until beta testing shows otherwise.
+-- WoW Forever is based on Classic: the Classic Era bandage list and Forever's own bandages.
 function ham.getBandagesForForever()
   local list = {
+    ham.denseRuneclothBandage,
     ham.heavyRuneclothBandage,
     ham.runeclothBandage,
     ham.heavyMageweaveBandage,
@@ -15,6 +16,14 @@ function ham.getBandagesForForever()
     ham.heavyLinenBandage,
     ham.linenBandage,
   }
+
+  -- These only work on Darkspear Islands. Insert in reverse order so final priority is
+  -- Runecloth > Mageweave > Silk
+  if ham.isOnInstanceMap(ham.INSTANCE_MAP_ID_DARKSPEAR_ISLANDS) then
+    table.insert(list, 1, ham.darkspearIslandsSilkBandage)
+    table.insert(list, 1, ham.darkspearIslandsMageweaveBandage)
+    table.insert(list, 1, ham.darkspearIslandsRuneclothBandage)
+  end
 
   -- When inside a PvP instance, prioritize battleground-specific bandages
   local inInstance, instanceType = IsInInstance()

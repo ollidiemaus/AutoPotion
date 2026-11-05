@@ -26,4 +26,15 @@ ham.MAP_ID_ALTERAC_VALLEY = 1459
 ham.MAP_ID_WARSONG_GULCH = 1460
 ham.MAP_ID_ARATHI_BASIN = 1461
 
+-- Instance maps of Forever's islands. A zone-locked item's area requirement covers the whole
+-- island, so these are instance map IDs (GetInstanceInfo), not UI maps: every subzone shares one.
+ham.INSTANCE_MAP_ID_ZEPHRAS_ISLE = 2991
+ham.INSTANCE_MAP_ID_DARKSPEAR_ISLANDS = 2997
+
+-- Whether the player is on this instance map. Leaving one is a loading screen, so the macros
+-- follow through PLAYER_ENTERING_WORLD.
+function ham.isOnInstanceMap(mapId)
+  return select(8, GetInstanceInfo()) == mapId
+end
+
 

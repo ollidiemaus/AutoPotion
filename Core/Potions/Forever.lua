@@ -1,7 +1,7 @@
 ---@diagnostic disable: undefined-global
 local addonName, ham = ...
 
--- WoW Forever is based on Classic, starting from the same potion list until beta testing shows otherwise.
+-- WoW Forever is based on Classic: the Classic Era potion list and Forever's own potions.
 function ham.getPotsForForever()
   -- Base Forever potions list
   local pots = {
@@ -9,14 +9,23 @@ function ham.getPotsForForever()
     ham.combat,
     ham.superior,
     ham.superiorForever,
+    ham.tessasTonic,
     ham.greater,
     ham.greaterForever,
+    ham.perishableHealingPotion,
     ham.healingPotion,
+    ham.perishableLesserHealingPotion,
     ham.lesser,
     ham.lesserForever,
+    ham.perishableMinorHealingPotion,
     ham.minor,
     ham.minorForever
   }
+
+  -- Windstone only works on Zephras Isle
+  if ham.isOnInstanceMap(ham.INSTANCE_MAP_ID_ZEPHRAS_ISLE) then
+    table.insert(pots, 1, ham.windstone)
+  end
 
   -- If in a PvP battleground, prioritize battleground draughts
   local inInstance, instanceType = IsInInstance()

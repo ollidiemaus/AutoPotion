@@ -26,14 +26,16 @@ You never have to edit these macros yourself – Auto Potion keeps them updated 
   - Every potion, food, drink and bandage list is ordered strongest first for your game version (checked against the game data of Retail, Classic Era, TBC, Wrath, Cata, Mists and Forever), so the macro always picks the best item you have.
 - **Smart battleground support**:
   - Uses the appropriate PvP-only healing draughts and bandages when you are in battlegrounds (e.g. Ashran tonic, Classic draughts and BG bandages).
+- **Zone-locked items**:
+  - Items that only work in one place are used there, and first: battleground draughts and bandages, and on WoW Forever Windstone on Zephras Isle and the Darkspear Islands bandages. Elsewhere the macros leave them out.
 - **Mana potion macro**:
   - Maintains an `AutoManaPotion` macro (`/use item:<id>`) for the best mana potion in your bags, sorted by the amount of mana restored for your game version (e.g. Lightfused / Algari / Aerated on Retail, Master / Mythical / Runic / Super / Major on the Classic versions).
-  - Potions that restore health *and* mana (Rejuvenation potions, Cavedweller's Delight, Refreshing Serum) are included and sorted by their mana, and can be turned off in the settings.
-  - Channeled/"defenseless" potions, potions with side effects and zone-locked potions are never used.
+  - Potions that restore health *and* mana (Rejuvenation potions, Cavedweller's Delight, Refreshing Serum, Tessa's Tonic, Windstone) are included and sorted by their mana, and can be turned off in the settings.
+  - Channeled/"defenseless" potions and potions with side effects are never used.
 - **Food and drink macros**:
   - Maintain an `AutoFood` and an `AutoDrink` macro for the best food and drink in your bags.
   - Conjured food and water come first (free, and they don't take up bag space).
-  - Food and drink that also give a "Well Fed" or "Relaxed" buff come next, but only if you turn on **Include Buff Food**.
+  - Food and drink that also give a "Well Fed" or "Relaxed" buff come next, but only if you turn on **Include Buff Food**. That includes WoW Forever's Nutritious food and drinks.
   - Then food and drink that restore health *and* mana, then plain food and drink, highest tier first.
   - On TBC, Wrath, Cata and Mists, food and drink from the earlier expansions follow as a fallback for characters that are still leveling.
 - **Bandage macro**:
