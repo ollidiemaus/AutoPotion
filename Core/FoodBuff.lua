@@ -37,7 +37,8 @@ if not ham.isRetail and not ham.isForever then
 end
 
 -- Retail's buff drinks leave Relaxed, found by its translated name. It's separate from the food
--- buff: the food buff orders AutoFood, Relaxed orders AutoDrink.
+-- buff: the food buff orders AutoFood, Relaxed orders AutoDrink. Forever has no Relaxed, so the
+-- food buff orders both there.
 local relaxedNames = {} -- { [name] = true }
 if ham.isRetail then
   local name = spellName(1269152) -- one of the Relaxed spells, for the name

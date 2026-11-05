@@ -1,0 +1,202 @@
+[
+  {
+    "flavors": [
+      "forever"
+    ],
+    "why": "Deprecated, Test and placeholder entries",
+    "names": "^(Deprecated |UNUSED|CHU's|Diet McWeaksauce|The McWeaksauce)"
+  },
+  {
+    "flavors": [
+      "forever"
+    ],
+    "why": "Damage the player afterwards; adding them would need a new option",
+    "names": "Discolored"
+  },
+  {
+    "flavors": [
+      "forever"
+    ],
+    "why": "Alcohol",
+    "items": {
+      "1072": "Full Moonshine",
+      "1119": "Bottled Spirits",
+      "3087": "Mug of Shimmer Stout"
+    }
+  },
+  {
+    "flavors": [
+      "forever"
+    ],
+    "why": "Own cooldown, fits no macro",
+    "items": {
+      "216619": "Student Fodder"
+    }
+  },
+  {
+    "flavors": [
+      "forever"
+    ],
+    "why": "Put the player to sleep or have another side effect",
+    "items": {
+      "9144": "Wildvine Potion",
+      "12190": "Dreamless Sleep Potion",
+      "20002": "Greater Dreamless Sleep Potion",
+      "12662": "Demonic Rune",
+      "20520": "Dark Rune",
+      "275688": "Power Recycler"
+    }
+  },
+  {
+    "flavors": [
+      "forever"
+    ],
+    "why": "Mage's gems and other class or profession items: their own use, on no flavor's list",
+    "items": {
+      "5513": "Mana Jade",
+      "5514": "Mana Agate",
+      "8007": "Mana Citrine",
+      "8008": "Mana Ruby",
+      "213564": "Scroll of Minor Evocation"
+    }
+  },
+  {
+    "flavors": [
+      "forever"
+    ],
+    "why": "Zone-locked rations, in battlegrounds and on Darkspear Islands: left out of #166, to add behind a zone check if players want them",
+    "items": {
+      "19060": "Warsong Gulch Enriched Ration",
+      "19061": "Warsong Gulch Iron Ration",
+      "19062": "Warsong Gulch Field Ration",
+      "20062": "Arathi Basin Enriched Ration",
+      "20063": "Arathi Basin Field Ration",
+      "20064": "Arathi Basin Iron Ration",
+      "20222": "Defiler's Enriched Ration",
+      "20223": "Defiler's Field Ration",
+      "20224": "Defiler's Iron Ration",
+      "20225": "Highlander's Enriched Ration",
+      "20226": "Highlander's Field Ration",
+      "20227": "Highlander's Iron Ration",
+      "272053": "Darkspear Islands Field Ration",
+      "272054": "Darkspear Islands Iron Ration",
+      "272055": "Darkspear Islands Enriched Ration"
+    }
+  },
+  {
+    "flavors": [
+      "forever"
+    ],
+    "why": "Percentage potions: where they go among the flat amounts is still to decide, and how they're obtained is unknown",
+    "items": {
+      "282011": "Restored Healing Potion",
+      "282013": "Restored Mana Potion"
+    }
+  },
+  {
+    "flavors": [
+      "forever"
+    ],
+    "why": "Not known to be obtainable on Forever: stays out until a player reports having it",
+    "items": {
+      "206177": "Pine Nut Butter",
+      "232436": "Darkclaw Bisque",
+      "232438": "Smoked Redgill",
+      "238637": "Prowler Steak",
+      "238639": "Sunrise Omelette",
+      "240945": "Slice of Carrie's Apple Pie",
+      "251917": "Falorne's Homemade Tart",
+      "14894": "Lily Root"
+    }
+  },
+  {
+    "flavors": [
+      "forever"
+    ],
+    "why": "Holiday and event items the addon never listed",
+    "items": {
+      "19997": "Harvest Nectar",
+      "20388": "Lollipop",
+      "20389": "Candy Corn",
+      "20390": "Candy Bar",
+      "21241": "Winter Veil Eggnog",
+      "21537": "Festival Dumplings",
+      "23161": "Freshly-Squeezed Lemonade",
+      "23175": "Tasty Summer Treat",
+      "23176": "Fizzy Energy Drink"
+    }
+  },
+  {
+    "flavors": [
+      "forever"
+    ],
+    "why": "Quest and special-use items",
+    "items": {
+      "247963": "Herbal Soil Poultice",
+      "277910": "Mysticbloom Seed",
+      "277518": "Last Week's Ration",
+      "1970": "Restoring Balm",
+      "5205": "Sprouted Frond",
+      "5845": "Flank of Meat",
+      "6458": "Oil Covered Fish",
+      "8543": "Underwater Mushroom Cap",
+      "11950": "Windblossom Berries",
+      "11952": "Night Dragon's Breath",
+      "13813": "Blessed Sunfruit Juice",
+      "15723": "Tea with Sugar",
+      "17747": "Razorlash Root",
+      "19318": "Bottled Alterac Spring Water",
+      "23684": "Crystal Infused Bandage"
+    }
+  },
+  {
+    "flavors": [
+      "forever"
+    ],
+    "why": "Not consumables: gear, raw fish and other trade goods, quest items",
+    "items": {
+      "737": "Holy Spring Water",
+      "4262": "Gem-studded Leather Belt",
+      "4381": "Minor Recombobulator",
+      "4603": "Raw Spotted Yellowtail",
+      "5323": "Everglow Lantern",
+      "6289": "Raw Longjaw Mud Snapper",
+      "6291": "Raw Brilliant Smallfish",
+      "6303": "Raw Slitherskin Mackerel",
+      "6308": "Raw Bristle Whisker Catfish",
+      "6317": "Raw Loch Frenzy",
+      "6361": "Raw Rainbow Fin Albacore",
+      "6362": "Raw Rockscale Cod",
+      "6898": "Orb of Soran'ruk",
+      "7507": "Arcane Orb",
+      "7508": "Ley Orb",
+      "7515": "Celestial Orb",
+      "8346": "Gauntlets of the Sea",
+      "8365": "Raw Mithril Head Trout",
+      "8683": "Clara's Fresh Apple",
+      "8959": "Raw Spinefin Halibut",
+      "11562": "Crystal Restore",
+      "13754": "Raw Glossy Mightfish",
+      "13756": "Raw Summer Bass",
+      "13758": "Raw Redgill",
+      "13759": "Raw Nightfin Snapper",
+      "13760": "Raw Sunscale Salmon",
+      "13888": "Darkclaw Lobster",
+      "13889": "Raw Whitescale Salmon",
+      "14152": "Robe of the Archmage",
+      "14153": "Robe of the Void",
+      "15107": "Orb of Noh'Orahil",
+      "15108": "Orb of Dar'Orahil",
+      "15866": "Veildust Medicine Bag",
+      "16768": "Furbolg Medicine Pouch",
+      "17405": "Green Garden Tea",
+      "18637": "Major Recombobulator",
+      "20525": "Earthen Sigil",
+      "21071": "Raw Sagefish",
+      "21153": "Raw Greater Sagefish",
+      "23027": "Warmth of Forgiveness",
+      "275893": "Searing Gourd",
+      "280766": "Satchel of Potions"
+    }
+  }
+]

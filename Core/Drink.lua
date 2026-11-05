@@ -141,6 +141,27 @@ ham.lotusWater = ham.Item.new(88532, "Lotus Water")
 ham.timelessTea = ham.Item.new(104348, "Timeless Tea")
 ham.viseclawSoup = ham.Item.new(85501, "Viseclaw Soup")
 
+-- Forever - plain drink
+ham.mountainSpringWater = ham.Item.new(231778, "Mountain Spring Water") -- Forever only
+ham.gustberryJuice = ham.Item.new(252027, "Gustberry Juice") -- Forever only
+ham.crispSpringWater = ham.Item.new(252031, "Crisp Spring Water") -- Forever only
+
+-- Forever - Nutritious drinks, buff food: they leave the food buff
+ham.sagesTea = ham.Item.new(249870, "Sage's Tea", { buffFood = true }) -- Forever only
+ham.wickedSmoothie = ham.Item.new(249876, "Wicked Smoothie", { buffFood = true }) -- Forever only
+ham.sunnyTea = ham.Item.new(249869, "Sunny Tea", { buffFood = true }) -- Forever only
+ham.spicySmoothie = ham.Item.new(249875, "Spicy Smoothie", { buffFood = true }) -- Forever only
+ham.triageTea = ham.Item.new(249868, "Triage Tea", { buffFood = true }) -- Forever only
+ham.calcifiedSmoothie = ham.Item.new(249874, "Calcified Smoothie", { buffFood = true }) -- Forever only
+ham.rootTea = ham.Item.new(249867, "Root Tea", { buffFood = true }) -- Forever only
+ham.mrrgglSmrrthle = ham.Item.new(249873, "Mrrggl Smrrthle", { buffFood = true }) -- Forever only
+ham.royalTea = ham.Item.new(249866, "Royal Tea", { buffFood = true }) -- Forever only
+ham.slimySmoothie = ham.Item.new(249872, "Slimy Smoothie", { buffFood = true }) -- Forever only
+ham.peaceTea = ham.Item.new(249865, "Peace Tea", { buffFood = true }) -- Forever only
+ham.venomousSmoothie = ham.Item.new(249871, "Venomous Smoothie", { buffFood = true }) -- Forever only
+-- Plain on the other flavors, Nutritious on Forever
+ham.goldthornTeaForever = ham.Item.new(10841, "Goldthorn Tea", { buffFood = true })
+
 local function getRawDrink()
   if ham.isRetail and ham.getDrinkForRetail then return ham.getDrinkForRetail() end
   if ham.isClassic and ham.getDrinkForClassic then return ham.getDrinkForClassic() end
@@ -152,7 +173,8 @@ local function getRawDrink()
   return {}
 end
 
--- Return a prioritized list of drink items for the current client, buff drinks placed by Relaxed.
+-- Return a prioritized list of drink items for the current client, buff drinks placed by Relaxed
+-- on Retail and by the food buff on Forever, whose Nutritious drinks leave that.
 function ham.getDrink()
-  return ham.orderBuffFood(getRawDrink(), ham.isRelaxed)
+  return ham.orderBuffFood(getRawDrink(), ham.isForever and ham.hasFoodBuff or ham.isRelaxed)
 end

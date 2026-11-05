@@ -16,24 +16,28 @@ build of each listed interface version (cached between runs) and reports:
            that flavor's talent tree, or doesn't take off the seconds the addon says
   NOTE     the item is only partly in wago's data for that flavor (encrypted or hotfix item);
            confirm it on Wowhead
+  MISSING  with --missing only: an item in that flavor's client restores health or mana on use,
+           but is on none of the flavor's lists and not in scripts/missing_skip.json
 
 A list section is the run of entries below one comment block. Sections whose comment
 says "order doesn't matter" are not order-checked. Amounts come from the item's spell
 data. Flat amounts and percentages are compared separately; amounts that scale with the
 player's level (all Retail potions and bandages, old food in Mists) can't be compared,
 so those entries are skipped. Cooldown talents are checked against the newest build
-of each flavor that has them.
+of each flavor that has them. Entries a list adds with table.insert (zone-locked items, for
+instance) get every check but the order.
 
-usage: wago_check.py [--flavor NAME ...] [--no-order] [--dump] [--verbose] [--cache DIR]
+usage: wago_check.py [--flavor NAME ...] [--no-order] [--dump] [--missing] [--verbose] [--cache DIR]
   --flavor   only check these flavors (retail classic tbc wrath cata mists forever)
   --no-order skip the ordering check (needs only the small item tables, plus SpellEffect
              for flavors with cooldown talents)
   --dump     print the amount of every list entry, to place a new item correctly
+  --missing  only report items the addon doesn't list, instead of checking the ones it does
   --verbose  also list names that differ only because the item was renamed in a client
   --cache    download directory (default: $AUTOPOTION_WAGO_CACHE, else the wow-data skill's
              cache $WOW_DATA_CACHE/db2 or ~/.cache/wow-data/db2, which has the same layout)
 
-Exits 1 when it prints an ERROR or ORDER line.
+Exits 1 when it prints an ERROR, ORDER or MISSING line.
 """
 import argparse
 import csv
@@ -81,6 +85,7 @@ SPELL_MOD_COOLDOWN = "11"
 
 DEF_RE = re.compile(r'^ham\.(\w+)\s*=\s*ham\.Item\.new\((\d+),\s*"((?:[^"\\]|\\.)*)"')
 ENTRY_RE = re.compile(r'ham\.(\w+),?\s*(--.*)?')
+INSERT_RE = re.compile(r'table\.insert\(\w+,\s*(?:\d+,\s*)?ham\.(\w+)\)')
 FUNC_RE = re.compile(r'function\s+(ham\.\w+)')
 TALENT_RE = re.compile(r'^ham\.cooldownTalents\[(\d+)\]\s*=\s*\{\s*spell\s*=\s*ham\.(\w+),\s*'
                        r'seconds\s*=\s*(\d+)\s*\}\s*(?:--\s*(.*))?')
@@ -151,8 +156,13 @@ def read_sections(path, defs):
             continue
         comment = []
         m = ENTRY_RE.fullmatch(s)
+        inserted = INSERT_RE.fullmatch(s)
         if m and m.group(1) in defs:
             entries.append((n, m.group(1)))
+        elif inserted and inserted.group(1) in defs:  # in a section of its own: lists insert in any order
+            close()
+            entries.append((n, inserted.group(1)))
+            close()
         elif s:
             close()
     close()
@@ -240,8 +250,15 @@ def num(x):
         return 0.0
 
 
+class Everything:
+    """Stands in for a set of item IDs: Client then loads every item of the build."""
+
+    def __contains__(self, item_id):
+        return True
+
+
 class Client:
-    """The data of one client build, limited to the items the addon defines."""
+    """The data of one client build, limited to the items in item_ids."""
 
     def __init__(self, cache, build, item_ids, with_spells):
         self.build = build
@@ -438,6 +455,52 @@ def check_order(flavor, cat, fname, sections, defs, client, dump, out):
                                f"above {later['var']} (quality {later['tier']}) of the same item")
 
 
+def read_skip_list():
+    """The groups of scripts/missing_skip.json for the --missing report, regexes compiled."""
+    groups = json.loads((ROOT / "scripts" / "missing_skip.json").read_text(encoding="utf-8"))
+    for group in groups:
+        group["names"] = re.compile(group.get("names") or r"(?!)")
+        group["items"] = {int(i) for i in group.get("items", {})}
+    return groups
+
+
+def skipped(groups, flavor, item_id, name):
+    return any(flavor in g["flavors"] and (item_id in g["items"] or g["names"].search(name)) for g in groups)
+
+
+def listed_ids(fname, defs):
+    """The IDs of every item a flavor's list files name, however they add it."""
+    ids = set()
+    for cat in CATEGORIES:
+        path = ROOT / "Core" / cat / f"{fname}.lua"
+        if path.exists():
+            ids |= {defs[v]["id"] for v in re.findall(r'ham\.(\w+)', path.read_text(encoding="utf-8")) if v in defs}
+    return ids
+
+
+def report_missing(cache, flavor, fname, build, defs, groups, out, notes):
+    """A MISSING line for each item of the build that restores health or mana on use, on no list."""
+    client = Client(cache, build, Everything(), with_spells=True)
+    listed = listed_ids(fname, defs)
+    for item_id in sorted(client.item_spells):
+        if item_id in listed:
+            continue
+        sparse, item = client.sparse.get(item_id), client.item.get(item_id) or {}
+        amounts = client.amounts(item_id)
+        restores = {k: round(amounts[k], 1) for k in ("hp", "hp%", "mp", "mp%", "scaled") if amounts[k]}
+        name = sparse["Display_lang"] if sparse else ""
+        if not restores or skipped(groups, flavor, item_id, name):
+            continue
+        shown = "  ".join(f"{k}={v:g}" for k, v in restores.items())
+        if sparse:
+            out.append(f"MISSING  [{flavor}] {item_id} {name} (class {item.get('ClassID')}.{item.get('SubclassID')}) "
+                       f"{shown}")
+        else:
+            # wago's exports lack rows that are encrypted or only delivered by hotfix
+            notes.append(f"NOTE     [{flavor}] {item_id} has no name in wago's data (encrypted or hotfix "
+                         f"item?) {shown}")
+
+
 def check_cooldown_talents(cache, flavor, build, talents, out):
     """Each talent is in the build's talent tree and has a cooldown aura of -seconds."""
     ids = {t["id"] for t in talents}
@@ -469,6 +532,7 @@ def main():
     ap.add_argument("--flavor", nargs="*")
     ap.add_argument("--no-order", action="store_true")
     ap.add_argument("--dump", action="store_true")
+    ap.add_argument("--missing", action="store_true")
     ap.add_argument("--verbose", action="store_true")
     ap.add_argument("--cache", type=Path, default=Path(
         os.environ.get("AUTOPOTION_WAGO_CACHE")
@@ -489,6 +553,16 @@ def main():
     talents = read_cooldown_talents(files)
 
     builds = resolve_builds(args.cache, versions)
+    if args.missing:
+        download_tables(args.cache, {fl: bs[-1:] for fl, bs in builds.items()}, ITEM_TABLES + SPELL_TABLES)
+        out, notes, groups = [], [], read_skip_list()
+        for fl, bs in builds.items():
+            if bs:
+                report_missing(args.cache, fl, files[fl], bs[-1], defs, groups, out, notes)
+        for line in notes + out:
+            print(line)
+        print(f"{len(out)} item(s) missing" if out else "ok", file=sys.stderr)
+        sys.exit(1 if out else 0)
     download_tables(args.cache, builds, ITEM_TABLES + ([] if args.no_order else SPELL_TABLES))
     download_tables(args.cache, {fl: bs[-1:] for fl, bs in builds.items() if fl in talents}, TALENT_TABLES)
     clients = {fl: [Client(args.cache, b, item_ids, with_spells=not args.no_order and b == bs[-1]) for b in bs]

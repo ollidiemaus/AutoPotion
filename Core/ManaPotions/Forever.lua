@@ -1,7 +1,7 @@
 ---@diagnostic disable: undefined-global
 local addonName, ham = ...
 
--- WoW Forever is based on Classic, starting from the same mana potion list until beta testing shows otherwise.
+-- WoW Forever is based on Classic: the Classic Era mana potion list and Forever's own items.
 function ham.getManaPotionsForForever()
   local pots = {
     ham.majorManaPotion,
@@ -10,6 +10,7 @@ function ham.getManaPotionsForForever()
     ham.superiorManaPotion,
     ham.superiorManaPotionForever,
     ham.greaterManaPotion,
+    ham.manaTessasTonic,
     ham.manaPotion,
     ham.lesserManaPotion,
     ham.lesserManaPotionForever,
@@ -17,6 +18,11 @@ function ham.getManaPotionsForForever()
     ham.minorManaPotionForever,
     ham.minorRejuvenationPotion,
   }
+
+  -- Windstone only works on Zephras Isle
+  if ham.isOnInstanceMap(ham.INSTANCE_MAP_ID_ZEPHRAS_ISLE) then
+    table.insert(pots, 1, ham.manaWindstone)
+  end
 
   -- If in a PvP battleground, prioritize battleground draughts
   local inInstance, instanceType = IsInInstance()

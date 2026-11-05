@@ -17,3 +17,14 @@ end)
 test("classic: Boiled Clams are buff food and left out", function()
   assertEqual(autoFood("classic", { [BOILED_CLAMS] = 5 }), "#showtooltip")
 end)
+
+-- Forever's Longjaw Mud Snapper casts Nutritious Food; other flavors' is plain food.
+local LONGJAW_MUD_SNAPPER = 4592
+
+test("forever: Longjaw Mud Snapper is Nutritious food and left out", function()
+  assertEqual(autoFood("forever", { [LONGJAW_MUD_SNAPPER] = 5 }), "#showtooltip")
+end)
+
+test("classic: Longjaw Mud Snapper is eaten like plain food", function()
+  assertEqual(autoFood("classic", { [LONGJAW_MUD_SNAPPER] = 5 }), "#showtooltip\n/use [@player] item:4592")
+end)

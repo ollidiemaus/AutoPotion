@@ -9,7 +9,8 @@ local addonName, ham = ...
 --  * channeled/"defenseless" potions (Potion of Concentration/Focus/Frozen Focus/Devoured Dreams, ...)
 --  * potions with a downside or a random side effect (Fel Mana Potion, Crazy/Mad Alchemist's Potion,
 --    Mysterious Potion, Potion of Nightmares, dreamless sleep potions, ...)
---  * zone-locked potions (Tol Barad, Blade's Edge, Tempest Keep, Coilfang)
+--  * zone-locked potions (Tol Barad, Blade's Edge, Tempest Keep, Coilfang), unless a list adds
+--    them behind a zone check (Forever's Windstone)
 --  * Remix-only and QA items
 
 -- Retail - Midnight
@@ -89,6 +90,9 @@ ham.lesserManaPotion = ham.Item.new(3385, "Lesser Mana Potion")
 ham.lesserManaPotionForever = ham.Item.new(287969, "Lesser Mana Potion") -- Forever only, level 1 version
 ham.minorManaPotion = ham.Item.new(2455, "Minor Mana Potion")
 ham.minorManaPotionForever = ham.Item.new(287968, "Minor Mana Potion") -- Forever only, level 1 version
+ham.manaTessasTonic = ham.Item.new(274935, "Tessa's Tonic", { rejuvenation = true }) -- Forever only
+-- Forever only, zone-locked to Zephras Isle
+ham.manaWindstone = ham.Item.new(255663, "Windstone", { rejuvenation = true })
 ham.minorRejuvenationPotion = ham.Item.new(2456, "Minor Rejuvenation Potion", { rejuvenation = true })
 -- Classic/TBC PvP battleground-only draughts
 ham.majorManaDraught = ham.Item.new(17351, "Major Mana Draught")

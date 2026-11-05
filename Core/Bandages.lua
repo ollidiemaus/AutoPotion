@@ -78,6 +78,13 @@ ham.weaverclothBandageR1 = ham.Item.new(224440, "Weavercloth Bandage")
 ham.brightlinenBandageR2 = ham.Item.new(239713, "Bright Linen Bandage")
 ham.brightlinenBandageR1 = ham.Item.new(239711, "Bright Linen Bandage")
 
+-- WoW Forever
+ham.denseRuneclothBandage = ham.Item.new(232433, "Dense Runecloth Bandage")
+-- zone-locked to Darkspear Islands
+ham.darkspearIslandsRuneclothBandage = ham.Item.new(272058, "Darkspear Islands Runecloth Bandage")
+ham.darkspearIslandsMageweaveBandage = ham.Item.new(272057, "Darkspear Islands Mageweave Bandage")
+ham.darkspearIslandsSilkBandage = ham.Item.new(272056, "Darkspear Islands Silk Bandage")
+
 -- Return a prioritized list of bandage items for the current client
 function ham.getBandages()
   if ham.isClassic and ham.getBandagesForClassic then return ham.getBandagesForClassic() end

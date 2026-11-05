@@ -26,4 +26,21 @@ ham.MAP_ID_ALTERAC_VALLEY = 1459
 ham.MAP_ID_WARSONG_GULCH = 1460
 ham.MAP_ID_ARATHI_BASIN = 1461
 
+-- UI maps of the zones where Forever's own Major and Greater Healing Potion work
+ham.MAP_ID_THE_HINTERLANDS = 1425
+ham.MAP_ID_DUSKWOOD = 1431
+ham.MAP_ID_ASHENVALE = 1440
+ham.MAP_ID_FERALAS = 1444
+
+-- Instance maps of Forever's islands. A zone-locked item's area requirement covers the whole
+-- island, so these are instance map IDs (GetInstanceInfo), not UI maps: every subzone shares one.
+ham.INSTANCE_MAP_ID_ZEPHRAS_ISLE = 2991
+ham.INSTANCE_MAP_ID_DARKSPEAR_ISLANDS = 2997
+
+-- Whether the player is on this instance map. Leaving one is a loading screen, so the macros
+-- follow through PLAYER_ENTERING_WORLD.
+function ham.isOnInstanceMap(mapId)
+  return select(8, GetInstanceInfo()) == mapId
+end
+
 

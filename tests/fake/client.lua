@@ -77,6 +77,7 @@ end
 --   faction          "Alliance" (default) or "Horde"
 --   instanceType     what IsInInstance reports: "none" (default), "pvp", "party", ...
 --   mapId            the player's map, 1429 (Elwynn Forest) by default
+--   instanceMapId    the instance map GetInstanceInfo reports, 0 (Eastern Kingdoms) by default
 --   bags             { [itemId] = count }
 --   items            { [itemId] = { name =, icon =, spell = { name =, id = } } }, all optional
 --   equipped         { [inventorySlot] = itemId }
@@ -108,6 +109,7 @@ function Client.new(options)
     faction = options.faction or "Alliance",
     instanceType = options.instanceType or "none",
     mapId = options.mapId or 1429,
+    instanceMapId = options.instanceMapId or 0,
     locale = options.locale or "enUS",
     bags = copy(options.bags or {}),
     items = copy(options.items or {}),
@@ -247,6 +249,20 @@ function Client:login(reloading)
   self:loadAddon()
   self:fireEvent("PLAYER_LOGIN")
   self:fireEvent("PLAYER_ENTERING_WORLD", not reloading, reloading and true or false)
+  self:nextFrame()
+end
+
+-- Travels to another instance map: the loading screen ends in PLAYER_ENTERING_WORLD.
+function Client:travelTo(instanceMapId)
+  self.instanceMapId = instanceMapId
+  self:fireEvent("PLAYER_ENTERING_WORLD", false, false)
+  self:nextFrame()
+end
+
+-- Walks or flies into another zone of the same instance map: no loading screen.
+function Client:enterZone(mapId)
+  self.mapId = mapId
+  self:fireEvent("ZONE_CHANGED_NEW_AREA")
   self:nextFrame()
 end
 
