@@ -33,14 +33,19 @@ Covers Retail's "Relaxed" drinks too.
 _Avoid_: Stat food, Well Fed food
 
 **Food buff**:
-The aura that eating buff food (not drinking) leaves on the player, whatever its strength or
-source. A weaker or older one still counts.
+The aura that buff food leaves on the player, whatever its strength or source. A weaker or older
+one still counts. Forever's Nutritious drinks leave it too.
 _Avoid_: Well Fed (only one of its names)
 
 **Relaxed**:
 The buff that Retail's buff drinks leave. It is separate from the food buff: having one says
 nothing about the other.
 _Avoid_: Drink buff, Well Fed
+
+**Nutritious food**:
+Forever's buff food: it restores what plain food of its level does, and leaves the food buff after
+10 seconds of eating. Its drinks work the same way.
+_Avoid_: Well Fed food, stat food
 
 **Conjured food**:
 Free food a mage creates. It goes first in the food priority unless buff food is preferred.
@@ -56,3 +61,10 @@ A free, channeled self-heal that taking damage cancels, so it plays the part of 
 AutoBandage macro uses it alongside bandages. Today only Rapid Regeneration, the Forever Troll
 racial.
 _Avoid_: Bandage, heal spell
+
+### Availability
+
+**Zone-locked item**:
+A consumable the game only lets the player use in one place, like Windstone on Zephras Isle or a
+battleground's draughts. A macro only uses it there, and there it goes first.
+_Avoid_: Zone item, area item

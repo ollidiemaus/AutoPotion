@@ -832,6 +832,83 @@ ham.sourGreenApple = ham.Item.new(58264, "Sour Green Apple")
 ham.thickCutBacon = ham.Item.new(90135, "Thick-Cut Bacon")
 ham.tortoiseJerky = ham.Item.new(83097, "Tortoise Jerky")
 
+-- Forever - plain food
+ham.carrotSalad = ham.Item.new(278122, "Carrot Salad") -- Forever only
+ham.clamLinguine = ham.Item.new(250081, "Clam Linguine") -- Forever only
+ham.savoryShendralarSteak = ham.Item.new(260627, "Savory Shen'dralar Steak") -- Forever only
+ham.stuffedPumpkin = ham.Item.new(260628, "Stuffed Pumpkin") -- Forever only
+ham.garnishedRiceCake = ham.Item.new(260625, "Garnished Rice Cake") -- Forever only
+ham.hyjalBerries = ham.Item.new(249796, "Hyjal Berries") -- Forever only
+ham.pristinePeach = ham.Item.new(260624, "Pristine Peach") -- Forever only
+ham.candiedFruitSampler = ham.Item.new(260623, "Candied Fruit Sampler") -- Forever only
+ham.fruitPlatter = ham.Item.new(278120, "Fruit Platter") -- Forever only
+ham.richBroth = ham.Item.new(278118, "Rich Broth") -- Forever only
+ham.lightningInABottle = ham.Item.new(248613, "Lightning in a Bottle") -- Forever only
+ham.smokedSausage = ham.Item.new(278121, "Smoked Sausage") -- Forever only
+ham.gustberryPie = ham.Item.new(252026, "Gustberry Pie") -- Forever only
+ham.hardBoiledEggs = ham.Item.new(278117, "Hard Boiled Eggs") -- Forever only
+ham.hippogryphFlank = ham.Item.new(252029, "Hippogryph Flank") -- Forever only
+ham.pungentSkycheddar = ham.Item.new(252030, "Pungent Skycheddar") -- Forever only
+ham.redDeliciousStormapple = ham.Item.new(252032, "Red Delicious Stormapple") -- Forever only
+ham.breadWithButter = ham.Item.new(278119, "Bread with Butter") -- Forever only
+ham.freshGustberryBread = ham.Item.new(252028, "Fresh Gustberry Bread") -- Forever only
+ham.galestriderJerky = ham.Item.new(252022, "Galestrider Jerky") -- Forever only
+ham.galesweptForestshroom = ham.Item.new(267474, "Galeswept Forestshroom") -- Forever only
+ham.yesterdaysLeftovers = ham.Item.new(278569, "Yesterday's Leftovers") -- Forever only
+ham.zaalanarrSharp = ham.Item.new(252023, "Zaalanarr Sharp") -- Forever only
+ham.nutritiousSlimeSludge = ham.Item.new(278265, "Nutritious Slime Sludge") -- Forever only
+
+-- Forever - Nutritious food and Filet o' Flank, buff food
+ham.filetOFlank = ham.Item.new(238638, "Filet o' Flank", { buffFood = true }) -- Forever only
+ham.soaringPamplona = ham.Item.new(250066, "Soaring Pamplona", { buffFood = true }) -- Forever only
+ham.batHachee = ham.Item.new(250067, "Bat Hachee", { buffFood = true }) -- Forever only
+ham.savoryTurtleStew = ham.Item.new(250068, "Savory Turtle Stew", { buffFood = true }) -- Forever only
+ham.flankAuPoivre = ham.Item.new(250069, "Flank au Poivre", { buffFood = true }) -- Forever only
+ham.bearBruscitti = ham.Item.new(250070, "Bear Bruscitti", { buffFood = true }) -- Forever only
+ham.steamingStagSteak = ham.Item.new(250071, "Steaming Stag Steak", { buffFood = true }) -- Forever only
+ham.swiftstrikeSteak = ham.Item.new(250072, "Swiftstrike Steak", { buffFood = true }) -- Forever only
+ham.prehistoricPulledRaptor = ham.Item.new(250075, "Prehistoric Pulled Raptor", { buffFood = true }) -- Forever only
+ham.sweetpawJam = ham.Item.new(267341, "Sweetpaw Jam", { buffFood = true }) -- Forever only
+ham.savoryStagSliders = ham.Item.new(250065, "Savory Stag Sliders", { buffFood = true }) -- Forever only
+ham.raptorRouladen = ham.Item.new(250076, "Raptor Rouladen", { buffFood = true }) -- Forever only
+ham.platedArmorfish = ham.Item.new(286152, "Plated Armorfish", { buffFood = true }) -- Forever only
+ham.ragingRaptorRibs = ham.Item.new(250073, "Raging Raptor Ribs", { buffFood = true }) -- Forever only
+ham.bearBrisket = ham.Item.new(250074, "Bear Brisket", { buffFood = true }) -- Forever only
+ham.giantScrambledEggs = ham.Item.new(250078, "Giant Scrambled Eggs", { buffFood = true }) -- Forever only
+ham.brinySeafoodStew = ham.Item.new(274971, "Briny Seafood Stew", { buffFood = true }) -- Forever only
+ham.plainOlPaletusk = ham.Item.new(274976, "Plain Ol' Paletusk", { buffFood = true }) -- Forever only
+ham.expiringCrabCake = ham.Item.new(268912, "Expiring Crab Cake", { buffFood = true }) -- Forever only
+ham.expiringCrocoliskSteak = ham.Item.new(268913, "Expiring Crocolisk Steak", { buffFood = true }) -- Forever only
+ham.twiceSpicedRaptorSlice = ham.Item.new(250077, "Twice-Spiced Raptor Slice", { buffFood = true }) -- Forever only
+ham.breakfastOmelette = ham.Item.new(250080, "Breakfast Omelette", { buffFood = true }) -- Forever only
+ham.tastyRaptorBites = ham.Item.new(250079, "Tasty Raptor Bites", { buffFood = true }) -- Forever only
+ham.skywallSouffle = ham.Item.new(263509, "Skywall Souffle", { buffFood = true }) -- Forever only
+ham.pincerBites = ham.Item.new(263512, "Pincer Bites", { buffFood = true }) -- Forever only
+-- Plain on the other flavors, Nutritious on Forever
+ham.cookedCrabClawForever = ham.Item.new(2682, "Cooked Crab Claw", { buffFood = true })
+ham.bakedSalmonForever = ham.Item.new(13935, "Baked Salmon", { buffFood = true })
+ham.lobsterStewForever = ham.Item.new(13933, "Lobster Stew", { buffFood = true })
+ham.poachedSunscaleSalmonForever = ham.Item.new(13932, "Poached Sunscale Salmon", { buffFood = true })
+ham.spinefinHalibutForever = ham.Item.new(8957, "Spinefin Halibut", { buffFood = true })
+ham.filetOfRedgillForever = ham.Item.new(13930, "Filet of Redgill", { buffFood = true })
+ham.spottedYellowtailForever = ham.Item.new(6887, "Spotted Yellowtail", { buffFood = true })
+ham.mithrilHeadTroutForever = ham.Item.new(8364, "Mithril Head Trout", { buffFood = true })
+ham.rockscaleCodForever = ham.Item.new(4594, "Rockscale Cod", { buffFood = true })
+ham.bristleWhiskerCatfishForever = ham.Item.new(4593, "Bristle Whisker Catfish", { buffFood = true })
+ham.succulentPorkRibsForever = ham.Item.new(2685, "Succulent Pork Ribs", { buffFood = true })
+ham.longjawMudSnapperForever = ham.Item.new(4592, "Longjaw Mud Snapper", { buffFood = true })
+ham.westfallStewForever = ham.Item.new(733, "Westfall Stew", { buffFood = true })
+ham.slitherskinMackerelForever = ham.Item.new(787, "Slitherskin Mackerel", { buffFood = true })
+ham.lochFrenzyDelightForever = ham.Item.new(6316, "Loch Frenzy Delight", { buffFood = true })
+ham.rainbowFinAlbacoreForever = ham.Item.new(5095, "Rainbow Fin Albacore", { buffFood = true })
+ham.smokedBearMeatForever = ham.Item.new(6890, "Smoked Bear Meat", { buffFood = true })
+ham.brilliantSmallfishForever = ham.Item.new(6290, "Brilliant Smallfish", { buffFood = true })
+ham.roastedBoarMeatForever = ham.Item.new(2681, "Roasted Boar Meat", { buffFood = true })
+
+-- Forever - health and mana, shared with Core/Drink.lua's Forever list
+ham.ketharasHyjalStew = ham.Item.new(262433, "Ketharas' Hyjal Stew") -- Forever only
+ham.restorativeBread = ham.Item.new(282018, "Restorative Bread") -- Forever only
+
 local function getRawFood()
   if ham.isRetail and ham.getFoodForRetail then return ham.getFoodForRetail() end
   if ham.isClassic and ham.getFoodForClassic then return ham.getFoodForClassic() end
