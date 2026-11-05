@@ -64,16 +64,6 @@
     "flavors": [
       "forever"
     ],
-    "why": "Zone-locked, in The Hinterlands, Ashenvale, Duskwood and Feralas only (spell 450106's area group). They need a gate on those zones and a rebuild on changing zone, which the islands' gate doesn't have",
-    "items": {
-      "223913": "Major Healing Potion",
-      "223914": "Greater Healing Potion"
-    }
-  },
-  {
-    "flavors": [
-      "forever"
-    ],
     "why": "Zone-locked rations, in battlegrounds and on Darkspear Islands: left out of #166, to add behind a zone check if players want them",
     "items": {
       "19060": "Warsong Gulch Enriched Ration",

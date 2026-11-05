@@ -27,7 +27,7 @@ You never have to edit these macros yourself – Auto Potion keeps them updated 
 - **Smart battleground support**:
   - Uses the appropriate PvP-only healing draughts and bandages when you are in battlegrounds (e.g. Ashran tonic, Classic draughts and BG bandages).
 - **Zone-locked items**:
-  - Items that only work in one place are used there, and first: battleground draughts and bandages, and on WoW Forever Windstone on Zephras Isle and the Darkspear Islands bandages. Elsewhere the macros leave them out.
+  - Items that only work in one place are used there, and first: battleground draughts and bandages, and on WoW Forever Windstone on Zephras Isle, the Darkspear Islands bandages, and Forever's own Major and Greater Healing Potion in The Hinterlands, Duskwood, Ashenvale and Feralas. Elsewhere the macros leave them out.
 - **Mana potion macro**:
   - Maintains an `AutoManaPotion` macro (`/use item:<id>`) for the best mana potion in your bags, sorted by the amount of mana restored for your game version (e.g. Lightfused / Algari / Aerated on Retail, Master / Mythical / Runic / Super / Major on the Classic versions).
   - Potions that restore health *and* mana (Rejuvenation potions, Cavedweller's Delight, Refreshing Serum, Tessa's Tonic, Windstone) are included and sorted by their mana, and can be turned off in the settings.

@@ -78,6 +78,9 @@ ham.superior = ham.Item.new(3928, "Superior Healing Potion")
 ham.superiorForever = ham.Item.new(288896, "Superior Healing Potion") -- Forever only, level 1 version
 ham.minor = ham.Item.new(118, "Minor Healing Potion")
 ham.minorForever = ham.Item.new(287966, "Minor Healing Potion") -- Forever only, level 1 version
+-- Forever only, zone-locked to The Hinterlands, Duskwood, Ashenvale and Feralas
+ham.majorZoneLocked = ham.Item.new(223913, "Major Healing Potion")
+ham.greaterZoneLocked = ham.Item.new(223914, "Greater Healing Potion")
 ham.perishableHealingPotion = ham.Item.new(268883, "Perishable Healing Potion") -- Forever only
 ham.perishableLesserHealingPotion = ham.Item.new(268882, "Perishable Lesser Healing Potion") -- Forever only
 ham.perishableMinorHealingPotion = ham.Item.new(268881, "Perishable Minor Healing Potion") -- Forever only

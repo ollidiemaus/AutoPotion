@@ -92,3 +92,65 @@ test("classic: the zones' map IDs change nothing", function()
   assertEqual(client:macroText("AutoPotion"), "#showtooltip")
   assertEqual(client:macroText("AutoBandage"), "#showtooltip")
 end)
+
+-- Forever's own Major and Greater Healing Potion work in four zones, which have no loading screen.
+local THE_HINTERLANDS, DUSKWOOD, ASHENVALE, FERALAS = 1425, 1431, 1440, 1444
+local ELWYNN_FOREST = 1429
+local ZONE_MAJOR = 223913
+local ZONE_GREATER = 223914
+local MAJOR_HEALING_POTION = 13446
+
+local function inZone(bags, mapId, flavor)
+  local client = Client.new({ flavor = flavor or "forever", bags = bags, mapId = mapId })
+  client:login()
+  return client
+end
+
+for name, mapId in pairs({
+  ["The Hinterlands"] = THE_HINTERLANDS, Duskwood = DUSKWOOD, Ashenvale = ASHENVALE, Feralas = FERALAS,
+}) do
+  test("forever: in " .. name .. " AutoPotion uses Forever's Major Healing Potion first", function()
+    local client = inZone({ [ZONE_MAJOR] = 5, [MAJOR_HEALING_POTION] = 5 }, mapId)
+    assertEqual(client:macroText("AutoPotion"), drinksPotion(ZONE_MAJOR))
+  end)
+end
+
+test("forever: in those zones its Major Healing Potion goes ahead of its Greater", function()
+  local client = inZone({ [ZONE_GREATER] = 5, [ZONE_MAJOR] = 5 }, DUSKWOOD)
+  assertEqual(client:macroText("AutoPotion"), drinksPotion(ZONE_MAJOR))
+end)
+
+test("forever: in those zones its Greater Healing Potion goes ahead of a normal potion", function()
+  local client = inZone({ [ZONE_GREATER] = 5, [MAJOR_HEALING_POTION] = 5 }, DUSKWOOD)
+  assertEqual(client:macroText("AutoPotion"), drinksPotion(ZONE_GREATER))
+end)
+
+test("forever: elsewhere its Major and Greater Healing Potion stay out of AutoPotion", function()
+  local client = inZone({ [ZONE_MAJOR] = 5, [ZONE_GREATER] = 5 }, ELWYNN_FOREST)
+  assertEqual(client:macroText("AutoPotion"), "#showtooltip")
+end)
+
+test("forever: walking into such a zone and out of it updates the macros", function()
+  local client = inZone({ [ZONE_MAJOR] = 5, [MAJOR_HEALING_POTION] = 5 }, ELWYNN_FOREST)
+  assertEqual(client:macroText("AutoPotion"), drinksPotion(MAJOR_HEALING_POTION), "before")
+  client:enterZone(DUSKWOOD)
+  assertEqual(client:macroText("AutoPotion"), drinksPotion(ZONE_MAJOR), "in Duskwood")
+  client:enterZone(ELWYNN_FOREST)
+  assertEqual(client:macroText("AutoPotion"), drinksPotion(MAJOR_HEALING_POTION), "after leaving")
+end)
+
+test("forever: entering such a zone in combat changes the macro once combat ends", function()
+  local client = inZone({ [ZONE_MAJOR] = 5, [MAJOR_HEALING_POTION] = 5 }, ELWYNN_FOREST)
+  client:enterCombat()
+  client:enterZone(DUSKWOOD)
+  assertEqual(client:macroText("AutoPotion"), drinksPotion(MAJOR_HEALING_POTION), "in combat")
+  assertEqual(#client.blockedActions, 0, "blocked actions")
+  client:leaveCombat()
+  client:nextFrame()
+  assertEqual(client:macroText("AutoPotion"), drinksPotion(ZONE_MAJOR), "after combat")
+end)
+
+test("classic: those zones change nothing", function()
+  local client = inZone({ [ZONE_MAJOR] = 5, [MAJOR_HEALING_POTION] = 5 }, DUSKWOOD, "classic")
+  assertEqual(client:macroText("AutoPotion"), drinksPotion(MAJOR_HEALING_POTION))
+end)

@@ -640,6 +640,8 @@ local eventHandlers = {
   UNIT_PET = requestOn("event: UNIT_PET"),
   -- also on zoning: the instanced-PvP rules depend on the zone
   PLAYER_ENTERING_WORLD = requestOn("event: PLAYER_ENTERING_WORLD"),
+  -- crossing into another zone has no loading screen; Forever has zone-locked potions
+  ZONE_CHANGED_NEW_AREA = requestOn("event: ZONE_CHANGED_NEW_AREA"),
   -- only a tinker slot can change what the macros use; a gear set fires this once per slot
   PLAYER_EQUIPMENT_CHANGED = function(_, slot)
     if isTinkerSlot(slot) then
@@ -670,6 +672,9 @@ updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 -- tinkers are Retail content
 if ham.isRetail then
   updateFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+end
+if ham.isForever then
+  updateFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 end
 -- talents (trait configs) can teach or remove healing spells; only clients that have them know
 -- the event, and registering an unknown event is a Lua error

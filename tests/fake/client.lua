@@ -259,6 +259,13 @@ function Client:travelTo(instanceMapId)
   self:nextFrame()
 end
 
+-- Walks or flies into another zone of the same instance map: no loading screen.
+function Client:enterZone(mapId)
+  self.mapId = mapId
+  self:fireEvent("ZONE_CHANGED_NEW_AREA")
+  self:nextFrame()
+end
+
 -- Ends the session the way logging out and /reload do: PLAYER_LOGOUT, then the client writes
 -- the saved variables. Returns what it wrote, { [name] = value }.
 function Client:logout()
