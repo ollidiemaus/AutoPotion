@@ -4,12 +4,16 @@ local addonName, ham = ...
 function ham.getPotsForTBC()
   local pots = {
     ham.superreju,
-    ham.injector,
-    ham.auchenai,
-    ham.super,
+    {
+      ham.injector,
+      ham.auchenai,
+      ham.super,
+    },
     ham.major,
-    ham.combat,
-    ham.superior,
+    {
+      ham.combat,
+      ham.superior,
+    },
     ham.greater,
     ham.healingPotion,
     ham.lesser,

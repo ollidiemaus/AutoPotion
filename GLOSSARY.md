@@ -50,6 +50,24 @@ _Avoid_: Well Fed food, stat food
 **Conjured food**:
 Free food a mage creates. It goes first in the food priority unless buff food is preferred.
 
+### Potion priority
+
+**Potion priority**:
+The order in which a macro picks one potion from the bags: the strongest first. All potions share
+one cooldown, so a macro holds only one of them. A potion that expires (Fleeting, Perishable) goes
+before the plain one of the same strength, and a zone-locked item goes before all others where it
+works.
+_Avoid_: Potion list, pot order
+
+**Weakest potion first**:
+A setting that turns the potion priority around for health potions: the weakest potion in the
+bags first, for leveling, when a big heal matters less than saving the good potions. Only the
+strength order turns around: within one strength the usual order stays (an expiring potion before
+the plain one, a plain mana potion before a rejuvenation potion), and zone-locked items still go
+first. Its twin, Weakest mana potion first, does the same for mana potions. Healthstones and mana
+gems keep their order: the best one first.
+_Avoid_: Reverse order, leveling mode, lowest potion first
+
 ### Mana potions
 
 **Mana gem**:

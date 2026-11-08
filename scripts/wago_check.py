@@ -159,6 +159,8 @@ def read_sections(path, defs):
             heading = " ".join(comment)
             continue
         comment = []
+        if s in ("{", "},"):  # a group of potions of the same strength, part of the list around it
+            continue
         m = ENTRY_RE.fullmatch(s)
         inserted = INSERT_RE.fullmatch(s)
         if m and m.group(1) in defs:

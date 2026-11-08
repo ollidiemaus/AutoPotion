@@ -6,16 +6,24 @@ function ham.getManaPotionsForForever()
   local pots = {
     ham.majorManaPotion,
     ham.majorRejuvenationPotion,
-    ham.combatManaPotion,
-    ham.superiorManaPotion,
-    ham.superiorManaPotionForever,
-    ham.greaterManaPotion,
-    ham.manaTessasTonic,
+    {
+      ham.combatManaPotion,
+      ham.superiorManaPotion,
+      ham.superiorManaPotionForever,
+    },
+    {
+      ham.greaterManaPotion,
+      ham.manaTessasTonic,
+    },
     ham.manaPotion,
-    ham.lesserManaPotion,
-    ham.lesserManaPotionForever,
-    ham.minorManaPotion,
-    ham.minorManaPotionForever,
+    {
+      ham.lesserManaPotion,
+      ham.lesserManaPotionForever,
+    },
+    {
+      ham.minorManaPotion,
+      ham.minorManaPotionForever,
+    },
     ham.minorRejuvenationPotion,
   }
 

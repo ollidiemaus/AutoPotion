@@ -323,6 +323,26 @@ function ham.settingsFrame:InitializeOptions()
 	self:trackOptionCheckbox(raidStoneButton, "raidStone")
 	lastStaticElement = raidStoneButton
 
+	-------------  Potion Priority  -------------
+	local weakestPotionButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
+	weakestPotionButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
+	---@diagnostic disable-next-line: undefined-field
+	weakestPotionButton.Text:SetText(L["Weakest Potion First"])
+	weakestPotionButton:HookScript("OnClick", function(_, btn, down)
+		ham.settingsFrame:updateConfig("weakestPotionFirst", weakestPotionButton:GetChecked())
+	end)
+	weakestPotionButton:HookScript("OnEnter", function(_, btn, down)
+		---@diagnostic disable-next-line: param-type-mismatch
+		GameTooltip:SetOwner(weakestPotionButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetText(L["Use your weakest health potion first and keep the stronger ones for later. Meant for leveling. Any health potion in your bags counts, whatever its level. Healthstones still come in their usual order."], nil, nil, nil, nil, true)
+		GameTooltip:Show()
+	end)
+	weakestPotionButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	self:trackOptionCheckbox(weakestPotionButton, "weakestPotionFirst")
+	lastStaticElement = weakestPotionButton
+
 
 	-------------  ITEMS  -------------
 	local witheringPotionButton = nil

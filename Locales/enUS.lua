@@ -43,6 +43,12 @@ L["Other / Racial"] = "Other / Racial"
 L["Potion of Withering Dreams"] = "Potion of Withering Dreams"
 L["Potion of Withering Vitality"] = "Potion of Withering Vitality"
 L["Prioritize health potions over a healthstone."] = "Prioritize health potions over a healthstone."
+L["Weakest Potion First"] = "Weakest Potion First"
+L["Use your weakest health potion first and keep the stronger ones for later. Meant for leveling. Any health potion in your bags counts, whatever its level. Healthstones still come in their usual order."] =
+"Use your weakest health potion first and keep the stronger ones for later. Meant for leveling. Any health potion in your bags counts, whatever its level. Healthstones still come in their usual order."
+L["Weakest Mana Potion First"] = "Weakest Mana Potion First"
+L["Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."] =
+"Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."
 L["Reset successful!"] = "Reset successful!"
 L["Reset to Default"] = "Reset to Default"
 L["Shows the bandage that will currently be used, based on what is in your bags."] =

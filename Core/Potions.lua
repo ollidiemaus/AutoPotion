@@ -79,20 +79,20 @@ ham.superiorForever = ham.Item.new(288896, "Superior Healing Potion") -- Forever
 ham.minor = ham.Item.new(118, "Minor Healing Potion")
 ham.minorForever = ham.Item.new(287966, "Minor Healing Potion") -- Forever only, level 1 version
 -- Forever only, zone-locked to The Hinterlands, Duskwood, Ashenvale and Feralas
-ham.majorZoneLocked = ham.Item.new(223913, "Major Healing Potion")
-ham.greaterZoneLocked = ham.Item.new(223914, "Greater Healing Potion")
+ham.majorZoneLocked = ham.Item.new(223913, "Major Healing Potion", { zoneLocked = true })
+ham.greaterZoneLocked = ham.Item.new(223914, "Greater Healing Potion", { zoneLocked = true })
 ham.perishableHealingPotion = ham.Item.new(268883, "Perishable Healing Potion") -- Forever only
 ham.perishableLesserHealingPotion = ham.Item.new(268882, "Perishable Lesser Healing Potion") -- Forever only
 ham.perishableMinorHealingPotion = ham.Item.new(268881, "Perishable Minor Healing Potion") -- Forever only
 ham.tessasTonic = ham.Item.new(274935, "Tessa's Tonic") -- Forever only, restores mana too
 -- Forever only, zone-locked to Zephras Isle. Shares the potion cooldown, restores mana too.
-ham.windstone = ham.Item.new(255663, "Windstone")
+ham.windstone = ham.Item.new(255663, "Windstone", { zoneLocked = true })
 ham.greater = ham.Item.new(1710, "Greater Healing Potion")
 ham.greaterForever = ham.Item.new(287977, "Greater Healing Potion") -- Forever only, level 1 version
 ham.healingPotion = ham.Item.new(929, "Healing Potion")
 -- Classic PvP battleground-only draughts
-ham.majorHealingDraught = ham.Item.new(17348, "Major Healing Draught")
-ham.superiorHealingDraught = ham.Item.new(17349, "Superior Healing Draught")
+ham.majorHealingDraught = ham.Item.new(17348, "Major Healing Draught", { zoneLocked = true })
+ham.superiorHealingDraught = ham.Item.new(17349, "Superior Healing Draught", { zoneLocked = true })
 
 ------Healthstones for Classic------
 ham.minor0 = ham.Item.new(5512, "Minor Healthstone")
@@ -134,14 +134,40 @@ function ham.removeFromList(list, itemToRemove)
   end
 end
 
-function ham.getDelightPots()
-  if ham.isRetail and ham.getDelightPotsForRetail then
-    return ham.getDelightPotsForRetail()
+-- The potion priority a macro picks from, flattened from a flavor's list. A list holds potions
+-- best first; an entry is an item or a group { item, item, ... } of potions of the same strength,
+-- in the order they're used (an expiring potion before the plain one, a plain mana potion before
+-- a rejuvenation potion). Zone-locked items go first, in list order. With weakestFirst the
+-- strength order turns around and each group keeps its own order.
+function ham.potionPriority(list, weakestFirst)
+  local ordered, strengths = {}, {}
+  for _, entry in ipairs(list) do
+    if not entry.getId then
+      table.insert(strengths, entry)
+    elseif entry.hasTag("zoneLocked") then
+      table.insert(ordered, entry)
+    else
+      table.insert(strengths, { entry })
+    end
   end
+  local from, to, step = 1, #strengths, 1
+  if weakestFirst then from, to, step = #strengths, 1, -1 end
+  for i = from, to, step do
+    for _, item in ipairs(strengths[i]) do table.insert(ordered, item) end
+  end
+  return ordered
+end
+
+local function getRawDelightPots()
+  if ham.isRetail and ham.getDelightPotsForRetail then return ham.getDelightPotsForRetail() end
   return {}
 end
 
-function ham.getPots()
+function ham.getDelightPots()
+  return ham.potionPriority(getRawDelightPots(), ham.options.weakestPotionFirst)
+end
+
+local function getRawPots()
   if ham.isRetail and ham.getPotsForRetail then return ham.getPotsForRetail() end
   if ham.isClassic and ham.getPotsForClassic then return ham.getPotsForClassic() end
   if ham.isTBC and ham.getPotsForTBC then return ham.getPotsForTBC() end
@@ -149,9 +175,13 @@ function ham.getPots()
   if ham.isCata and ham.getPotsForCata then return ham.getPotsForCata() end
   if ham.isMop and ham.getPotsForMists then return ham.getPotsForMists() end
   if ham.isForever and ham.getPotsForForever then return ham.getPotsForForever() end
-
-  -- Fallback: return empty table if no version matches
   return {}
+end
+
+-- The health potions AutoPotion picks from, best first or, with "Weakest Potion First", weakest
+-- first.
+function ham.getPots()
+  return ham.potionPriority(getRawPots(), ham.options.weakestPotionFirst)
 end
 
 function ham.getHealthstonesClassic()

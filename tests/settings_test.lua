@@ -36,17 +36,20 @@ end
 -- A character for whom every option on the settings pages changes a macro: no item that a
 -- better one would hide (no regular health potion on Retail, so the Withering potions get in),
 -- buff food ahead of normal food and the food buff, so that "only when the buff is missing" puts
--- buff food last, a mana potion that only counts as a Rejuvenation potion, a mana gem, and a
--- spell with a cooldown for "go back to your first heal once its cooldown is over". The Retail one is a Warlock, the
--- only class with the Soulburn box, and wears the Heartseeking Health Injector tinker.
+-- buff food last, a mana potion that only counts as a Rejuvenation potion, a weaker potion of each
+-- kind for the "Weakest ... First" boxes, a mana gem, and a spell with a cooldown for "go back to
+-- your first heal once its cooldown is over". The Retail one is a Warlock, the only class with the
+-- Soulburn box, and wears the Heartseeking Health Injector tinker.
 local CLASSIC_ERA_CHARACTER = {
   class = "WARRIOR",
   bags = {
     [9421] = 1,  -- Major Healthstone
     [13446] = 5, -- Major Healing Potion
+    [118] = 5,   -- Minor Healing Potion, for "Weakest Potion First"
     [13928] = 5, -- Grilled Squid (buff food)
     [8952] = 5,  -- Roasted Quail
     [18253] = 5, -- Major Rejuvenation Potion
+    [2455] = 5,  -- Minor Mana Potion, for "Weakest Mana Potion First"
     [8008] = 1,  -- Mana Ruby (a mana gem)
   },
   spells = { [12975] = { baseCooldown = 180000 }, [WELL_FED] = { name = "Well Fed" } }, -- Last Stand
@@ -60,6 +63,7 @@ local CHARACTERS = {
     bags = {
       [5512] = 1,   -- Healthstone
       [241306] = 5, -- Refreshing Serum (R2), a Cavedweller's Delight and a Rejuvenation potion
+      [212242] = 5, -- Cavedweller's Delight (R1), for the "Weakest ... First" boxes
       [191371] = 5, -- Potion of Withering Vitality (R3)
       [207041] = 5, -- Potion of Withering Dreams (R3)
       [242747] = 5, -- Hearty Royal Roast (buff food)

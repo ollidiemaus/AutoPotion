@@ -13,20 +13,30 @@ function ham.getPotsForForever()
   -- Base Forever potions list
   local pots = {
     ham.major,
-    ham.combat,
-    ham.superior,
-    ham.superiorForever,
-    ham.tessasTonic,
-    ham.greater,
-    ham.greaterForever,
-    ham.perishableHealingPotion,
-    ham.healingPotion,
-    ham.perishableLesserHealingPotion,
-    ham.lesser,
-    ham.lesserForever,
-    ham.perishableMinorHealingPotion,
-    ham.minor,
-    ham.minorForever
+    {
+      ham.combat,
+      ham.superior,
+      ham.superiorForever,
+      ham.tessasTonic,
+    },
+    {
+      ham.greater,
+      ham.greaterForever,
+    },
+    {
+      ham.perishableHealingPotion,
+      ham.healingPotion,
+    },
+    {
+      ham.perishableLesserHealingPotion,
+      ham.lesser,
+      ham.lesserForever,
+    },
+    {
+      ham.perishableMinorHealingPotion,
+      ham.minor,
+      ham.minorForever,
+    },
   }
 
   -- Windstone only works on Zephras Isle

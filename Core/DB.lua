@@ -9,6 +9,9 @@ ham.defaults = {
     cdReset = false,
     stopCast = false,
     raidStone = false,
+    -- the potion priority turned around: the weakest health / mana potion first
+    weakestPotionFirst = false,
+    weakestManaPotionFirst = false,
     witheringPotion = false,
     witheringDreamsPotion = false,
     cavedwellerDelight = true,

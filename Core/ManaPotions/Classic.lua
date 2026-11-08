@@ -6,8 +6,10 @@ function ham.getManaPotionsForClassic()
   local pots = {
     ham.majorManaPotion,         -- 1350-2250
     ham.majorRejuvenationPotion, -- 1440-1760 (+ health)
-    ham.combatManaPotion,        -- 900-1500
-    ham.superiorManaPotion,      -- 900-1500
+    {
+      ham.combatManaPotion,        -- 900-1500
+      ham.superiorManaPotion,      -- 900-1500
+    },
     ham.greaterManaPotion,       -- 700-900
     ham.manaPotion,              -- 455-585
     ham.lesserManaPotion,        -- 280-360

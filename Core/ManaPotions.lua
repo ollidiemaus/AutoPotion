@@ -3,7 +3,8 @@ local addonName, ham = ...
 -- Mana potion data, researched on Wowhead (tooltip data per game flavor). Every flavor list in
 -- Core/ManaPotions/*.lua is sorted by the amount of mana restored, highest first, using the
 -- numbers of that flavor's own client. Where two potions restore the same amount, plain mana
--- potions come before rejuvenation potions.
+-- potions come before rejuvenation potions, and the list groups them ({ ... }), so that "Weakest
+-- Mana Potion First" keeps their order (ham.potionPriority).
 --
 -- Deliberately NOT included:
 --  * channeled/"defenseless" potions (Potion of Concentration/Focus/Frozen Focus/Devoured Dreams, ...)
@@ -92,11 +93,11 @@ ham.minorManaPotion = ham.Item.new(2455, "Minor Mana Potion")
 ham.minorManaPotionForever = ham.Item.new(287968, "Minor Mana Potion") -- Forever only, level 1 version
 ham.manaTessasTonic = ham.Item.new(274935, "Tessa's Tonic", { rejuvenation = true }) -- Forever only
 -- Forever only, zone-locked to Zephras Isle
-ham.manaWindstone = ham.Item.new(255663, "Windstone", { rejuvenation = true })
+ham.manaWindstone = ham.Item.new(255663, "Windstone", { rejuvenation = true, zoneLocked = true })
 ham.minorRejuvenationPotion = ham.Item.new(2456, "Minor Rejuvenation Potion", { rejuvenation = true })
 -- Classic/TBC PvP battleground-only draughts
-ham.majorManaDraught = ham.Item.new(17351, "Major Mana Draught")
-ham.superiorManaDraught = ham.Item.new(17352, "Superior Mana Draught")
+ham.majorManaDraught = ham.Item.new(17351, "Major Mana Draught", { zoneLocked = true })
+ham.superiorManaDraught = ham.Item.new(17352, "Superior Mana Draught", { zoneLocked = true })
 
 -- Mana gems: conjured by mages, soulbound, and on a cooldown of their own that all mana gems
 -- share, apart from the mana potions' one. AutoManaPotion uses the best one before the potion.
@@ -144,13 +145,14 @@ end
 -- Return a prioritized list of mana potions for the current client, excluding the
 -- rejuvenation (health AND mana) potions when the user turned them off. Enabled by default,
 -- so only an explicit `false` counts as "off" (older saved variables don't have the key).
+-- Best first or, with "Weakest Mana Potion First", weakest first.
 function ham.getManaPotions()
   -- Potions are not allowed in instanced PvP on Retail, same as the health potions
   if ham.isInInstancedPvP and ham.isInInstancedPvP() then
     return {}
   end
 
-  local list = getRawManaPotions()
+  local list = ham.potionPriority(getRawManaPotions(), ham.options.weakestManaPotionFirst)
   if ham.options.includeRejuvenation then
     return list
   end

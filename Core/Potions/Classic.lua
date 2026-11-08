@@ -5,8 +5,10 @@ function ham.getPotsForClassic()
   -- Base Classic potions list
   local pots = {
     ham.major,
-    ham.combat,
-    ham.superior,
+    {
+      ham.combat,
+      ham.superior,
+    },
     ham.greater,
     ham.healingPotion,
     ham.lesser,

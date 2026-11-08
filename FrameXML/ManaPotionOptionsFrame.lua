@@ -105,9 +105,26 @@ function ham.manaPotionSettingsFrame:InitializeOptions()
 	end)
 	ham.settingsFrame:trackOptionCheckbox(useManaGemsButton, "useManaGems")
 
+	-- weakest mana potion first toggle (the mana potion priority turned around, for leveling)
+	local weakestManaPotionButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
+	weakestManaPotionButton:SetPoint("TOPLEFT", useManaGemsButton, "BOTTOMLEFT", 0, -8)
+	weakestManaPotionButton.Text:SetText(L["Weakest Mana Potion First"])
+	weakestManaPotionButton:HookScript("OnClick", function(_, btn, down)
+		ham.settingsFrame:updateConfig("weakestManaPotionFirst", weakestManaPotionButton:GetChecked())
+	end)
+	weakestManaPotionButton:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(weakestManaPotionButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetText(L["Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."], nil, nil, nil, nil, true)
+		GameTooltip:Show()
+	end)
+	weakestManaPotionButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	ham.settingsFrame:trackOptionCheckbox(weakestManaPotionButton, "weakestManaPotionFirst")
+
 	-- mana potion priority header
 	local manaPotionPrioTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
-	manaPotionPrioTitle:SetPoint("TOPLEFT", useManaGemsButton, "BOTTOMLEFT", 0, -PADDING)
+	manaPotionPrioTitle:SetPoint("TOPLEFT", weakestManaPotionButton, "BOTTOMLEFT", 0, -PADDING)
 	manaPotionPrioTitle:SetText(L["Mana Potion Priority"])
 
 	self.priorityTitle = manaPotionPrioTitle

@@ -3,18 +3,24 @@ local addonName, ham = ...
 
 function ham.getPotsForCata()
   return {
-    ham.roguesDraught,
-    ham.mythical,
-    ham.runic_inject,
-    ham.runic,
+    {
+      ham.roguesDraught,
+      ham.mythical,
+    },
+    {
+      ham.runic_inject,
+      ham.runic,
+    },
     ham.crazy_alch,
     ham.superreju,
-    ham.endless,
-    ham.injector,
-    ham.resurgent,
-    ham.super,
-    ham.argent,
-    ham.auchenai,
+    {
+      ham.endless,
+      ham.injector,
+      ham.resurgent,
+      ham.super,
+      ham.argent,
+      ham.auchenai,
+    },
     ham.major,
     ham.superior,
     ham.greater,
