@@ -195,6 +195,13 @@ local function talentedCooldown(spellId)
   return cooldown
 end
 
+-- The cooldown in seconds of the item's on-use spell, nil when the client reports none.
+local function itemCooldown(itemId)
+  local getItemSpell = C_Item and C_Item.GetItemSpell or GetItemSpell
+  local _, spellId = getItemSpell(itemId)
+  return baseCooldown(spellId)
+end
+
 -- The cooldown in seconds of the castsequence's first entry, nil when unknown: the first spell's
 -- cooldown with its cooldown talents, else a Healthstone's on-use spell's. Other items (potions,
 -- the tinker slot) are unknown.
@@ -206,17 +213,19 @@ local function firstEntryCooldown()
   end
   local itemId = ham.itemIdList[1]
   if type(itemId) ~= "number" or not isHealthstone(itemId) then return nil end
-  local getItemSpell = C_Item and C_Item.GetItemSpell or GetItemSpell
-  local _, spellId = getItemSpell(itemId)
-  return baseCooldown(spellId)
+  return itemCooldown(itemId)
 end
 
--- What follows reset= in the castsequence: combat, plus the first entry's cooldown as the reset
--- timer with the option on
-local function sequenceResetArgument()
-  local cooldown = ham.options.cdReset and firstEntryCooldown()
-  if cooldown then return "combat/" .. cooldown end
+-- What follows reset= in a castsequence: combat, plus the reset timer when there is one
+local function resetArgument(seconds)
+  if seconds then return "combat/" .. seconds end
   return "combat"
+end
+
+-- The AutoPotion castsequence's reset= argument: the first entry's cooldown is the reset timer
+-- with the option on
+local function sequenceResetArgument()
+  return resetArgument(ham.options.cdReset and firstEntryCooldown())
 end
 
 local function buildSpellMacroString()
@@ -425,11 +434,14 @@ local function buildDrinkMacroString()
   return "#showtooltip\n/use [@player] " .. sequence[1]
 end
 
--- Build mana potion macro string (highest mana restore available first)
+-- Build mana potion macro string: the best mana gem, then the best mana potion. They don't share
+-- a cooldown, so with both a castsequence uses the gem, the potion on the next press, and starts
+-- over with the gem when combat starts or ends. The gem's cooldown is always the reset timer.
 local function buildManaPotionMacroString()
   local sequence = {}
-  local potions = ham.getManaPotions()
-  for _, item in ipairs(potions) do
+  local gem = ham.getManaGem()
+  if gem then table.insert(sequence, "item:" .. tostring(gem.getId())) end
+  for _, item in ipairs(ham.getManaPotions()) do
     if item.getCount() > 0 then
       table.insert(sequence, "item:" .. tostring(item.getId()))
       break
@@ -439,7 +451,11 @@ local function buildManaPotionMacroString()
   if #sequence == 0 then
     return "#showtooltip"
   end
-  return "#showtooltip\n/use " .. sequence[1]
+  if #sequence == 1 then
+    return "#showtooltip\n/use " .. sequence[1]
+  end
+  return "#showtooltip\n/castsequence reset=" .. resetArgument(itemCooldown(gem.getId())) .. " "
+    .. table.concat(sequence, ", ")
 end
 
 -- Soulburn (Warlock talent) empowers the next Healthstone. It's off the GCD, so a leading

@@ -75,3 +75,10 @@ function ham.getManaPotionsForRetail()
     ham.minorRejuvenationPotion,        -- 120 (+ health)
   }
 end
+
+-- Mana gems, by mana restored, highest first.
+function ham.getManaGemsForRetail()
+  return {
+    ham.manaGem,
+  }
+end

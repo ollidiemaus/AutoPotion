@@ -98,6 +98,38 @@ ham.minorRejuvenationPotion = ham.Item.new(2456, "Minor Rejuvenation Potion", { 
 ham.majorManaDraught = ham.Item.new(17351, "Major Mana Draught")
 ham.superiorManaDraught = ham.Item.new(17352, "Superior Mana Draught")
 
+-- Mana gems: conjured by mages, soulbound, and on a cooldown of their own that all mana gems
+-- share, apart from the mana potions' one. AutoManaPotion uses the best one before the potion.
+ham.manaAgate = ham.Item.new(5514, "Mana Agate")
+ham.manaJade = ham.Item.new(5513, "Mana Jade")
+ham.manaCitrine = ham.Item.new(8007, "Mana Citrine")
+ham.manaRuby = ham.Item.new(8008, "Mana Ruby")
+ham.manaEmerald = ham.Item.new(22044, "Mana Emerald")
+ham.manaSapphire = ham.Item.new(33312, "Mana Sapphire")
+ham.manaGem = ham.Item.new(36799, "Mana Gem")
+ham.brilliantManaGem = ham.Item.new(81901, "Brilliant Mana Gem")
+
+local function getManaGems()
+  if ham.isRetail and ham.getManaGemsForRetail then return ham.getManaGemsForRetail() end
+  if ham.isClassic and ham.getManaGemsForClassic then return ham.getManaGemsForClassic() end
+  if ham.isTBC and ham.getManaGemsForTBC then return ham.getManaGemsForTBC() end
+  if ham.isWrath and ham.getManaGemsForWrath then return ham.getManaGemsForWrath() end
+  if ham.isCata and ham.getManaGemsForCata then return ham.getManaGemsForCata() end
+  if ham.isMop and ham.getManaGemsForMists then return ham.getManaGemsForMists() end
+  if ham.isForever and ham.getManaGemsForForever then return ham.getManaGemsForForever() end
+  return {}
+end
+
+-- The mana gem AutoManaPotion uses: the best one in the bags, nil without one or with
+-- "Use mana gems" off. All mana gems share one cooldown, so the macro only ever needs the best.
+function ham.getManaGem()
+  if not ham.options.useManaGems then return nil end
+  for _, gem in ipairs(getManaGems()) do
+    if gem.getCount() > 0 then return gem end
+  end
+  return nil
+end
+
 local function getRawManaPotions()
   if ham.isRetail and ham.getManaPotionsForRetail then return ham.getManaPotionsForRetail() end
   if ham.isClassic and ham.getManaPotionsForClassic then return ham.getManaPotionsForClassic() end
