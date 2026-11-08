@@ -36,3 +36,14 @@ function ham.getManaPotionsForTBC()
 
   return pots
 end
+
+-- Mana gems, by mana restored, highest first.
+function ham.getManaGemsForTBC()
+  return {
+    ham.manaEmerald,
+    ham.manaRuby,
+    ham.manaCitrine,
+    ham.manaJade,
+    ham.manaAgate,
+  }
+end

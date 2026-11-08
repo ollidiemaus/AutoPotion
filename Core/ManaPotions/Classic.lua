@@ -26,3 +26,13 @@ function ham.getManaPotionsForClassic()
 
   return pots
 end
+
+-- Mana gems, by mana restored, highest first.
+function ham.getManaGemsForClassic()
+  return {
+    ham.manaRuby,    -- 1000-1200
+    ham.manaCitrine, -- 775-925
+    ham.manaJade,    -- 550-650
+    ham.manaAgate,   -- 375-425
+  }
+end

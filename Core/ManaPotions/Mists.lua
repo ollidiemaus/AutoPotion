@@ -35,3 +35,17 @@ function ham.getManaPotionsForMists()
     ham.minorRejuvenationPotion, -- 120 (+ health)
   }
 end
+
+-- Mana gems, by mana restored, highest first.
+function ham.getManaGemsForMists()
+  return {
+    ham.brilliantManaGem,
+    ham.manaGem,
+    ham.manaSapphire,
+    ham.manaEmerald,
+    ham.manaRuby,
+    ham.manaCitrine,
+    ham.manaJade,
+    ham.manaAgate,
+  }
+end

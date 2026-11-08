@@ -69,6 +69,10 @@ TOC_FLAVORS = {
 }
 CATEGORIES = ["Potions", "ManaPotions", "Bandages", "Food", "Drink"]
 MANA_CATEGORIES = {"ManaPotions", "Drink"}
+# Items the client files outside the Consumable class that are still used like one
+NOT_CONSUMABLE_CLASS_OK = {
+    5514,  # Mana Agate, a mana gem filed under Armor/Miscellaneous in every client
+}
 ITEM_TABLES = ["ItemSparse", "Item", "ItemEffect", "ItemXItemEffect", "CraftingQuality"]
 SPELL_TABLES = ["SpellEffect", "SpellMisc", "SpellDuration"]
 UNORDERED = r"order (?:\w+ )*doesn't matter"  # also "order among them doesn't matter"
@@ -617,7 +621,7 @@ def main():
                     if args.verbose and norm(sparse["Display_lang"]) != norm(d["name"]):
                         out.append(f"NOTE     [{fl}] {where} {var} ({d['id']}) is called "
                                    f"\"{sparse['Display_lang']}\" in this client")
-                    if item and item["ClassID"] != "0":
+                    if item and item["ClassID"] != "0" and d["id"] not in NOT_CONSUMABLE_CLASS_OK:
                         out.append(f"ERROR    [{fl}] {where} {var} ({d['id']}) is not a consumable "
                                    f"(item class {item['ClassID']}/{item['SubclassID']})")
                     cq = (item or {}).get("CraftingQualityID") or "0"

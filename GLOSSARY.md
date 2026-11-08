@@ -50,6 +50,14 @@ _Avoid_: Well Fed food, stat food
 **Conjured food**:
 Free food a mage creates. It goes first in the food priority unless buff food is preferred.
 
+### Mana potions
+
+**Mana gem**:
+An item a mage conjures that restores mana at once, like Mana Ruby or Retail's Mana Gem. All mana
+gems share one cooldown, apart from the mana potions' one, so AutoManaPotion uses the best one
+first and the mana potion on the next press.
+_Avoid_: Mana stone, gem
+
 ### Bandages
 
 **Bandage**:
