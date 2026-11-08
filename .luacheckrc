@@ -4,7 +4,7 @@ std = "lua51"
 max_line_length = false
 ignore = { "21", "31", "4", "542" }
 -- .lua/, .luarocks/ and .install/ are the toolchains the CI actions install into the workspace.
-exclude_files = { ".git/", ".release/", "Libs/", ".lua/", ".luarocks/", ".install/" }
+exclude_files = { ".git/", ".claude/", ".release/", "Libs/", ".lua/", ".luarocks/", ".install/" }
 
 -- Globals the addon defines.
 globals = {
