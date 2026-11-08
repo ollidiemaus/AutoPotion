@@ -16,6 +16,9 @@ L["Food Priority"] = "食物优先级"
 L["Drink Priority"] = "饮料优先级"
 L["Mana Potion Priority"] = "法力药水优先级"
 L["Include Rejuvenation Potions"] = "包含复原药水"
+L["Use mana gems"] = "使用法力宝石"
+L["Use your best mana gem first. The next press drinks the mana potion, since they don't share a cooldown. The macro goes back to the mana gem when combat starts or ends, and when you haven't pressed it for as long as the mana gem's cooldown."] =
+"优先使用你最好的法力宝石。二者不共享冷却，所以下一次按键会改喝法力药水。战斗开始或结束时，以及你未按键的时长达到法力宝石冷却后，宏会重新使用法力宝石。"
 L["Also use potions that restore health and mana (Rejuvenation potions, Cavedweller's Delight, Refreshing Serum, ...). They are sorted by the amount of mana they restore."] =
 "同时使用可恢复生命值和法力值的药水（复原药水、洞穴住民的挚爱、复苏血清等），并按恢复的法力值多少排序。"
 L["Shows the mana potion that will currently be used, based on what is in your bags."] =
@@ -41,6 +44,12 @@ L["Other / Racial"] = "其他 / 种族"
 L["Potion of Withering Dreams"] = "凋零梦境药水"
 L["Potion of Withering Vitality"] = "枯萎活力药水"
 L["Prioritize health potions over a healthstone."] = "治疗药水优先于治疗石使用。"
+L["Weakest Potion First"] = "最弱治疗药水优先"
+L["Use your weakest health potion first and keep the stronger ones for later. Meant for leveling. Any health potion in your bags counts, whatever its level. Healthstones still come in their usual order."] =
+"升级期间优先使用最弱的治疗药水，把更强的留到后面。背包中任意等级的治疗药水都计入。治疗石仍按原有顺序使用。"
+L["Weakest Mana Potion First"] = "最弱法力药水优先"
+L["Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."] =
+"升级期间优先使用最弱的法力药水，把更强的留到后面。背包中任意等级的法力药水都计入。法力宝石仍然是你最好的那一颗。"
 L["Reset successful!"] = "重置成功！"
 L["Reset to Default"] = "重置为默认"
 L["Shows the bandage that will currently be used, based on what is in your bags."] =
