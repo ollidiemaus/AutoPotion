@@ -164,3 +164,140 @@ function ham.getManaPotions()
   end
   return filtered
 end
+
+local function usable(value)
+  return not (issecretvalue and issecretvalue(value))
+end
+
+-- Wand shots in WoW Forever place a short (~1.5-2.5s, <= 5s) cooldown on every item,
+-- overwriting its own multi-minute cooldown in GetItemCooldown until that wand shot ends.
+local SHORT_CD = 5
+local longUntil = {}
+
+local function tryCooldown(fn, itemId)
+  if not fn then return nil end
+  local start, duration, enable = fn(itemId)
+  if usable(start) and usable(duration) and usable(enable)
+      and enable ~= 0 and enable ~= false
+      and start and start > 0 and duration and duration > 0 then
+    return start, duration, enable
+  end
+end
+
+local function rawItemCooldown(itemId)
+  local getters = {
+    C_Container and C_Container.GetItemCooldown or nil,
+    C_Item and C_Item.GetItemCooldown or nil,
+    GetItemCooldown,
+  }
+  for i = 1, 3 do
+    local start, duration, enable = tryCooldown(getters[i], itemId)
+    if start then return start, duration, enable end
+  end
+  return 0, 0, 0
+end
+
+-- Remaining cooldown in seconds for itemId, ignoring <= 5s GCD/wand cooldowns and secret values,
+-- and retaining observed multi-minute cooldowns when a wand shot briefly replaces GetItemCooldown.
+function ham.getItemCooldownRemaining(itemId)
+  if not itemId then return 0 end
+  local now = GetTime and GetTime() or 0
+  local start, duration = rawItemCooldown(itemId)
+  if start and start > 0 and duration and duration > SHORT_CD then
+    longUntil[itemId] = start + duration
+  end
+  local exp = longUntil[itemId]
+  if exp then
+    local remaining = exp - now
+    if remaining > 0.05 then
+      return remaining
+    end
+    longUntil[itemId] = nil
+  end
+  return 0
+end
+
+function ham.isWatchingManaCooldowns()
+  return ham.options and ham.options.useManaGems and ham.options.skipManaGemOnCooldown
+end
+
+local function trackItemCooldown(itemId)
+  local prev = longUntil[itemId]
+  ham.getItemCooldownRemaining(itemId)
+  local curr = longUntil[itemId]
+  return (curr ~= nil) ~= (prev ~= nil)
+    or (curr ~= nil and prev ~= nil and math.abs(curr - prev) > 0.2)
+end
+
+-- Captures mana item cooldowns immediately on cooldown events (including during CombatLockdown)
+-- before a wand shot overwrites the client's GetItemCooldown table.
+function ham.snapshotManaCooldowns()
+  local changed = false
+  for _, gem in ipairs(getManaGems()) do
+    if trackItemCooldown(gem.getId()) then
+      changed = true
+    end
+  end
+  for _, pot in ipairs(ham.getManaPotions()) do
+    if trackItemCooldown(pot.getId()) then
+      changed = true
+    end
+  end
+  return changed
+end
+
+local function getItemSpellId(itemId)
+  local fns = { C_Item and C_Item.GetItemSpell, GetItemSpell }
+  for i = 1, 2 do
+    local fn = fns[i]
+    if fn then
+      local _, spellId = fn(itemId)
+      if usable(spellId) and spellId then return spellId end
+    end
+  end
+  return nil
+end
+
+-- Records cooldowns when a mana gem's on-use spell succeeds in case item cooldown APIs lag.
+function ham.recordManaSpellCast(spellId)
+  local changed = ham.snapshotManaCooldowns()
+  if not spellId or not usable(spellId) then
+    return changed
+  end
+  local now = GetTime and GetTime() or 0
+  for _, gem in ipairs(getManaGems()) do
+    local gemId = gem.getId()
+    local gemSpellId = getItemSpellId(gemId)
+    if gemSpellId and gemSpellId == spellId then
+      if (not longUntil[gemId] or longUntil[gemId] <= now + 0.05) and GetSpellBaseCooldown then
+        local baseMs = GetSpellBaseCooldown(spellId)
+        if usable(baseMs) and baseMs and baseMs > SHORT_CD * 1000 then
+          longUntil[gemId] = now + (baseMs / 1000)
+          changed = true
+        end
+      end
+      return true
+    end
+  end
+  return changed
+end
+
+-- Returns (skipGem, refreshDelay): whether the macro should show/use the mana potion
+-- ahead of the mana gem because the gem is on cooldown and the potion is ready sooner.
+function ham.shouldPutManaPotionBeforeGem(gem, pot)
+  if not (ham.options and ham.options.useManaGems and ham.options.skipManaGemOnCooldown) then
+    return false, nil
+  end
+  if not gem or not pot then
+    return false, nil
+  end
+  local gemRem = ham.getItemCooldownRemaining(gem.getId())
+  if gemRem <= 0 then
+    return false, nil
+  end
+  local potRem = ham.getItemCooldownRemaining(pot.getId())
+  if potRem < gemRem then
+    return true, (potRem > 0 and math.min(potRem, gemRem) or gemRem)
+  end
+  return false, gemRem
+end

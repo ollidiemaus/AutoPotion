@@ -118,6 +118,14 @@ local function installItems(client, env)
       local _, data = item(itemId)
       if data.spell then return data.spell.name, data.spell.id end
     end,
+    GetItemCooldown = function(itemId)
+      local cd = client.itemCooldowns[tonumber(itemId)]
+      if not cd then return 0, 0, 1 end
+      return cd.start or 0, cd.duration or 0, cd.enable == nil and 1 or cd.enable
+    end,
+  }
+  env.C_Container = {
+    GetItemCooldown = env.C_Item.GetItemCooldown,
   }
   env.GetInventoryItemID = function(unit, slot)
     if unit == "player" then return client.equipped[slot] end
@@ -384,10 +392,20 @@ function Api.install(client, env)
   env.GRAY_FONT_COLOR = color(0.5, 0.5, 0.5)
   env.FONT_COLOR_CODE_CLOSE = "|r"
   env.SlashCmdList = {}
+  env.GetTime = function() return client.time end
   env.C_Timer = {
     After = function(seconds, callback)
       if type(callback) ~= "function" then error("C_Timer.After: callback must be a function", 2) end
       client:after(seconds, callback)
+    end,
+    NewTimer = function(seconds, callback)
+      if type(callback) ~= "function" then error("C_Timer.NewTimer: callback must be a function", 2) end
+      local timer = { cancelled = false }
+      function timer:Cancel() self.cancelled = true end
+      client:after(seconds, function()
+        if not timer.cancelled then callback() end
+      end)
+      return timer
     end,
   }
   env.geterrorhandler = function() return client.errorHandler end

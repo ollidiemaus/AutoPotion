@@ -5,6 +5,7 @@ local addonName, ham = ...
 ---@class Frame
 ham.manaPotionSettingsFrame = CreateFrame("Frame")
 local PADDING = 25
+local SUB_OPTION_INDENT = 20
 
 -- Resize the scrollable content to fit down to the mana potion preview row.
 function ham.manaPotionSettingsFrame:recalculateContentHeight()
@@ -21,7 +22,27 @@ function ham.manaPotionSettingsFrame:updateManaPotionPrio()
 	local items = ham.getManaPotions()
 	local gem = ham.getManaGem()
 	if gem then
-		items = { gem, unpack(items) }
+		local firstPot, firstPotIndex = nil, nil
+		for i, item in ipairs(items) do
+			if item.getCount() > 0 then
+				firstPot = item
+				firstPotIndex = i
+				break
+			end
+		end
+		local ordered = {}
+		local skipGem = ham.shouldPutManaPotionBeforeGem(gem, firstPot)
+		if skipGem and firstPotIndex then
+			for i, item in ipairs(items) do
+				table.insert(ordered, item)
+				if i == firstPotIndex then
+					table.insert(ordered, gem)
+				end
+			end
+		else
+			ordered = { gem, unpack(items) }
+		end
+		items = ordered
 	end
 	row:showItemsInBags(items)
 	self:recalculateContentHeight()
@@ -105,9 +126,29 @@ function ham.manaPotionSettingsFrame:InitializeOptions()
 	end)
 	ham.settingsFrame:trackOptionCheckbox(useManaGemsButton, "useManaGems")
 
+	-- skip mana gem while it is on cooldown and a mana potion is available sooner
+	local skipManaGemOnCooldownButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
+	skipManaGemOnCooldownButton:SetPoint("TOPLEFT", useManaGemsButton, "BOTTOMLEFT", SUB_OPTION_INDENT, 0)
+	skipManaGemOnCooldownButton.Text:SetText(L["Show mana potion when mana gem is on cooldown"])
+	skipManaGemOnCooldownButton:HookScript("OnClick", function(_, btn, down)
+		ham.settingsFrame:updateConfig("skipManaGemOnCooldown", skipManaGemOnCooldownButton:GetChecked())
+	end)
+	skipManaGemOnCooldownButton:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(skipManaGemOnCooldownButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetText(L["When your mana gem is on cooldown and a mana potion is ready (or comes off cooldown sooner), show and use the mana potion first until the mana gem is ready again."], nil, nil, nil, nil, true)
+		GameTooltip:Show()
+	end)
+	skipManaGemOnCooldownButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	ham.settingsFrame:trackOptionCheckbox(skipManaGemOnCooldownButton, "skipManaGemOnCooldown")
+	ham.settingsFrame:trackEnabled(skipManaGemOnCooldownButton, function()
+		return ham.options.useManaGems
+	end)
+
 	-- weakest mana potion first toggle (the mana potion priority turned around, for leveling)
 	local weakestManaPotionButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-	weakestManaPotionButton:SetPoint("TOPLEFT", useManaGemsButton, "BOTTOMLEFT", 0, -8)
+	weakestManaPotionButton:SetPoint("TOPLEFT", skipManaGemOnCooldownButton, "BOTTOMLEFT", -SUB_OPTION_INDENT, -8)
 	weakestManaPotionButton.Text:SetText(L["Weakest Mana Potion First"])
 	weakestManaPotionButton:HookScript("OnClick", function(_, btn, down)
 		ham.settingsFrame:updateConfig("weakestManaPotionFirst", weakestManaPotionButton:GetChecked())

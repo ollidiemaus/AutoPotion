@@ -434,18 +434,63 @@ local function buildDrinkMacroString()
   return "#showtooltip\n/use [@player] " .. sequence[1]
 end
 
+local manaCooldownTimer = nil
+local manaCooldownTimerTarget = 0
+
+local function scheduleManaCooldownRefresh(delay)
+  if not delay or delay <= 0 then return end
+  local now = GetTime and GetTime() or 0
+  local target = now + delay + 0.1
+  if manaCooldownTimer and math.abs(target - manaCooldownTimerTarget) < 0.2 then
+    return
+  end
+  if manaCooldownTimer and manaCooldownTimer.Cancel then
+    manaCooldownTimer:Cancel()
+  end
+  manaCooldownTimerTarget = target
+  local handle
+  local function onExpire()
+    if manaCooldownTimer ~= handle then return end
+    manaCooldownTimer = nil
+    manaCooldownTimerTarget = 0
+    ham.refreshPreviews()
+    ham.requestMacroUpdate()
+  end
+  if C_Timer.NewTimer then
+    handle = C_Timer.NewTimer(delay + 0.1, onExpire)
+  else
+    handle = {}
+    C_Timer.After(delay + 0.1, onExpire)
+  end
+  manaCooldownTimer = handle
+end
+
 -- Build mana potion macro string: the best mana gem, then the best mana potion. They don't share
 -- a cooldown, so with both a castsequence uses the gem, the potion on the next press, and starts
--- over with the gem when combat starts or ends. The gem's cooldown is always the reset timer.
+-- over with the gem when combat starts or ends. When skipManaGemOnCooldown is enabled and the
+-- gem is on cooldown with the potion ready sooner, show/use the potion directly until the gem
+-- comes back off cooldown.
 local function buildManaPotionMacroString()
   local sequence = {}
   local gem = ham.getManaGem()
-  if gem then table.insert(sequence, "item:" .. tostring(gem.getId())) end
+  local pot = nil
   for _, item in ipairs(ham.getManaPotions()) do
     if item.getCount() > 0 then
-      table.insert(sequence, "item:" .. tostring(item.getId()))
+      pot = item
       break
     end
+  end
+
+  local skipGem, expiry = ham.shouldPutManaPotionBeforeGem(gem, pot)
+  if expiry then
+    scheduleManaCooldownRefresh(expiry)
+  end
+
+  if gem and not skipGem then
+    table.insert(sequence, "item:" .. tostring(gem.getId()))
+  end
+  if pot then
+    table.insert(sequence, "item:" .. tostring(pot.getId()))
   end
 
   if #sequence == 0 then
@@ -644,6 +689,13 @@ local function requestOn(message)
   end
 end
 
+local function onManaCooldownEvent(eventName, active)
+  if not active or not (ham.isWatchingManaCooldowns and ham.isWatchingManaCooldowns()) then return end
+  log("event: " .. eventName)
+  ham.refreshPreviews()
+  ham.requestMacroUpdate()
+end
+
 local eventHandlers = {
   ADDON_LOADED = function(self, name)
     if name ~= addonName then return end
@@ -653,6 +705,19 @@ local eventHandlers = {
   end,
   -- fires once a burst of BAG_UPDATEs has settled
   BAG_UPDATE_DELAYED = requestOn("event: BAG_UPDATE_DELAYED"),
+  BAG_UPDATE_COOLDOWN = function()
+    if ham.snapshotManaCooldowns then ham.snapshotManaCooldowns() end
+    onManaCooldownEvent("BAG_UPDATE_COOLDOWN", true)
+  end,
+  SPELL_UPDATE_COOLDOWN = function()
+    local changed = ham.snapshotManaCooldowns and ham.snapshotManaCooldowns()
+    onManaCooldownEvent("SPELL_UPDATE_COOLDOWN", changed)
+  end,
+  UNIT_SPELLCAST_SUCCEEDED = function(_, unitTarget, _, spellId)
+    if unitTarget ~= "player" then return end
+    local matched = ham.recordManaSpellCast and ham.recordManaSpellCast(spellId)
+    onManaCooldownEvent("UNIT_SPELLCAST_SUCCEEDED", matched)
+  end,
   UNIT_PET = requestOn("event: UNIT_PET"),
   -- also on zoning: the instanced-PvP rules depend on the zone
   PLAYER_ENTERING_WORLD = requestOn("event: PLAYER_ENTERING_WORLD"),
@@ -684,6 +749,7 @@ local eventHandlers = {
 local updateFrame = CreateFrame("Frame")
 updateFrame:RegisterEvent("ADDON_LOADED")
 updateFrame:RegisterEvent("BAG_UPDATE_DELAYED")
+updateFrame:RegisterEvent("BAG_UPDATE_COOLDOWN")
 updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 -- tinkers are Retail content
 if ham.isRetail then
@@ -701,9 +767,11 @@ if C_EventUtils.IsEventValid("ADDON_RESTRICTION_STATE_CHANGED") then
   updateFrame:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")
 end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+updateFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 -- only the player's own pet, not every group member's
 updateFrame:RegisterUnitEvent("UNIT_PET", "player")
 updateFrame:RegisterUnitEvent("UNIT_AURA", "player")
+updateFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
 updateFrame:SetScript("OnEvent", function(self, event, ...)
   eventHandlers[event](self, ...)
 end)
