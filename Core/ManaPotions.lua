@@ -121,14 +121,19 @@ local function getManaGems()
   return {}
 end
 
--- The mana gem AutoManaPotion uses: the best one in the bags, nil without one or with
--- "Use mana gems" off. All mana gems share one cooldown, so the macro only ever needs the best.
-function ham.getManaGem()
-  if not ham.options.useManaGems then return nil end
+-- The best mana gem currently in the player's bags, regardless of AutoManaPotion settings.
+function ham.getBestManaGem()
   for _, gem in ipairs(getManaGems()) do
     if gem.getCount() > 0 then return gem end
   end
   return nil
+end
+
+-- The mana gem AutoManaPotion uses: the best one in the bags, nil without one, with
+-- "Use mana gems" off, or when mana gems are split into their own AutoManaGem macro.
+function ham.getManaGem()
+  if not ham.options.useManaGems or ham.options.separateManaGemMacro then return nil end
+  return ham.getBestManaGem()
 end
 
 local function getRawManaPotions()
@@ -218,7 +223,8 @@ function ham.getItemCooldownRemaining(itemId)
 end
 
 function ham.isWatchingManaCooldowns()
-  return ham.options and ham.options.useManaGems and ham.options.skipManaGemOnCooldown
+  return ham.options and ham.options.useManaGems and not ham.options.separateManaGemMacro
+    and ham.options.skipManaGemOnCooldown
 end
 
 local function trackItemCooldown(itemId)

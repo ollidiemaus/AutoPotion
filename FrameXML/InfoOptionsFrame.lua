@@ -31,6 +31,11 @@ local MACROS = {
 		description = L["The mana potion that restores the most mana."],
 	},
 	{
+		name = L["AutoManaGem"],
+		icon = "Interface\\Icons\\INV_Misc_Gem_Ruby_01",
+		description = L["Your best conjured mana gem."],
+	},
+	{
 		name = L["AutoFood"],
 		icon = "Interface\\Icons\\INV_Misc_Fork&Knife",
 		description = L["The best food in your bags."],

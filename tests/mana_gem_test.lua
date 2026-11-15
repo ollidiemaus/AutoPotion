@@ -30,6 +30,7 @@ local SPELLS = {
 
 local LABEL = "Use mana gems"
 local SKIP_CD_LABEL = "Show mana potion when mana gem is on cooldown"
+local SEPARATE_GEM_LABEL = "Separate Mana Gem macro (AutoManaGem)"
 
 local function mage(flavor, bags, options)
   options = options or {}
@@ -184,6 +185,22 @@ for _, flavor in ipairs({ "classic", "forever", "retail" }) do
 
     client:leaveCombat()
     assertEqual(client:macroText("AutoManaPotion"), uses(items.potion))
+    assertEqual(client.errors, {})
+  end)
+
+  test(flavor .. ": Separate Mana Gem macro creates AutoManaGem and keeps AutoManaPotion for potions", function()
+    local client = mage(flavor, { [items.gem] = 1, [items.potion] = 5, [items.second] = 5 })
+    client:openSettings("AutoPotion", "AutoManaPotion")
+    assertEqual(client:isChecked(SEPARATE_GEM_LABEL), false)
+    assertEqual(client:macroText("AutoManaGem"), nil)
+
+    client:clickCheckbox(SEPARATE_GEM_LABEL)
+    client:nextFrame()
+    assertEqual(client:macroText("AutoManaGem"), uses(items.gem))
+    assertEqual(client:macroText("AutoManaPotion"), uses(items.potion))
+    assertEqual(previewOf(client), { Api.itemIcon(items.potion), Api.itemIcon(items.second) })
+    assertEqual(client:isEnabled(LABEL), false)
+    assertEqual(client:isEnabled(SKIP_CD_LABEL), false)
     assertEqual(client.errors, {})
   end)
 end

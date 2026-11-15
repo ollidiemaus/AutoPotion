@@ -5,6 +5,7 @@ local bandageMacroName = L["AutoBandage"] or "AutoBandage"
 local foodMacroName = L["AutoFood"] or "AutoFood"
 local drinkMacroName = L["AutoDrink"] or "AutoDrink"
 local manaPotionMacroName = L["AutoManaPotion"] or "AutoManaPotion"
+local manaGemMacroName = L["AutoManaGem"] or "AutoManaGem"
 
 local function isInInstancedPvP()
   if not ham.isRetail then return false end
@@ -503,6 +504,14 @@ local function buildManaPotionMacroString()
     .. table.concat(sequence, ", ")
 end
 
+local function buildManaGemMacroString()
+  local gem = ham.getBestManaGem and ham.getBestManaGem() or nil
+  if not gem then
+    return "#showtooltip"
+  end
+  return "#showtooltip\n/use item:" .. tostring(gem.getId())
+end
+
 -- Soulburn (Warlock talent) empowers the next Healthstone. It's off the GCD, so a leading
 -- "/cast [combat] Soulburn" line fires in the same keypress as the castsequence step. It
 -- can't live inside the castsequence itself: with no Soul Shard the sequence would get stuck.
@@ -625,6 +634,11 @@ function ham.updateManaPotionMacro()
   writeMacro(manaPotionMacroName, buildManaPotionMacroString())
 end
 
+function ham.updateManaGemMacro()
+  if not (ham.options and ham.options.separateManaGemMacro) then return end
+  writeMacro(manaGemMacroName, buildManaGemMacroString())
+end
+
 -- A hidden page's preview is left alone: its OnShow refreshes it when the player opens it.
 local function isShown(page)
   return page.panel ~= nil and page.panel:IsVisible()
@@ -649,6 +663,7 @@ local function rebuildMacros()
   ham.updateFoodMacro()
   ham.updateDrinkMacro()
   ham.updateManaPotionMacro()
+  ham.updateManaGemMacro()
 end
 
 local updatePending = false -- an update was requested and hasn't run yet

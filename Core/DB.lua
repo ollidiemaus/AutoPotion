@@ -24,6 +24,8 @@ ham.defaults = {
     useManaGems = true,
     -- With useManaGems: show and use the mana potion while the mana gem is on cooldown
     skipManaGemOnCooldown = true,
+    -- Create a separate AutoManaGem macro and keep AutoManaPotion for mana potions only
+    separateManaGemMacro = false,
     soulburn = false,
     -- Forever: the AutoBandage macro casts Rapid Regeneration (Troll racial) before the bandage
     rapidRegenerationBandage = true,

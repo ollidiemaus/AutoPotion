@@ -21,6 +21,9 @@ L["Use your best mana gem first. The next press drinks the mana potion, since th
 L["Show mana potion when mana gem is on cooldown"] = "Show mana potion when mana gem is on cooldown"
 L["When your mana gem is on cooldown and a mana potion is ready (or comes off cooldown sooner), show and use the mana potion first until the mana gem is ready again."] =
 "When your mana gem is on cooldown and a mana potion is ready (or comes off cooldown sooner), show and use the mana potion first until the mana gem is ready again."
+L["Separate Mana Gem macro (AutoManaGem)"] = "Separate Mana Gem macro (AutoManaGem)"
+L["Create a separate AutoManaGem macro for your best mana gem and keep AutoManaPotion for mana potions only."] =
+"Create a separate AutoManaGem macro for your best mana gem and keep AutoManaPotion for mana potions only."
 L["Also use potions that restore health and mana (Rejuvenation potions, Cavedweller's Delight, Refreshing Serum, ...). They are sorted by the amount of mana they restore."] =
 "Also use potions that restore health and mana (Rejuvenation potions, Cavedweller's Delight, Refreshing Serum, ...). They are sorted by the amount of mana they restore."
 L["Shows the mana potion that will currently be used, based on what is in your bags."] =
@@ -79,6 +82,7 @@ L["Macros"] = "Macros"
 L["Healthstones, healing potions and class/racial self-heals."] =
 "Healthstones, healing potions and class/racial self-heals."
 L["The mana potion that restores the most mana."] = "The mana potion that restores the most mana."
+L["Your best conjured mana gem."] = "Your best conjured mana gem."
 L["The best food in your bags."] = "The best food in your bags."
 L["The best drink in your bags."] = "The best drink in your bags."
 L["Your strongest bandage, including battleground bandages."] =
@@ -103,6 +107,7 @@ L["AutoBandage"] = "AutoBandage" -- DO NOT TRANSLATE
 L["AutoFood"] = "AutoFood"       -- DO NOT TRANSLATE
 L["AutoDrink"] = "AutoDrink"     -- DO NOT TRANSLATE
 L["AutoManaPotion"] = "AutoManaPotion" -- DO NOT TRANSLATE
+L["AutoManaGem"] = "AutoManaGem" -- DO NOT TRANSLATE
 
 -- code.lua
 L["Couldn't create the %s macro: your general macros are full. Delete one of them and it will be created."] =
