@@ -50,6 +50,22 @@ _Avoid_: Well Fed food, stat food
 **Conjured food**:
 Free food a mage creates. It goes first in the food priority unless buff food is preferred.
 
+**Dual-restore food**:
+Food or drink that restores both health and mana and leaves no buff. It is on both the food and
+the drink priority.
+_Avoid_: Mana food, dual food
+
+**Weakest food first**:
+A setting that turns the food priority around: the food restoring the least health first, for
+leveling, to eat up the weak food in the bags and keep the good food. What counts is the total
+over the whole eat: a flat amount, or on Retail, where all food restores a share of maximum
+health, that share. Conjured food still goes first, its weakest one first. Dual-restore food ranks
+by its health among the rest. Food that can't be compared with the rest, like Forever's
+Restorative Bread (a share among flat amounts), goes last. Food restoring the same keeps its usual
+order, and buff food keeps its place. The ranking covers every expansion's food the list holds.
+Its twin, Weakest drink first, does the same for drinks by the mana they restore.
+_Avoid_: Reverse food order, leveling mode
+
 ### Potion priority
 
 **Potion priority**:
