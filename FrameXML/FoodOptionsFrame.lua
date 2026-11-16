@@ -103,9 +103,26 @@ function ham.foodSettingsFrame:InitializeOptions()
 	ham.settingsFrame:trackOptionCheckbox(onlyWhenMissingButton, "buffFoodOnlyWhenMissing")
 	ham.settingsFrame:trackEnabled(onlyWhenMissingButton, function() return ham.options.includeBuffFood end)
 
+	-- weakest food first toggle (the food restoring the least health first, for leveling)
+	local weakestFoodButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
+	weakestFoodButton:SetPoint("TOPLEFT", onlyWhenMissingButton, "BOTTOMLEFT", -SUB_OPTION_INDENT, -8)
+	weakestFoodButton.Text:SetText(L["Weakest Food First"])
+	weakestFoodButton:HookScript("OnClick", function(_, btn, down)
+		ham.settingsFrame:updateConfig("weakestFoodFirst", weakestFoodButton:GetChecked())
+	end)
+	weakestFoodButton:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(weakestFoodButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetText(L["Eat the food that restores the least health first and keep the better food for later. Meant for leveling. Any food in your bags counts, whatever its level. Conjured food still goes first, its weakest one first."], nil, nil, nil, nil, true)
+		GameTooltip:Show()
+	end)
+	weakestFoodButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	ham.settingsFrame:trackOptionCheckbox(weakestFoodButton, "weakestFoodFirst")
+
 	-- food priority header
 	local foodPrioTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
-	foodPrioTitle:SetPoint("TOPLEFT", onlyWhenMissingButton, "BOTTOMLEFT", -SUB_OPTION_INDENT, -PADDING)
+	foodPrioTitle:SetPoint("TOPLEFT", weakestFoodButton, "BOTTOMLEFT", 0, -PADDING)
 	foodPrioTitle:SetText(L["Food Priority"])
 
 	self.priorityTitle = foodPrioTitle

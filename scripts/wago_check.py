@@ -14,6 +14,8 @@ build of each listed interface version (cached between runs) and reports:
            (Fleeting variants count as the same item)
   ERROR    a cooldown talent (ham.cooldownTalents in Core/Spells/<Flavor>.lua) is not in
            that flavor's talent tree, or doesn't take off the seconds the addon says
+  RESTORE  a food or drink item doesn't record in its tags (see Core/Item.lua) what it restores in
+           that flavor's client: the line shows the record it should have
   NOTE     the item is only partly in wago's data for that flavor (encrypted or hotfix item);
            confirm it on Wowhead
   MISSING  with --missing only: an item in that flavor's client restores health or mana on use,
@@ -37,7 +39,7 @@ usage: wago_check.py [--flavor NAME ...] [--no-order] [--dump] [--missing] [--ve
   --cache    download directory (default: $AUTOPOTION_WAGO_CACHE, else the wow-data skill's
              cache $WOW_DATA_CACHE/db2 or ~/.cache/wow-data/db2, which has the same layout)
 
-Exits 1 when it prints an ERROR, ORDER or MISSING line.
+Exits 1 when it prints an ERROR, ORDER, RESTORE or MISSING line.
 """
 import argparse
 import csv
@@ -69,6 +71,8 @@ TOC_FLAVORS = {
 }
 CATEGORIES = ["Potions", "ManaPotions", "Bandages", "Food", "Drink"]
 MANA_CATEGORIES = {"ManaPotions", "Drink"}
+# the items of these lists record what they restore, for Weakest Food/Drink First
+RESTORE_CATEGORIES = {"Food", "Drink"}
 # Items the client files outside the Consumable class that are still used like one
 NOT_CONSUMABLE_CLASS_OK = {
     5514,  # Mana Agate, a mana gem filed under Armor/Miscellaneous in every client
@@ -87,7 +91,11 @@ CATEGORY_COOLDOWN_AURA = "341"
 SPELL_MOD_AURAS = {"107", "219"}
 SPELL_MOD_COOLDOWN = "11"
 
-DEF_RE = re.compile(r'^ham\.(\w+)\s*=\s*ham\.Item\.new\((\d+),\s*"((?:[^"\\]|\\.)*)"')
+DEF_RE = re.compile(r'^ham\.(\w+)\s*=\s*ham\.Item\.new\((\d+),\s*"((?:[^"\\]|\\.)*)"(?:,\s*(\{.*\}))?\)')
+# what a food or drink item records it restores (Core/Item.lua): flat totals, shares of the
+# maximum, or scaled = true when the amount follows the player's level
+RESTORE_KEYS = ("hp", "mp", "hpPct", "mpPct", "scaled")
+FLAVORS = [fl for fl, _ in TOC_FLAVORS.values()]
 ENTRY_RE = re.compile(r'ham\.(\w+),?\s*(--.*)?')
 INSERT_RE = re.compile(r'table\.insert\(\w+,\s*(?:\d+,\s*)?ham\.(\w+)\)')
 FUNC_RE = re.compile(r'function\s+(ham\.\w+)')
@@ -114,8 +122,60 @@ def read_definitions():
             m = DEF_RE.match(line)
             if m:
                 defs[m.group(1)] = dict(var=m.group(1), id=int(m.group(2)), name=m.group(3).replace('\\"', '"'),
-                                        where=f"{path.relative_to(ROOT)}:{n}")
+                                        where=f"{path.relative_to(ROOT)}:{n}", tags=parse_tags(m.group(4) or "{}"))
     return defs
+
+
+def parse_tags(text):
+    """An item's tags, a Lua table of names set to true, numbers or such tables."""
+    tokens = re.findall(r'[A-Za-z_]\w*|-?\d+(?:\.\d+)?|[{}=,]', text)
+    pos = 0
+
+    def table():
+        nonlocal pos
+        pos += 1  # {
+        result = {}
+        while tokens[pos] != "}":
+            key = tokens[pos]
+            if tokens[pos + 1] != "=":
+                raise SystemExit(f"can't read the item tags {text}")
+            pos += 2
+            if tokens[pos] == "{":
+                result[key] = table()
+            else:
+                value = tokens[pos]
+                result[key] = True if value == "true" else False if value == "false" else float(value)
+                pos += 1
+            if tokens[pos] == ",":
+                pos += 1
+        pos += 1  # }
+        return result
+
+    return table()
+
+
+def recorded_restores(tags, flavor):
+    """What an item records it restores on this flavor: its flavor's table or its own amounts."""
+    own = tags.get(flavor) if isinstance(tags.get(flavor), dict) else tags
+    return {k: own[k] for k in RESTORE_KEYS if k in own}
+
+
+def restores_from_client(amounts):
+    """What an item should record, from Client.amounts: scaled alone when an amount follows the
+    player's level, else its flat amounts (over 1, smaller ones are placeholders) and shares."""
+    if amounts["scaled"]:
+        return {"scaled": True}
+    rec = {}
+    for key, client_key, least in (("hp", "hp", 1), ("mp", "mp", 1), ("hpPct", "hp%", 0), ("mpPct", "mp%", 0)):
+        if amounts[client_key] > least:
+            rec[key] = round(amounts[client_key], 1)
+    return rec
+
+
+def lua_restores(rec):
+    """A restore record as it reads in the item tags."""
+    return "{ " + ", ".join(f"{k} = {'true' if v is True else f'{v:g}'}" for k, v in rec.items()) + " }" \
+        if rec else "{}"
 
 
 def read_cooldown_talents(files):
@@ -423,6 +483,10 @@ def unit(cat, kind):
     return f"% {what}" if kind == "pct" else f" {what}"
 
 
+# (var, flavor) pairs whose recorded restore amounts were reported: Food and Drink share items
+checked_restores = set()
+
+
 def check_order(flavor, cat, fname, sections, defs, client, dump, out):
     path = f"Core/{cat}/{fname}.lua"
     for func, heading, entries in sections:
@@ -440,6 +504,14 @@ def check_order(flavor, cat, fname, sections, defs, client, dump, out):
                 a = e["amounts"]
                 shown = "  ".join(f"{k}={a[k]:g}" for k in ("hp", "hp%", "mp", "mp%", "scaled") if a[k])
                 print(f"  {path}:{e['line']:<4} {e['var']:<40} {e['id']:<7} {shown or '-'}")
+        if cat in RESTORE_CATEGORIES:
+            for e in info:
+                d = defs[e["var"]]
+                want, have = restores_from_client(e["amounts"]), recorded_restores(d["tags"], flavor)
+                if want != have and (d["var"], flavor) not in checked_restores:
+                    checked_restores.add((d["var"], flavor))
+                    out.append(f"RESTORE  [{flavor}] {d['where']} {e['var']} ({e['id']}) records "
+                               f"{lua_restores(have)} but restores {lua_restores(want)} in this client")
         if re.search(UNORDERED, heading, re.I):
             continue
         for kind in ("flat", "pct"):
@@ -642,7 +714,7 @@ def main():
 
     for line in out:
         print(line)
-    failed = sum(1 for line in out if line.startswith(("ERROR", "ORDER")))
+    failed = sum(1 for line in out if line.startswith(("ERROR", "ORDER", "RESTORE")))
     print(f"{failed} problem(s) found" if failed else "ok", file=sys.stderr)
     sys.exit(1 if failed else 0)
 

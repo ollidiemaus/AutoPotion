@@ -20,6 +20,11 @@ ham.isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 ham.isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 ham.isMop = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
 
+-- The flavor's name, as item tags name a flavor whose client differs (Core/Item.lua)
+ham.flavor = (ham.isForever and "forever") or (ham.isRetail and "retail") or (ham.isClassic and "classic")
+  or (ham.isTBC and "tbc") or (ham.isWrath and "wrath") or (ham.isCata and "cata") or (ham.isMop and "mists")
+  or nil
+
 -- Classic battleground UI Map IDs
 -- Exposed on `ham` for use across modules (bandages, potions, etc.)
 ham.MAP_ID_ALTERAC_VALLEY = 1459
