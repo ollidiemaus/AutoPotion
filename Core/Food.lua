@@ -920,6 +920,19 @@ local function getRawFood()
   return {}
 end
 
+-- What an item restores under this key ("hp", "mpPct", ...), nil when it follows the level.
+local function amountOf(item, key)
+  if item.restores.scaled then return nil end
+  return item.restores[key]
+end
+
+-- Conjured before the rest, comparable before not, the least first, then list order.
+local function weaker(a, b)
+  if a.group ~= b.group then return a.group < b.group end
+  if a.amount ~= b.amount then return a.amount < b.amount end
+  return a.index < b.index
+end
+
 -- Weakest food first (and drink, by mana): a copy of a food or drink list with its items that
 -- aren't buff food ranked by what they restore of stat ("hp" or "mp"), the least first. Conjured
 -- items go first, their weakest first, then the rest that can be compared, then those that can't,
@@ -927,30 +940,25 @@ end
 -- has none (Retail); a share in a list of flat amounts, a level-scaled amount or none at all can't
 -- be compared. Buff food keeps its place in the list: ham.orderBuffFood places it afterwards.
 function ham.weakestFirst(list, stat)
-  local byShare = true
+  local key = stat .. "Pct"
   for _, item in ipairs(list) do
-    if not item.restores.scaled and item.restores[stat] then
-      byShare = false
+    if amountOf(item, stat) then
+      key = stat
       break
     end
   end
-  local key = byShare and stat .. "Pct" or stat
 
   local slots, ranked = {}, {}
   for i, item in ipairs(list) do
     if not item.hasTag("buffFood") then
-      local amount = not item.restores.scaled and item.restores[key] or nil
+      local amount = amountOf(item, key)
       local group = item.hasTag("conjured") and 0 or 2
       if amount == nil then group = group + 1 end
       table.insert(slots, i)
       table.insert(ranked, { item = item, group = group, amount = amount or 0, index = i })
     end
   end
-  table.sort(ranked, function(a, b)
-    if a.group ~= b.group then return a.group < b.group end
-    if a.amount ~= b.amount then return a.amount < b.amount end
-    return a.index < b.index
-  end)
+  table.sort(ranked, weaker)
 
   local result = {}
   for i, item in ipairs(list) do result[i] = item end
