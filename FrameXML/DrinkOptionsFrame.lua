@@ -66,9 +66,26 @@ function ham.drinkSettingsFrame:InitializeOptions()
 	subtitle:SetPoint("TOPLEFT", 0, -40)
 	subtitle:SetText(L["Shows the drink that will currently be used, based on what is in your bags."])
 
+	-- weakest drink first toggle (the drink restoring the least mana first, for leveling)
+	local weakestDrinkButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
+	weakestDrinkButton:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 0, -PADDING)
+	weakestDrinkButton.Text:SetText(L["Weakest Drink First"])
+	weakestDrinkButton:HookScript("OnClick", function(_, btn, down)
+		ham.settingsFrame:updateConfig("weakestDrinkFirst", weakestDrinkButton:GetChecked())
+	end)
+	weakestDrinkButton:HookScript("OnEnter", function(_, btn, down)
+		GameTooltip:SetOwner(weakestDrinkButton, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetText(L["Drink what restores the least mana first and keep the better drinks for later. Meant for leveling. Any drink in your bags counts, whatever its level. Conjured drinks still go first, the weakest one first."], nil, nil, nil, nil, true)
+		GameTooltip:Show()
+	end)
+	weakestDrinkButton:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	ham.settingsFrame:trackOptionCheckbox(weakestDrinkButton, "weakestDrinkFirst")
+
 	-- drink priority header
 	local drinkPrioTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
-	drinkPrioTitle:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 0, -PADDING)
+	drinkPrioTitle:SetPoint("TOPLEFT", weakestDrinkButton, "BOTTOMLEFT", 0, -PADDING)
 	drinkPrioTitle:SetText(L["Drink Priority"])
 
 	self.priorityTitle = drinkPrioTitle

@@ -28,6 +28,12 @@ L["Include \"Well Fed\"/\"Relaxed\" buff food and drink items (with situational 
 L["Only when the buff is missing"] = "Only when the buff is missing"
 L["Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"Relaxed\" for drinks), even before conjured food. While you have it, buff food comes last and is only eaten when nothing else is left."] =
 "Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"Relaxed\" for drinks), even before conjured food. While you have it, buff food comes last and is only eaten when nothing else is left."
+L["Weakest Food First"] = "Weakest Food First"
+L["Eat the food that restores the least health first and keep the better food for later. Meant for leveling. Any food in your bags counts, whatever its level. Conjured food still goes first, its weakest one first."] =
+"Eat the food that restores the least health first and keep the better food for later. Meant for leveling. Any food in your bags counts, whatever its level. Conjured food still goes first, its weakest one first."
+L["Weakest Drink First"] = "Weakest Drink First"
+L["Drink what restores the least mana first and keep the better drinks for later. Meant for leveling. Any drink in your bags counts, whatever its level. Conjured drinks still go first, the weakest one first."] =
+"Drink what restores the least mana first and keep the better drinks for later. Meant for leveling. Any drink in your bags counts, whatever its level. Conjured drinks still go first, the weakest one first."
 L["Go back to your first heal once its cooldown is over"] = "Go back to your first heal once its cooldown is over"
 L["If you don't press the macro for as long as your first heal's cooldown (talents included), the macro starts over with it. Works when the first heal is a spell or a Healthstone. A later heal with a longer cooldown can still make the macro wait."] =
 "If you don't press the macro for as long as your first heal's cooldown (talents included), the macro starts over with it. Works when the first heal is a spell or a Healthstone. A later heal with a longer cooldown can still make the macro wait."

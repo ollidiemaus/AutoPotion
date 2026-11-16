@@ -12,3 +12,8 @@ and Forever's Restorative Bread right after conjured food, whatever their streng
 stays. Weakest first mixes dual-restore food in among plain food by strength. One grouped list
 can't give both orders, while amounts serve both and let `wago_check.py` check them against client
 data like IDs and names. The cost is an amount to fill in for every food and drink item.
+
+An item restores the same in most clients, but not in all (Forever reworked old food, Mists
+scales some of it with the player's level, TBC raised a few). Such an item records the amounts of
+most of its flavors and a table of its own under each flavor whose client differs, rather than
+being defined once per flavor.

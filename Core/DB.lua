@@ -19,6 +19,9 @@ ham.defaults = {
     includeBuffFood = false,
     -- with includeBuffFood: buff food first while the food buff is missing, last while it's there
     buffFoodOnlyWhenMissing = false,
+    -- the food / drink restoring the least health / mana first, conjured items still first
+    weakestFoodFirst = false,
+    weakestDrinkFirst = false,
     includeRejuvenation = true,
     -- AutoManaPotion uses the best mana gem before the mana potion
     useManaGems = true,
