@@ -66,6 +66,13 @@ order, and buff food keeps its place. The ranking covers every expansion's food 
 Its twin, Weakest drink first, does the same for drinks by the mana they restore.
 _Avoid_: Reverse food order, leveling mode
 
+### Spells
+
+**Heal spell**:
+A player spell that heals the caster, which AutoPotion casts before the healthstone and the
+potions. Every one is on until the player unticks it.
+_Avoid_: Self heal, healing cooldown
+
 ### Potion priority
 
 **Potion priority**:
@@ -98,6 +105,16 @@ cooldown, apart from the mana potions' and the mana gems' ones, so AutoManaPotio
 after the mana potion, as the last resort. It is off unless the player turns it on, and not
 offered on Retail, where its flat amount is worthless.
 _Avoid_: Rune (also means death knight runes), Dark Rune (only one of the two)
+
+**Mana spell**:
+A player spell with a cooldown that brings the caster's own mana back within seconds of a press,
+as an amount or a short regen buff, which AutoManaPotion casts on the player before the mana gem.
+Evocation is the model. One that restores the party's mana too still counts; one that only
+restores others' does not. Spells without a cooldown (Life Tap, Mana Tea), stances and buffs kept
+up (Aspect of the Viper, Water Shield) and restores too small to matter are not. A channel or a
+downside (health, healing done, a knockback) doesn't rule one out: each is off until the player
+ticks it.
+_Avoid_: Mana cooldown, regen spell, heal spell
 
 ### Bandages
 
