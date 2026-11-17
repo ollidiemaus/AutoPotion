@@ -37,7 +37,7 @@ end
 -- better one would hide (no regular health potion on Retail, so the Withering potions get in),
 -- buff food ahead of normal food and the food buff, so that "only when the buff is missing" puts
 -- buff food last, a mana potion that only counts as a Rejuvenation potion, a weaker potion, food
--- and drink of each kind for the "Weakest ... First" boxes, a mana gem, and a spell with a
+-- and drink of each kind for the "Weakest ... First" boxes, a mana gem, a demonic rune, and a spell with a
 -- cooldown for "go back to your first heal once its cooldown is over". The Retail one is a Warlock, the only class with the
 -- Soulburn box, and wears the Heartseeking Health Injector tinker.
 local CLASSIC_ERA_CHARACTER = {
@@ -54,6 +54,7 @@ local CLASSIC_ERA_CHARACTER = {
     [18253] = 5, -- Major Rejuvenation Potion
     [2455] = 5,  -- Minor Mana Potion, for "Weakest Mana Potion First"
     [8008] = 1,  -- Mana Ruby (a mana gem)
+    [12662] = 1, -- Demonic Rune, for "Include Demonic Runes"
   },
   spells = { [12975] = { baseCooldown = 180000 }, [WELL_FED] = { name = "Well Fed" } }, -- Last Stand
   knownSpells = { 12975 },

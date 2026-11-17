@@ -9,7 +9,8 @@ local addonName, ham = ...
 -- Deliberately NOT included:
 --  * channeled/"defenseless" potions (Potion of Concentration/Focus/Frozen Focus/Devoured Dreams, ...)
 --  * potions with a downside or a random side effect (Fel Mana Potion, Crazy/Mad Alchemist's Potion,
---    Mysterious Potion, Potion of Nightmares, dreamless sleep potions, ...)
+--    Mysterious Potion, Potion of Nightmares, dreamless sleep potions, ...). The exception are the
+--    demonic runes (they cost health), offered behind "Include Demonic Runes", see below
 --  * zone-locked potions (Tol Barad, Blade's Edge, Tempest Keep, Coilfang), unless a list adds
 --    them behind a zone check (Forever's Windstone)
 --  * Remix-only and QA items
@@ -127,6 +128,32 @@ function ham.getManaGem()
   if not ham.options.useManaGems then return nil end
   for _, gem in ipairs(getManaGems()) do
     if gem.getCount() > 0 then return gem end
+  end
+  return nil
+end
+
+-- Demonic runes: restore mana at a cost of health, on a cooldown of their own apart from the mana
+-- potions' and the mana gems' ones. With "Include Demonic Runes" AutoManaPotion uses one after the
+-- mana potion. Not offered on Retail, where the flat amount is worthless.
+ham.demonicRune = ham.Item.new(12662, "Demonic Rune")
+ham.darkRune = ham.Item.new(20520, "Dark Rune")
+
+local function getDemonicRunes()
+  if ham.isClassic and ham.getDemonicRunesForClassic then return ham.getDemonicRunesForClassic() end
+  if ham.isTBC and ham.getDemonicRunesForTBC then return ham.getDemonicRunesForTBC() end
+  if ham.isWrath and ham.getDemonicRunesForWrath then return ham.getDemonicRunesForWrath() end
+  if ham.isCata and ham.getDemonicRunesForCata then return ham.getDemonicRunesForCata() end
+  if ham.isMop and ham.getDemonicRunesForMists then return ham.getDemonicRunesForMists() end
+  if ham.isForever and ham.getDemonicRunesForForever then return ham.getDemonicRunesForForever() end
+  return {}
+end
+
+-- The demonic rune AutoManaPotion uses last: the first one in the bags, nil without one, with
+-- "Include Demonic Runes" off, or on Retail. One is enough, the macro never uses two in a row.
+function ham.getDemonicRune()
+  if ham.isRetail or not ham.options.includeDemonicRunes then return nil end
+  for _, demonicRune in ipairs(getDemonicRunes()) do
+    if demonicRune.getCount() > 0 then return demonicRune end
   end
   return nil
 end

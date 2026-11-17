@@ -76,6 +76,8 @@ RESTORE_CATEGORIES = {"Food", "Drink"}
 # Items the client files outside the Consumable class that are still used like one
 NOT_CONSUMABLE_CLASS_OK = {
     5514,  # Mana Agate, a mana gem filed under Armor/Miscellaneous in every client
+    12662,  # Demonic Rune, filed under Trade Goods/Other on Forever
+    20520,  # Dark Rune, filed under Trade Goods/Other on Forever
 }
 ITEM_TABLES = ["ItemSparse", "Item", "ItemEffect", "ItemXItemEffect", "CraftingQuality"]
 SPELL_TABLES = ["SpellEffect", "SpellMisc", "SpellDuration"]
