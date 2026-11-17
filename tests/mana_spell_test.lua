@@ -52,9 +52,9 @@ local SPELLS = {
     [DESPERATE_PRAYER] = { name = "Desperate Prayer", baseCooldown = 90000 },
   },
 }
-local GEM = { retail = MANA_GEM, classic = MANA_RUBY, forever = MANA_RUBY }
+local MANA_GEM_ITEM = { retail = MANA_GEM, classic = MANA_RUBY, forever = MANA_RUBY }
 local POTION = { retail = LIGHTFUSED_MANA_POTION, classic = MAJOR_MANA_POTION, forever = MAJOR_MANA_POTION }
-local EVOCATION_RESET = { retail = "combat", classic = "combat/480", forever = "combat/480" }
+local EVOCATION_RESET_TIMER = { retail = "combat", classic = "combat/480", forever = "combat/480" }
 
 local function character(flavor, class, options)
   options = options or {}
@@ -97,7 +97,7 @@ local function only(list, wanted)
 end
 
 for _, flavor in ipairs(Client.FLAVOR_NAMES) do
-  local gem, potion = GEM[flavor], POTION[flavor]
+  local manaGem, potion = MANA_GEM_ITEM[flavor], POTION[flavor]
 
   test(flavor .. ": with no mana spell ticked the macro is the same as before", function()
     local client = character(flavor, "MAGE", { knownSpells = { EVOCATION }, bags = { [potion] = 5 } })
@@ -108,10 +108,10 @@ for _, flavor in ipairs(Client.FLAVOR_NAMES) do
   end)
 
   test(flavor .. ": a ticked Evocation goes before the mana gem and the potion, cast on the player", function()
-    local client = character(flavor, "MAGE", { knownSpells = { EVOCATION }, bags = { [gem] = 1, [potion] = 5 } })
+    local client = character(flavor, "MAGE", { knownSpells = { EVOCATION }, bags = { [manaGem] = 1, [potion] = 5 } })
     tick(client, "Evocation")
     assertEqual(client:macroText("AutoManaPotion"), "#showtooltip\n/castsequence [@player] reset="
-      .. EVOCATION_RESET[flavor] .. " Evocation, item:" .. gem .. ", item:" .. potion)
+      .. EVOCATION_RESET_TIMER[flavor] .. " Evocation, item:" .. manaGem .. ", item:" .. potion)
     assertEqual(client.errors, {})
   end)
 
@@ -129,13 +129,13 @@ for _, flavor in ipairs(Client.FLAVOR_NAMES) do
     client:learnSpell(EVOCATION)
     client:nextFrame()
     assertEqual(client:macroText("AutoManaPotion"),
-      "#showtooltip\n/castsequence [@player] reset=" .. EVOCATION_RESET[flavor] .. " Evocation, item:" .. potion)
+      "#showtooltip\n/castsequence [@player] reset=" .. EVOCATION_RESET_TIMER[flavor] .. " Evocation, item:" .. potion)
   end)
 
   test(flavor .. ": the preview shows the known, ticked mana spells before the items", function()
-    local client = character(flavor, "MAGE", { knownSpells = { EVOCATION }, bags = { [gem] = 1, [potion] = 5 } })
+    local client = character(flavor, "MAGE", { knownSpells = { EVOCATION }, bags = { [manaGem] = 1, [potion] = 5 } })
     tick(client, "Evocation")
-    assertEqual(previewOf(client), { Api.spellIcon(EVOCATION), Api.itemIcon(gem), Api.itemIcon(potion) })
+    assertEqual(previewOf(client), { Api.spellIcon(EVOCATION), Api.itemIcon(manaGem), Api.itemIcon(potion) })
   end)
 
   test(flavor .. ": ticking in combat shows in the preview at once and reaches the macro after combat", function()
@@ -150,7 +150,7 @@ for _, flavor in ipairs(Client.FLAVOR_NAMES) do
     client:leaveCombat()
     client:nextFrame()
     assertEqual(client:macroText("AutoManaPotion"),
-      "#showtooltip\n/castsequence [@player] reset=" .. EVOCATION_RESET[flavor] .. " Evocation, item:" .. potion)
+      "#showtooltip\n/castsequence [@player] reset=" .. EVOCATION_RESET_TIMER[flavor] .. " Evocation, item:" .. potion)
     assertEqual(client.blockedActions, {})
   end)
 

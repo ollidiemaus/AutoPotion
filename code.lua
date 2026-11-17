@@ -465,15 +465,16 @@ local function buildManaPotionMacroString()
   if #sequence == 0 then
     return "#showtooltip"
   end
-  local target = #spells > 0 and "[@player] " or ""
-  if #sequence == 1 then
-    return "#showtooltip\n" .. (#spells > 0 and "/cast " or "/use ") .. target .. sequence[1]
-  end
-  local firstCooldown
+  local command, target, firstCooldown
   if #spells > 0 then
+    command, target = "/cast ", "[@player] "
     firstCooldown = talentedCooldown(spells[1].getId())
   else
+    command, target = "/use ", ""
     firstCooldown = itemCooldown(items[1].getId())
+  end
+  if #sequence == 1 then
+    return "#showtooltip\n" .. command .. target .. sequence[1]
   end
   return "#showtooltip\n/castsequence " .. target .. "reset=" .. resetArgument(firstCooldown) .. " "
     .. table.concat(sequence, ", ")
