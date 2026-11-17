@@ -92,6 +92,13 @@ gems share one cooldown, apart from the mana potions' one, so AutoManaPotion use
 first and the mana potion on the next press.
 _Avoid_: Mana stone, gem (also means socket gems)
 
+**Demonic rune**:
+Demonic Rune or Dark Rune: an item that restores mana at a cost of health. Both share one
+cooldown, apart from the mana potions' and the mana gems' ones, so AutoManaPotion can use one
+after the mana potion, as the last resort. It is off unless the player turns it on, and not
+offered on Retail, where its flat amount is worthless.
+_Avoid_: Rune (also means death knight runes), Dark Rune (only one of the two)
+
 ### Bandages
 
 **Bandage**:
