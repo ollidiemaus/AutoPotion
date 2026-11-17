@@ -86,7 +86,9 @@ UNORDERED = r"order (?:\w+ )*doesn't matter"  # also "order among them doesn't m
 # ones are buffs like "restores 6 health every 5 sec for 10 min", not the restore itself.
 MAX_RESTORE_MS = 120000
 
-TALENT_TABLES = ["TraitDefinition", "SpellEffect"]
+# TraitDefinition holds the talent trees of Retail, Classic Era, TBC, Mists and Forever; Wrath and
+# Cata keep theirs in Talent (one spell per rank)
+TALENT_TABLES = ["TraitDefinition", "Talent", "SpellEffect"]
 # cooldown-modifying auras: 341 modifies a spell category's cooldown (misc value = category),
 # 107/219 are spell modifiers whose misc value 11 means cooldown
 CATEGORY_COOLDOWN_AURA = "341"
@@ -102,7 +104,7 @@ ENTRY_RE = re.compile(r'ham\.(\w+),?\s*(--.*)?')
 INSERT_RE = re.compile(r'table\.insert\(\w+,\s*(?:\d+,\s*)?ham\.(\w+)\)')
 FUNC_RE = re.compile(r'function\s+(ham\.\w+)')
 TALENT_RE = re.compile(r'^ham\.cooldownTalents\[(\d+)\]\s*=\s*\{\s*spell\s*=\s*ham\.(\w+),\s*'
-                       r'seconds\s*=\s*(\d+)\s*\}\s*(?:--\s*(.*))?')
+                       r'seconds\s*=\s*(\d+)\s*(?:,\s*rankOf\s*=\s*\d+\s*)?\}\s*(?:--\s*(.*))?')
 
 
 # ---- addon side ---------------------------------------------------------------------
@@ -584,18 +586,25 @@ def report_missing(cache, flavor, fname, build, defs, groups, out, notes):
 def check_cooldown_talents(cache, flavor, build, talents, out):
     """Each talent is in the build's talent tree and has a cooldown aura of -seconds."""
     ids = {t["id"] for t in talents}
-    traits = list(rows(cache, build, "TraitDefinition"))
-    if not traits:
-        out.append(f"ERROR    [{flavor}] TraitDefinition of {build} is missing, cooldown talents not checked")
+    tree = {int(r["SpellID"]) for r in rows(cache, build, "TraitDefinition")}
+    for r in rows(cache, build, "Talent"):
+        tree |= {int(r[f"SpellRank_{i}"]) for i in range(9) if num(r.get(f"SpellRank_{i}"))}
+    if not tree:
+        out.append(f"ERROR    [{flavor}] TraitDefinition and Talent of {build} are missing, cooldown talents not checked")
         return
-    in_tree = {int(r["SpellID"]) for r in traits} & ids
+    in_tree = tree & ids
     amounts = defaultdict(list)
     for r in rows(cache, build, "SpellEffect"):
         sid = int(r["SpellID"])
         if sid in ids and r["Effect"] == "6" and r.get("DifficultyID", "0") == "0" and (
                 r["EffectAura"] == CATEGORY_COOLDOWN_AURA
                 or (r["EffectAura"] in SPELL_MOD_AURAS and r["EffectMiscValue_0"] == SPELL_MOD_COOLDOWN)):
-            amounts[sid].append(num(r["EffectBasePointsF"]))
+            # Wrath's rows leave EffectBasePointsF at 0: the amount is base points plus a roll of
+            # 1..die sides, and these talents roll 1
+            amount = num(r.get("EffectBasePointsF"))
+            if not amount:
+                amount = num(r.get("EffectBasePoints")) + min(num(r.get("EffectDieSides")), 1)
+            amounts[sid].append(amount)
     for t in talents:
         what = f"[{flavor}] {t['where']} cooldown talent {t['name']} ({t['id']})"
         if t["id"] not in in_tree:

@@ -8,6 +8,21 @@ if not ham.isClassic then return end
 -- ham.someClassicOnlySpell = ham.Spell.new(123456, "WARRIOR") -- class token, or omit for non-class spells
 -- table.insert(ham.supportedSpells, ham.someClassicOnlySpell)
 
+-- Mana spells, best restore first. Shadowfiend, Dispersion and Shamanistic Rage are Season of
+-- Discovery runes.
+table.insert(ham.supportedManaSpells, ham.evocation)
+table.insert(ham.supportedManaSpells, ham.innervate)
+table.insert(ham.supportedManaSpells, ham.manaTideTotem)
+table.insert(ham.supportedManaSpells, ham.shadowfiendRune)
+table.insert(ham.supportedManaSpells, ham.dispersionRune)
+table.insert(ham.supportedManaSpells, ham.shamanisticRageRune)
+
+ham.spellRanks[ham.manaTideTotem.getId()] = {
+    16190, -- Rank 1
+    17354, -- Rank 2
+    17359, -- Rank 3
+}
+
 -- Desperate Prayer (Dwarf/Human priest racial) has one spell id per rank, while
 -- ham.desperatePrayer uses rank 2's id. Register every rank so a priest at any rank is detected.
 ham.spellRanks[ham.desperatePrayer.getId()] = {

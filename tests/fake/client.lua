@@ -470,9 +470,11 @@ function Client:showAuras()
   self:fireEvent("ADDON_RESTRICTION_STATE_CHANGED", ENCOUNTER, INACTIVE)
 end
 
--- The player learns a spell (a trainer, a talent) and the client fires SPELLS_CHANGED.
+-- The player learns a spell (a trainer, a talent) and the client fires LEARNED_SPELL_IN_SKILL_LINE
+-- (spellID, skillLineIndex, isGuildPerk) on the flavors that have it, then SPELLS_CHANGED.
 function Client:learnSpell(spellId)
   self.knownSpells[spellId] = true
+  if self.events.LEARNED_SPELL_IN_SKILL_LINE then self:fireEvent("LEARNED_SPELL_IN_SKILL_LINE", spellId, 1, false) end
   self:fireEvent("SPELLS_CHANGED")
 end
 
@@ -582,6 +584,23 @@ local function checkbox(self, label)
   end
   if not found then error('no check box "' .. label .. '" on the open settings page', 3) end
   return found
+end
+
+-- The headings (text in GameFontNormalHuge) on the open settings page, in the order created.
+function Client:headings()
+  local category = self.displayedSettingsCategory()
+  if not category then error("the settings panel isn't open", 2) end
+  local texts = {}
+  for _, frame in ipairs({ category.frame, unpack(Widgets.descendants(category.frame)) }) do
+    if frame:IsVisible() then
+      for _, fontString in ipairs(Widgets.fontStrings(frame)) do
+        if fontString:IsVisible() and fontString[0].fontObject == "GameFontNormalHuge" then
+          table.insert(texts, fontString:GetText())
+        end
+      end
+    end
+  end
+  return texts
 end
 
 -- Whether the check box with this label on the open settings page is ticked.

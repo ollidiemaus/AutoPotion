@@ -14,6 +14,7 @@ L["Use Rapid Regeneration (Troll racial) before bandages"] = "Use Rapid Regenera
 L["Food Priority"] = "Food Priority"
 L["Drink Priority"] = "Drink Priority"
 L["Mana Potion Priority"] = "Mana Potion Priority"
+L["Mana Spells"] = "Mana Spells"
 L["Include Rejuvenation Potions"] = "Include Rejuvenation Potions"
 L["Use mana gems"] = "Use mana gems"
 L["Use your best mana gem first. The next press drinks the mana potion, since they don't share a cooldown. The macro goes back to the mana gem when combat starts or ends, and when you haven't pressed it for as long as the mana gem's cooldown."] =

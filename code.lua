@@ -183,14 +183,19 @@ local function isTalentKnown(talentId)
 end
 
 -- The spell's cooldown in seconds with the cooldown talents the player knows, nil when it has no
--- base cooldown.
+-- base cooldown. Of a talent with ranks (entries sharing `rankOf`) only the highest known counts.
 local function talentedCooldown(spellId)
   local cooldown = baseCooldown(spellId)
   if not cooldown then return nil end
+  local taken = {}
   for talentId, talent in pairs(ham.cooldownTalents) do
     if talent.spell.getId() == spellId and isTalentKnown(talentId) then
-      cooldown = cooldown - talent.seconds
+      local key = talent.rankOf or talentId
+      taken[key] = math.max(taken[key] or 0, talent.seconds)
     end
+  end
+  for _, seconds in pairs(taken) do
+    cooldown = cooldown - seconds
   end
   return cooldown
 end
@@ -434,11 +439,14 @@ local function buildDrinkMacroString()
   return "#showtooltip\n/use [@player] " .. sequence[1]
 end
 
--- Build mana potion macro string: the best mana gem, then the best mana potion, then (with
--- "Include Demonic Runes") a demonic rune, the last resort as it costs health. None of them share
--- a cooldown, so with two or more a castsequence uses one per press and starts over with the first
--- when combat starts or ends. The first entry's cooldown is the reset timer.
+-- Build mana potion macro string: the ticked mana spells the character knows (best restore
+-- first), then the best mana gem, then the best mana potion, then (with "Include Demonic Runes")
+-- a demonic rune, the last resort as it costs health. None of them share a cooldown, so with two
+-- or more a castsequence uses one per press and starts over with the first when combat starts or
+-- ends. The first entry's cooldown (a spell's with its cooldown talents) is the reset timer. With
+-- a mana spell the line is cast on the player, so a friendly target never gets Innervate.
 local function buildManaPotionMacroString()
+  local spells = ham.myPlayer.getManaSpells()
   local items = {}
   local gem = ham.getManaGem()
   if gem then table.insert(items, gem) end
@@ -451,15 +459,24 @@ local function buildManaPotionMacroString()
   local demonicRune = ham.getDemonicRune()
   if demonicRune then table.insert(items, demonicRune) end
 
-  if #items == 0 then
+  local sequence = {}
+  for _, spell in ipairs(spells) do table.insert(sequence, spell.getName()) end
+  for _, item in ipairs(items) do table.insert(sequence, "item:" .. tostring(item.getId())) end
+  if #sequence == 0 then
     return "#showtooltip"
   end
-  local sequence = {}
-  for i, item in ipairs(items) do sequence[i] = "item:" .. tostring(item.getId()) end
-  if #sequence == 1 then
-    return "#showtooltip\n/use " .. sequence[1]
+  local command, target, firstCooldown
+  if #spells > 0 then
+    command, target = "/cast ", "[@player] "
+    firstCooldown = talentedCooldown(spells[1].getId())
+  else
+    command, target = "/use ", ""
+    firstCooldown = itemCooldown(items[1].getId())
   end
-  return "#showtooltip\n/castsequence reset=" .. resetArgument(itemCooldown(items[1].getId())) .. " "
+  if #sequence == 1 then
+    return "#showtooltip\n" .. command .. target .. sequence[1]
+  end
+  return "#showtooltip\n/castsequence " .. target .. "reset=" .. resetArgument(firstCooldown) .. " "
     .. table.concat(sequence, ", ")
 end
 
@@ -671,6 +688,8 @@ local eventHandlers = {
     end
   end,
   TRAIT_CONFIG_UPDATED = requestOn("event: TRAIT_CONFIG_UPDATED"),
+  -- a trainer, a talent or a level teaches a spell a ticked heal or mana spell may be waiting for
+  LEARNED_SPELL_IN_SKILL_LINE = requestOn("event: LEARNED_SPELL_IN_SKILL_LINE"),
   -- the food buff, for "only when the buff is missing"
   UNIT_AURA = function(_, _, updateInfo)
     ham.onPlayerAura(updateInfo)
@@ -701,6 +720,9 @@ end
 -- the event, and registering an unknown event is a Lua error
 if C_EventUtils.IsEventValid("TRAIT_CONFIG_UPDATED") then
   updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
+end
+if C_EventUtils.IsEventValid("LEARNED_SPELL_IN_SKILL_LINE") then
+  updateFrame:RegisterEvent("LEARNED_SPELL_IN_SKILL_LINE")
 end
 if C_EventUtils.IsEventValid("ADDON_RESTRICTION_STATE_CHANGED") then
   updateFrame:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")

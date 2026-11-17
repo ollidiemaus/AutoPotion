@@ -2,7 +2,7 @@ local addonName, ham = ...
 
 -- The layout of the saved settings. Raise it when a change needs more than new keys at their
 -- defaults, and upgrade older settings in ham.loadSettings.
-local SETTINGS_VERSION = 1
+local SETTINGS_VERSION = 2
 
 ham.defaults = {
     version = SETTINGS_VERSION,
@@ -39,7 +39,9 @@ ham.defaults = {
         ham.giftOfTheNaaruHunter.getId(), ham.giftOfTheNaaruMage.getId(), ham.giftOfTheNaaruMageWarlock.getId(),
         ham.giftOfTheNaaruMonk.getId(), ham.giftOfTheNaaruPaladin.getId(), ham.giftOfTheNaaruPriest.getId(),
         ham.giftOfTheNaaruRogue.getId(), ham.giftOfTheNaaruShaman.getId(), ham.giftOfTheNaaruWarrior.getId(),
-        ham.bagOfTricks.getId(), ham.quietContemplation.getId() }
+        ham.bagOfTricks.getId(), ham.quietContemplation.getId() },
+    -- the ticked mana spells (AutoManaPotion), none until the player ticks one. Version 2 added it.
+    activatedManaSpells = {},
 }
 
 -- Loads the saved settings on ADDON_LOADED and upgrades them to SETTINGS_VERSION: every key
@@ -73,9 +75,12 @@ function ham.refreshOptions()
     ham.options = options
 end
 
--- Whether the healing spell with this id is ticked.
-function ham.dbContains(id)
-    for _, v in ipairs(ham.options.activatedSpells) do
+-- The saved lists of ticked spells: "activatedSpells" (heal spells, the default) and
+-- "activatedManaSpells" (mana spells). A spell belongs to one of them.
+
+-- Whether the spell with this id is ticked in the list (heal spells by default).
+function ham.dbContains(id, list)
+    for _, v in ipairs(ham.options[list or "activatedSpells"]) do
         if v == id then
             return true
         end
@@ -83,21 +88,24 @@ function ham.dbContains(id)
     return false
 end
 
--- Unticks and ticks a healing spell: the saved settings get a new list, then ham.options.
-function ham.removeFromDB(id)
+-- Unticks and ticks a spell in the list (heal spells by default): the saved settings get a new
+-- list, then ham.options.
+function ham.removeFromDB(id, list)
+    list = list or "activatedSpells"
     local spells = {}
-    for _, v in ipairs(ham.options.activatedSpells) do
+    for _, v in ipairs(ham.options[list]) do
         if v ~= id then
             table.insert(spells, v)
         end
     end
-    HAMDB.activatedSpells = spells
+    HAMDB[list] = spells
     ham.refreshOptions()
 end
 
-function ham.insertIntoDB(id)
-    local spells = CopyTable(ham.options.activatedSpells)
+function ham.insertIntoDB(id, list)
+    list = list or "activatedSpells"
+    local spells = CopyTable(ham.options[list])
     table.insert(spells, id)
-    HAMDB.activatedSpells = spells
+    HAMDB[list] = spells
     ham.refreshOptions()
 end

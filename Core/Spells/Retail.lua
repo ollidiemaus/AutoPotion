@@ -40,6 +40,13 @@ ham.cooldownTalents[270581] = { spell = ham.exhilaration, seconds = 30 } -- Natu
 ham.cooldownTalents[386686] = { spell = ham.darkPact, seconds = 15 } -- Frequent Donor
 ham.cooldownTalents[1266818] = { spell = ham.deathPact, seconds = 30 } -- Death Defiance
 
+-- Mana spells, best restore first. Evocation (Arcane) has one charge and no base cooldown, so it
+-- gives no reset timer. 64901 is Symbol of Hope here (ham.hymnOfHope on the classic flavors).
+table.insert(ham.supportedManaSpells, ham.evocation)
+table.insert(ham.supportedManaSpells, ham.innervate)
+table.insert(ham.supportedManaSpells, ham.mindbender)
+table.insert(ham.supportedManaSpells, ham.hymnOfHope)
+
 -- More retail-only spells go here, e.g.:
 -- ham.someRetailOnlySpell = ham.Spell.new(123456, "WARRIOR") -- class token, or omit for non-class spells
 -- table.insert(ham.supportedSpells, ham.someRetailOnlySpell)

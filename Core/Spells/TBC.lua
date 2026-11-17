@@ -17,6 +17,14 @@ if not ham.isTBC then return end
 -- ham.someTBCOnlySpell = ham.Spell.new(123456, "WARRIOR") -- class token, or omit for non-class spells
 -- table.insert(ham.supportedSpells, ham.someTBCOnlySpell)
 
+-- Mana spells, best restore first. Mana Tide Totem has one rank here.
+table.insert(ham.supportedManaSpells, ham.evocation)
+table.insert(ham.supportedManaSpells, ham.innervate)
+table.insert(ham.supportedManaSpells, ham.manaTideTotem)
+table.insert(ham.supportedManaSpells, ham.shadowfiend)
+table.insert(ham.supportedManaSpells, ham.shamanisticRage)
+table.insert(ham.supportedManaSpells, ham.symbolOfHopeDraenei)
+
 -- Desperate Prayer (Holy talent) has one spell id per rank, while ham.desperatePrayer uses
 -- rank 2's id. Register every rank so a priest at any rank is detected.
 ham.spellRanks[ham.desperatePrayer.getId()] = {

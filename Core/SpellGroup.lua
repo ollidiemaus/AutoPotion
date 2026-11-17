@@ -41,27 +41,28 @@ ham.SpellGroup.new = function(members)
         return nil -- always goes in the Other/Racial group, never a class header
     end
 
-    function self.isActive()
+    -- `list` is the saved list of ticked spells, heal spells by default (see Core/DB.lua)
+    function self.isActive(list)
         for _, member in ipairs(members) do
-            if ham.dbContains(member.getId()) then
+            if ham.dbContains(member.getId(), list) then
                 return true
             end
         end
         return false
     end
 
-    function self.activate()
+    function self.activate(list)
         for _, member in ipairs(members) do
-            if not ham.dbContains(member.getId()) then
-                ham.insertIntoDB(member.getId())
+            if not ham.dbContains(member.getId(), list) then
+                ham.insertIntoDB(member.getId(), list)
             end
         end
     end
 
-    function self.deactivate()
+    function self.deactivate(list)
         for _, member in ipairs(members) do
-            if ham.dbContains(member.getId()) then
-                ham.removeFromDB(member.getId())
+            if ham.dbContains(member.getId(), list) then
+                ham.removeFromDB(member.getId(), list)
             end
         end
     end
