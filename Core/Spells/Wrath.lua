@@ -22,16 +22,19 @@ table.insert(ham.supportedSpells, ham.SpellGroup.new({
 -- ham.someWrathOnlySpell = ham.Spell.new(123456, "WARRIOR") -- class token, or omit for non-class spells
 -- table.insert(ham.supportedSpells, ham.someWrathOnlySpell)
 
--- Mana spells, best restore first. Mana Tide Totem has one rank here, Thunderstorm four.
+-- Mana spells, best restore first within each class (what the caster gets back): Shadowfiend
+-- 5% per hit (about 50%), Dispersion 36%, Hymn of Hope 12%; Mana Tide Totem 24%, Thunderstorm
+-- 8% (Shamanistic Rage and Thunderstorm are in different trees). Mana Tide Totem has one rank
+-- here, Thunderstorm four.
 table.insert(ham.supportedManaSpells, ham.evocation)
 table.insert(ham.supportedManaSpells, ham.innervate)
 table.insert(ham.supportedManaSpells, ham.divinePlea)
-table.insert(ham.supportedManaSpells, ham.hymnOfHope)
 table.insert(ham.supportedManaSpells, ham.shadowfiend)
 table.insert(ham.supportedManaSpells, ham.dispersion)
-table.insert(ham.supportedManaSpells, ham.thunderstorm)
+table.insert(ham.supportedManaSpells, ham.hymnOfHope)
 table.insert(ham.supportedManaSpells, ham.manaTideTotem)
 table.insert(ham.supportedManaSpells, ham.shamanisticRage)
+table.insert(ham.supportedManaSpells, ham.thunderstorm)
 table.insert(ham.supportedManaSpells, ham.SpellGroup.new({
 	ham.arcaneTorrentMana, ham.arcaneTorrentRogue, ham.arcaneTorrentDK,
 }))

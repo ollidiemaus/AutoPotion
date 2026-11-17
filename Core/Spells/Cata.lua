@@ -14,14 +14,15 @@ table.insert(ham.supportedSpells, ham.SpellGroup.new({
 	ham.giftOfTheNaaruWarrior,
 }))
 
--- Mana spells, best restore first. Mana Tide Totem restores none of the shaman's own mana from
--- here on, so it isn't one.
+-- Mana spells, best restore first within each class (what the caster gets back): Dispersion
+-- 36%, Shadowfiend 3% per hit (about 30%), Hymn of Hope 8%. Mana Tide Totem restores none of
+-- the shaman's own mana from here on, so it isn't one.
 table.insert(ham.supportedManaSpells, ham.evocation)
 table.insert(ham.supportedManaSpells, ham.innervate)
 table.insert(ham.supportedManaSpells, ham.divinePlea)
-table.insert(ham.supportedManaSpells, ham.hymnOfHope)
-table.insert(ham.supportedManaSpells, ham.shadowfiend)
 table.insert(ham.supportedManaSpells, ham.dispersion)
+table.insert(ham.supportedManaSpells, ham.shadowfiend)
+table.insert(ham.supportedManaSpells, ham.hymnOfHope)
 table.insert(ham.supportedManaSpells, ham.thunderstorm)
 table.insert(ham.supportedManaSpells, ham.SpellGroup.new({
 	ham.arcaneTorrentMana, ham.arcaneTorrentRogue, ham.arcaneTorrentDK, ham.arcaneTorrentWarrior,
