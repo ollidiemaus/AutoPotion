@@ -53,8 +53,8 @@ end
 
 local DESPERATE_PRAYER = 19236 -- rank 2 on Classic Era and Forever
 
--- A Priest who has just learned Desperate Prayer. The addon doesn't watch for learned spells, so
--- the macros show whether a later event made it rebuild them.
+-- A Priest who has just learned Desperate Prayer; learning it rebuilt the macros, so later
+-- writes show whether a later event made the addon rebuild them again.
 local function priestWhoLearnedASpell(flavor)
   local client = Client.new({ flavor = flavor, class = "PRIEST", bags = { [POTIONS[flavor].best] = 1 } })
   client:login()

@@ -63,3 +63,38 @@ ham.bagOfTricks = ham.Spell.new(312411)
 ham.supportedSpells = {}
 table.insert(ham.supportedSpells, ham.lastStand)
 table.insert(ham.supportedSpells, ham.desperatePrayer)
+
+-- Mana spells: spells that bring the caster's own mana back, which AutoManaPotion casts on the
+-- player before the mana gem (see GLOSSARY.md). Like the heal spells, every object is always
+-- created; the per-flavor files add the ones that flavor offers to ham.supportedManaSpells, in
+-- the order the macro casts them: best restore first. Ranked spells register their ranks in
+-- ham.spellRanks there.
+ham.evocation = ham.Spell.new(12051, "MAGE")
+ham.innervate = ham.Spell.new(29166, "DRUID")
+ham.manaTideTotem = ham.Spell.new(16190, "SHAMAN")
+ham.shadowfiend = ham.Spell.new(34433, "PRIEST")
+ham.mindbender = ham.Spell.new(123040, "PRIEST")
+-- Hymn of Hope from Wrath to Mists; Retail kept the id for Symbol of Hope
+ham.hymnOfHope = ham.Spell.new(64901, "PRIEST")
+-- TBC's Draenei priest racial, a different spell from Retail's Symbol of Hope
+ham.symbolOfHopeDraenei = ham.Spell.new(32548, "PRIEST")
+ham.dispersion = ham.Spell.new(47585, "PRIEST")
+ham.divinePlea = ham.Spell.new(54428, "PALADIN")
+ham.thunderstorm = ham.Spell.new(51490, "SHAMAN")
+ham.shamanisticRage = ham.Spell.new(30823, "SHAMAN")
+-- Season of Discovery rune spells (Classic Era)
+ham.shadowfiendRune = ham.Spell.new(401977, "PRIEST")
+ham.dispersionRune = ham.Spell.new(425294, "PRIEST")
+ham.shamanisticRageRune = ham.Spell.new(425336, "SHAMAN")
+-- Blood Elf racial, one id per power type; the mana one is shared by every mana class, so it has
+-- no class and comes first in its ham.SpellGroup (the row's name and tooltip for those classes)
+ham.arcaneTorrentMana = ham.Spell.new(28730)
+ham.arcaneTorrentRogue = ham.Spell.new(25046, "ROGUE")
+ham.arcaneTorrentDK = ham.Spell.new(50613, "DEATHKNIGHT")
+ham.arcaneTorrentWarrior = ham.Spell.new(69179, "WARRIOR")
+ham.arcaneTorrentHunter = ham.Spell.new(80483, "HUNTER")
+-- Forever: Undead priest racial (health into mana) and Skyborne racial (a regen buff)
+ham.darkSacrifice = ham.Spell.new(1277324, "PRIEST")
+ham.readLeyline = ham.Spell.new(1259705)
+
+ham.supportedManaSpells = {}

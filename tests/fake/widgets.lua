@@ -77,7 +77,7 @@ local function newWidget(client, class, name, parent)
   local widget = setmetatable({}, class.meta)
   widget[0] = {
     client = client, class = class, name = name, parent = parent, shown = true,
-    points = {}, width = 0, height = 0, children = {}, textures = {}, scripts = {}, hooks = {}, events = {},
+    points = {}, width = 0, height = 0, children = {}, textures = {}, fontStrings = {}, scripts = {}, hooks = {}, events = {},
   }
   if name then client.env[name] = widget end
   return widget
@@ -313,8 +313,12 @@ function Frame:CreateFontString(name, layer, fontObject)
   local fontString = newWidget(client, FontString, resolveName(name, self), self)
   fontString[0].layer = layer
   fontString[0].fontObject = fontObject
+  table.insert(self[0].fontStrings, fontString)
   return fontString
 end
+
+-- The font strings created on `frame`, in creation order.
+function Widgets.fontStrings(frame) return frame[0].fontStrings end
 
 function Frame:SetFrameStrata(strata) self[0].strata = strata end
 function Frame:SetID(id) self[0].id = id end

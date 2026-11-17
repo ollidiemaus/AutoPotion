@@ -37,5 +37,19 @@ ham.Player.new = function()
     return mySpells
   end
 
+  -- The ticked mana spells the character knows, in the flavor's order (best restore first), not
+  -- the order they were ticked. A group gives each ticked member the character knows.
+  function self.getManaSpells()
+    local mySpells = {}
+    for _, spell in ipairs(ham.supportedManaSpells) do
+      for _, member in ipairs(spell.isGroup and spell.members or { spell }) do
+        if ham.dbContains(member.getId(), "activatedManaSpells") and member.isKnown() then
+          table.insert(mySpells, member)
+        end
+      end
+    end
+    return mySpells
+  end
+
   return self
 end
