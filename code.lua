@@ -434,27 +434,32 @@ local function buildDrinkMacroString()
   return "#showtooltip\n/use [@player] " .. sequence[1]
 end
 
--- Build mana potion macro string: the best mana gem, then the best mana potion. They don't share
--- a cooldown, so with both a castsequence uses the gem, the potion on the next press, and starts
--- over with the gem when combat starts or ends. The gem's cooldown is always the reset timer.
+-- Build mana potion macro string: the best mana gem, then the best mana potion, then (with
+-- "Include Demonic Runes") a demonic rune, the last resort as it costs health. None of them share
+-- a cooldown, so with two or more a castsequence uses one per press and starts over with the first
+-- when combat starts or ends. The first entry's cooldown is the reset timer.
 local function buildManaPotionMacroString()
-  local sequence = {}
+  local items = {}
   local gem = ham.getManaGem()
-  if gem then table.insert(sequence, "item:" .. tostring(gem.getId())) end
+  if gem then table.insert(items, gem) end
   for _, item in ipairs(ham.getManaPotions()) do
     if item.getCount() > 0 then
-      table.insert(sequence, "item:" .. tostring(item.getId()))
+      table.insert(items, item)
       break
     end
   end
+  local demonicRune = ham.getDemonicRune()
+  if demonicRune then table.insert(items, demonicRune) end
 
-  if #sequence == 0 then
+  if #items == 0 then
     return "#showtooltip"
   end
+  local sequence = {}
+  for i, item in ipairs(items) do sequence[i] = "item:" .. tostring(item.getId()) end
   if #sequence == 1 then
     return "#showtooltip\n/use " .. sequence[1]
   end
-  return "#showtooltip\n/castsequence reset=" .. resetArgument(itemCooldown(gem.getId())) .. " "
+  return "#showtooltip\n/castsequence reset=" .. resetArgument(itemCooldown(items[1].getId())) .. " "
     .. table.concat(sequence, ", ")
 end
 

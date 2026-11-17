@@ -55,6 +55,9 @@ L["Use your weakest health potion first and keep the stronger ones for later. Me
 L["Weakest Mana Potion First"] = "Weakest Mana Potion First"
 L["Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."] =
 "Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."
+L["Include Demonic Runes"] = "Include Demonic Runes"
+L["Use a Demonic Rune or Dark Rune after the mana potion. It costs you health. It has a cooldown of its own, so the next press uses it."] =
+"Use a Demonic Rune or Dark Rune after the mana potion. It costs you health. It has a cooldown of its own, so the next press uses it."
 L["Reset successful!"] = "Reset successful!"
 L["Reset to Default"] = "Reset to Default"
 L["Shows the bandage that will currently be used, based on what is in your bags."] =

@@ -53,3 +53,12 @@ function ham.getManaGemsForTBC()
     ham.manaAgate,
   }
 end
+
+-- Demonic runes (900-1500 mana, cost health), with "Include Demonic Runes" the last step of
+-- AutoManaPotion. The same amount: Demonic Rune first, so the choice is predictable.
+function ham.getDemonicRunesForTBC()
+  return {
+    ham.demonicRune, -- 900-1500
+    ham.darkRune,    -- 900-1500
+  }
+end

@@ -23,6 +23,11 @@ function ham.manaPotionSettingsFrame:updateManaPotionPrio()
 	if gem then
 		items = { gem, unpack(items) }
 	end
+	local demonicRune = ham.getDemonicRune()
+	if demonicRune then
+		items = { unpack(items) }
+		table.insert(items, demonicRune)
+	end
 	row:showItemsInBags(items)
 	self:recalculateContentHeight()
 end
@@ -121,10 +126,31 @@ function ham.manaPotionSettingsFrame:InitializeOptions()
 		GameTooltip:Hide()
 	end)
 	ham.settingsFrame:trackOptionCheckbox(weakestManaPotionButton, "weakestManaPotionFirst")
+	local lastCheckbox = weakestManaPotionButton
+
+	-- include demonic runes toggle (the last step, costs health; its flat mana is worthless on Retail)
+	if not ham.isRetail then
+		local demonicRuneButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
+		demonicRuneButton:SetPoint("TOPLEFT", weakestManaPotionButton, "BOTTOMLEFT", 0, -8)
+		demonicRuneButton.Text:SetText(L["Include Demonic Runes"])
+		demonicRuneButton:HookScript("OnClick", function(_, btn, down)
+			ham.settingsFrame:updateConfig("includeDemonicRunes", demonicRuneButton:GetChecked())
+		end)
+		demonicRuneButton:HookScript("OnEnter", function(_, btn, down)
+			GameTooltip:SetOwner(demonicRuneButton, "ANCHOR_TOPRIGHT")
+			GameTooltip:SetText(L["Use a Demonic Rune or Dark Rune after the mana potion. It costs you health. It has a cooldown of its own, so the next press uses it."], nil, nil, nil, nil, true)
+			GameTooltip:Show()
+		end)
+		demonicRuneButton:HookScript("OnLeave", function(_, btn, down)
+			GameTooltip:Hide()
+		end)
+		ham.settingsFrame:trackOptionCheckbox(demonicRuneButton, "includeDemonicRunes")
+		lastCheckbox = demonicRuneButton
+	end
 
 	-- mana potion priority header
 	local manaPotionPrioTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
-	manaPotionPrioTitle:SetPoint("TOPLEFT", weakestManaPotionButton, "BOTTOMLEFT", 0, -PADDING)
+	manaPotionPrioTitle:SetPoint("TOPLEFT", lastCheckbox, "BOTTOMLEFT", 0, -PADDING)
 	manaPotionPrioTitle:SetText(L["Mana Potion Priority"])
 
 	self.priorityTitle = manaPotionPrioTitle

@@ -25,6 +25,8 @@ ham.defaults = {
     includeRejuvenation = true,
     -- AutoManaPotion uses the best mana gem before the mana potion
     useManaGems = true,
+    -- AutoManaPotion uses a demonic rune after the mana potion (costs health; not on Retail)
+    includeDemonicRunes = false,
     soulburn = false,
     -- Forever: the AutoBandage macro casts Rapid Regeneration (Troll racial) before the bandage
     rapidRegenerationBandage = true,
