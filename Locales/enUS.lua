@@ -14,6 +14,7 @@ L["Use Rapid Regeneration (Troll racial) before bandages"] = "Use Rapid Regenera
 L["Food Priority"] = "Food Priority"
 L["Drink Priority"] = "Drink Priority"
 L["Mana Potion Priority"] = "Mana Potion Priority"
+L["Mana Spells"] = "Mana Spells"
 L["Include Rejuvenation Potions"] = "Include Rejuvenation Potions"
 L["Use mana gems"] = "Use mana gems"
 L["Use your best mana gem first. The next press drinks the mana potion, since they don't share a cooldown. The macro goes back to the mana gem when combat starts or ends, and when you haven't pressed it for as long as the mana gem's cooldown."] =
@@ -34,6 +35,12 @@ L["Include \"Well Fed\"/\"Relaxed\" buff food and drink items (with situational 
 L["Only when the buff is missing"] = "Only when the buff is missing"
 L["Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"Relaxed\" for drinks), even before conjured food. While you have it, buff food comes last and is only eaten when nothing else is left."] =
 "Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"Relaxed\" for drinks), even before conjured food. While you have it, buff food comes last and is only eaten when nothing else is left."
+L["Weakest Food First"] = "Weakest Food First"
+L["Eat the food that restores the least health first and keep the better food for later. Meant for leveling. Any food in your bags counts, whatever its level. Conjured food still goes first, its weakest one first."] =
+"Eat the food that restores the least health first and keep the better food for later. Meant for leveling. Any food in your bags counts, whatever its level. Conjured food still goes first, its weakest one first."
+L["Weakest Drink First"] = "Weakest Drink First"
+L["Drink what restores the least mana first and keep the better drinks for later. Meant for leveling. Any drink in your bags counts, whatever its level. Conjured drinks still go first, the weakest one first."] =
+"Drink what restores the least mana first and keep the better drinks for later. Meant for leveling. Any drink in your bags counts, whatever its level. Conjured drinks still go first, the weakest one first."
 L["Go back to your first heal once its cooldown is over"] = "Go back to your first heal once its cooldown is over"
 L["If you don't press the macro for as long as your first heal's cooldown (talents included), the macro starts over with it. Works when the first heal is a spell or a Healthstone. A later heal with a longer cooldown can still make the macro wait."] =
 "If you don't press the macro for as long as your first heal's cooldown (talents included), the macro starts over with it. Works when the first heal is a spell or a Healthstone. A later heal with a longer cooldown can still make the macro wait."
@@ -55,6 +62,9 @@ L["Use your weakest health potion first and keep the stronger ones for later. Me
 L["Weakest Mana Potion First"] = "Weakest Mana Potion First"
 L["Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."] =
 "Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."
+L["Include Demonic Runes"] = "Include Demonic Runes"
+L["Use a Demonic Rune or Dark Rune after the mana potion. It costs you health. It has a cooldown of its own, so the next press uses it."] =
+"Use a Demonic Rune or Dark Rune after the mana potion. It costs you health. It has a cooldown of its own, so the next press uses it."
 L["Reset successful!"] = "Reset successful!"
 L["Reset to Default"] = "Reset to Default"
 L["Shows the bandage that will currently be used, based on what is in your bags."] =

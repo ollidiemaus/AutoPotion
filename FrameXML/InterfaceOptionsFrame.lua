@@ -135,6 +135,7 @@ function ham.settingsFrame:OnEvent(event, addOnName)
 	end
 	if event == "PLAYER_LOGIN" then
 		self:InitializeClassSpells(lastStaticElement)
+		ham.manaPotionSettingsFrame:InitializeManaSpells()
 		ham.requestMacroUpdate()
 	end
 end
@@ -481,22 +482,23 @@ end
 
 -- Create one class/racial-spell checkbox, anchored (offsetX, offsetY) from `relativeTo`.
 -- `spell` is either a plain ham.Spell (single db entry) or a ham.SpellGroup (toggles
--- every member together as one unit - see Core/SpellGroup.lua).
-local function createSpellButton(parent, relativeTo, offsetX, offsetY, spell)
+-- every member together as one unit - see Core/SpellGroup.lua). `list` is the saved list of
+-- ticked spells the box toggles it in (see Core/DB.lua).
+local function createSpellButton(parent, relativeTo, offsetX, offsetY, spell, list)
 	local button = createIconCheckButton(parent, getSpellIcon(spell.getId()), spell.getName())
 	button:SetPoint("TOPLEFT", relativeTo, offsetX, offsetY)
 	button:HookScript("OnClick", function(_, btn, down)
 		if spell.isGroup then
 			if button:GetChecked() then
-				spell.activate()
+				spell.activate(list)
 			else
-				spell.deactivate()
+				spell.deactivate(list)
 			end
 		else
 			if button:GetChecked() then
-				ham.insertIntoDB(spell.getId())
+				ham.insertIntoDB(spell.getId(), list)
 			else
-				ham.removeFromDB(spell.getId())
+				ham.removeFromDB(spell.getId(), list)
 			end
 		end
 		ham.refreshPreviews()
@@ -512,22 +514,22 @@ local function createSpellButton(parent, relativeTo, offsetX, offsetY, spell)
 		GameTooltip:Hide()
 	end)
 	if spell.isGroup then
-		ham.settingsFrame:trackCheckbox(button, spell.isActive)
+		ham.settingsFrame:trackCheckbox(button, function() return spell.isActive(list) end)
 	else
-		ham.settingsFrame:trackCheckbox(button, function() return ham.dbContains(spell.getId()) end)
+		ham.settingsFrame:trackCheckbox(button, function() return ham.dbContains(spell.getId(), list) end)
 	end
-	classButtons[spell.getId()] = button
 	return button
 end
 
--- Shows every spell available for the current flavor (not just ones the character
--- currently knows), grouped under a header per class. A class with no spells in
--- ham.supportedSpells gets no header at all; spells not tied to a class (racials
--- shared across classes, non-class effects) are grouped under "Other / Racial".
-function ham.settingsFrame:InitializeClassSpells(relativeTo)
+-- Lays out a box for every spell in `spells` (ham.supportedSpells or ham.supportedManaSpells) on
+-- `parent` below `relativeTo`, grouped under a header per class. A class with no spells in the
+-- list gets no header at all; spells not tied to a class (racials shared across classes,
+-- non-class effects) are grouped under "Other / Racial". The boxes tick the spells in the saved
+-- list `list`. Returns the first box of the last row (or `relativeTo` with no spells) and every box.
+function ham.settingsFrame:createSpellSection(parent, relativeTo, spells, list)
 	local buckets = {}
 	local otherBucket = {}
-	for _, spell in ipairs(ham.supportedSpells) do
+	for _, spell in ipairs(spells) do
 		local class = spell.getClass()
 		if class then
 			buckets[class] = buckets[class] or {}
@@ -538,11 +540,12 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 	end
 
 	local lastAnchor = relativeTo
+	local buttons = {}
 
-	local function layoutGroup(headerText, spells)
-		if #spells == 0 then return end
+	local function layoutGroup(headerText, groupSpells)
+		if #groupSpells == 0 then return end
 
-		local header = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
+		local header = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
 		header:SetPoint("TOPLEFT", lastAnchor, 0, -PADDING_CATERGORY)
 		header:SetText(headerText)
 
@@ -550,7 +553,7 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 		local lastButton = nil
 		local posy = -FIRST_ROW_OFFSET
 		local count = 0
-		for _, spell in ipairs(spells) do
+		for _, spell in ipairs(groupSpells) do
 			if count == COLUMNS then
 				lastButton = nil
 				count = 0
@@ -558,11 +561,12 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 			end
 			local button
 			if lastButton ~= nil then
-				button = createSpellButton(self.content, lastButton, PADDING_HORIZONTAL, 0, spell)
+				button = createSpellButton(parent, lastButton, PADDING_HORIZONTAL, 0, spell, list)
 			else
-				button = createSpellButton(self.content, header, 0, posy, spell)
+				button = createSpellButton(parent, header, 0, posy, spell, list)
 				rowStart = button
 			end
+			table.insert(buttons, button)
 			lastButton = button
 			count = count + 1
 		end
@@ -576,6 +580,14 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 	end
 	layoutGroup(L["Other / Racial"], otherBucket)
 
+	return lastAnchor, buttons
+end
+
+-- Shows every heal spell available for the current flavor (not just ones the character
+-- currently knows), grouped under a header per class.
+function ham.settingsFrame:InitializeClassSpells(relativeTo)
+	local _, buttons = self:createSpellSection(self.content, relativeTo, ham.supportedSpells, "activatedSpells")
+	for _, button in ipairs(buttons) do table.insert(classButtons, button) end
 	self:recalculateContentHeight()
 end
 

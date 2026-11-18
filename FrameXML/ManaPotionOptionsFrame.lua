@@ -15,10 +15,15 @@ function ham.manaPotionSettingsFrame:recalculateContentHeight()
 	self.content:SetHeight(contentTop - titleTop + PADDING + ham.PREVIEW_ROW_HEIGHT + PADDING)
 end
 
--- Update the Mana Potion Priority section with the mana potion items in the bags, best first
+-- Update the Mana Potion Priority section: the ticked mana spells the character knows, then the
+-- mana potion items in the bags, best first
 function ham.manaPotionSettingsFrame:updateManaPotionPrio()
 	local row = self.priorityRow
 	if row == nil then return end
+	row:reset()
+	for _, spell in ipairs(ham.myPlayer.getManaSpells()) do
+		row:add("spell", spell.getId())
+	end
 	local items = ham.getManaPotions()
 	local gem = ham.getManaGem()
 	if gem then
@@ -44,7 +49,26 @@ function ham.manaPotionSettingsFrame:updateManaPotionPrio()
 		end
 		items = ordered
 	end
-	row:showItemsInBags(items)
+	local demonicRune = ham.getDemonicRune()
+	if demonicRune then
+		items = { unpack(items) }
+		table.insert(items, demonicRune)
+	end
+	row:addItemsInBags(items)
+	row:finish()
+	self:recalculateContentHeight()
+end
+
+-- The "Mana Spells" section: a box for every mana spell of the flavor, under a header per class,
+-- above the item options. Built on PLAYER_LOGIN like the AutoPotion page's heal spells.
+function ham.manaPotionSettingsFrame:InitializeManaSpells()
+	if #ham.supportedManaSpells == 0 then return end
+	local title = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
+	title:SetPoint("TOPLEFT", self.subtitle, "BOTTOMLEFT", 0, -PADDING)
+	title:SetText(L["Mana Spells"])
+	local lastRow = ham.settingsFrame:createSpellSection(self.content, title, ham.supportedManaSpells,
+		"activatedManaSpells")
+	self.firstItemOption:SetPoint("TOPLEFT", lastRow, "BOTTOMLEFT", 0, -PADDING)
 	self:recalculateContentHeight()
 end
 
@@ -91,6 +115,7 @@ function ham.manaPotionSettingsFrame:InitializeOptions()
 	local subtitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	subtitle:SetPoint("TOPLEFT", 0, -40)
 	subtitle:SetText(L["Shows the mana potion that will currently be used, based on what is in your bags."])
+	self.subtitle = subtitle
 
 	-- include rejuvenation potions toggle (potions that restore health and mana)
 	local includeRejuvenationButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
@@ -108,6 +133,8 @@ function ham.manaPotionSettingsFrame:InitializeOptions()
 		GameTooltip:Hide()
 	end)
 	ham.settingsFrame:trackOptionCheckbox(includeRejuvenationButton, "includeRejuvenation")
+	-- moves below the mana spells once they are laid out (InitializeManaSpells)
+	self.firstItemOption = includeRejuvenationButton
 
 	-- use mana gems toggle (a mage's conjured mana gem before the mana potion)
 	local useManaGemsButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
@@ -180,10 +207,31 @@ function ham.manaPotionSettingsFrame:InitializeOptions()
 		GameTooltip:Hide()
 	end)
 	ham.settingsFrame:trackOptionCheckbox(weakestManaPotionButton, "weakestManaPotionFirst")
+	local lastCheckbox = weakestManaPotionButton
+
+	-- include demonic runes toggle (the last step, costs health; its flat mana is worthless on Retail)
+	if not ham.isRetail then
+		local demonicRuneButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
+		demonicRuneButton:SetPoint("TOPLEFT", weakestManaPotionButton, "BOTTOMLEFT", 0, -8)
+		demonicRuneButton.Text:SetText(L["Include Demonic Runes"])
+		demonicRuneButton:HookScript("OnClick", function(_, btn, down)
+			ham.settingsFrame:updateConfig("includeDemonicRunes", demonicRuneButton:GetChecked())
+		end)
+		demonicRuneButton:HookScript("OnEnter", function(_, btn, down)
+			GameTooltip:SetOwner(demonicRuneButton, "ANCHOR_TOPRIGHT")
+			GameTooltip:SetText(L["Use a Demonic Rune or Dark Rune after the mana potion. It costs you health. It has a cooldown of its own, so the next press uses it."], nil, nil, nil, nil, true)
+			GameTooltip:Show()
+		end)
+		demonicRuneButton:HookScript("OnLeave", function(_, btn, down)
+			GameTooltip:Hide()
+		end)
+		ham.settingsFrame:trackOptionCheckbox(demonicRuneButton, "includeDemonicRunes")
+		lastCheckbox = demonicRuneButton
+	end
 
 	-- mana potion priority header
 	local manaPotionPrioTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
-	manaPotionPrioTitle:SetPoint("TOPLEFT", weakestManaPotionButton, "BOTTOMLEFT", 0, -PADDING)
+	manaPotionPrioTitle:SetPoint("TOPLEFT", lastCheckbox, "BOTTOMLEFT", 0, -PADDING)
 	manaPotionPrioTitle:SetText(L["Mana Potion Priority"])
 
 	self.priorityTitle = manaPotionPrioTitle

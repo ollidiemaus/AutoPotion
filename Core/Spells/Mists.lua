@@ -33,6 +33,19 @@ table.insert(ham.supportedSpells, ham.darkPact)
 -- ham.healingElixir (122281) - MoP Classic's version is a different id (122280) with a
 --   different effect (proc-based "Healing Elixirs", not a drink-a-flask activated spell)
 
+-- Mana spells, best restore first within each class (what the caster gets back): Dispersion
+-- 36%, Shadowfiend 3% per hit (about 24%), Mindbender (replaces Shadowfiend), Hymn of Hope 8%.
+-- Evocation is replaced by the Rune of Power talent for some mages; the known-spell check
+-- handles that.
+table.insert(ham.supportedManaSpells, ham.evocation)
+table.insert(ham.supportedManaSpells, ham.innervate)
+table.insert(ham.supportedManaSpells, ham.divinePlea)
+table.insert(ham.supportedManaSpells, ham.dispersion)
+table.insert(ham.supportedManaSpells, ham.shadowfiend)
+table.insert(ham.supportedManaSpells, ham.mindbender)
+table.insert(ham.supportedManaSpells, ham.hymnOfHope)
+table.insert(ham.supportedManaSpells, ham.thunderstorm)
+
 -- More Mists-only spells go here. Either add a spell already created in
 -- Core/Spells.lua to the settings list for this flavor:
 -- table.insert(ham.supportedSpells, ham.someSpellFromTheBaseFile)

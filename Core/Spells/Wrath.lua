@@ -22,6 +22,37 @@ table.insert(ham.supportedSpells, ham.SpellGroup.new({
 -- ham.someWrathOnlySpell = ham.Spell.new(123456, "WARRIOR") -- class token, or omit for non-class spells
 -- table.insert(ham.supportedSpells, ham.someWrathOnlySpell)
 
+-- Mana spells, best restore first within each class (what the caster gets back): Shadowfiend
+-- 5% per hit (about 50%), Dispersion 36%, Hymn of Hope 12%; Mana Tide Totem 24%, Thunderstorm
+-- 8% (Shamanistic Rage and Thunderstorm are in different trees). Mana Tide Totem has one rank
+-- here, Thunderstorm four.
+table.insert(ham.supportedManaSpells, ham.evocation)
+table.insert(ham.supportedManaSpells, ham.innervate)
+table.insert(ham.supportedManaSpells, ham.divinePlea)
+table.insert(ham.supportedManaSpells, ham.shadowfiend)
+table.insert(ham.supportedManaSpells, ham.dispersion)
+table.insert(ham.supportedManaSpells, ham.hymnOfHope)
+table.insert(ham.supportedManaSpells, ham.manaTideTotem)
+table.insert(ham.supportedManaSpells, ham.shamanisticRage)
+table.insert(ham.supportedManaSpells, ham.thunderstorm)
+table.insert(ham.supportedManaSpells, ham.SpellGroup.new({
+	ham.arcaneTorrentMana, ham.arcaneTorrentRogue, ham.arcaneTorrentDK,
+}))
+
+ham.spellRanks[ham.thunderstorm.getId()] = {
+	51490, -- Rank 1
+	59156, -- Rank 2
+	59158, -- Rank 3
+	59159, -- Rank 4
+}
+
+-- Cooldown talents, one entry per rank: `rankOf` names the talent's first rank, so only the
+-- highest rank the player knows counts
+ham.cooldownTalents[44378] = { spell = ham.evocation, seconds = 60, rankOf = 44378 }      -- Arcane Flows 1
+ham.cooldownTalents[44379] = { spell = ham.evocation, seconds = 120, rankOf = 44378 }     -- Arcane Flows 2
+ham.cooldownTalents[15274] = { spell = ham.shadowfiend, seconds = 60, rankOf = 15274 }    -- Veiled Shadows 1
+ham.cooldownTalents[15311] = { spell = ham.shadowfiend, seconds = 120, rankOf = 15274 }   -- Veiled Shadows 2
+
 -- Desperate Prayer (Holy talent) has one spell id per rank, while ham.desperatePrayer uses
 -- rank 2's id. Register every rank so a priest at any rank is detected.
 ham.spellRanks[ham.desperatePrayer.getId()] = {

@@ -50,6 +50,29 @@ _Avoid_: Well Fed food, stat food
 **Conjured food**:
 Free food a mage creates. It goes first in the food priority unless buff food is preferred.
 
+**Dual-restore food**:
+Food or drink that restores both health and mana and leaves no buff. It is on both the food and
+the drink priority.
+_Avoid_: Mana food, dual food
+
+**Weakest food first**:
+A setting that turns the food priority around: the food restoring the least health first, for
+leveling, to eat up the weak food in the bags and keep the good food. What counts is the total
+over the whole eat: a flat amount, or on Retail, where all food restores a share of maximum
+health, that share. Conjured food still goes first, its weakest one first. Dual-restore food ranks
+by its health among the rest. Food that can't be compared with the rest, like Forever's
+Restorative Bread (a share among flat amounts), goes last. Food restoring the same keeps its usual
+order, and buff food keeps its place. The ranking covers every expansion's food the list holds.
+Its twin, Weakest drink first, does the same for drinks by the mana they restore.
+_Avoid_: Reverse food order, leveling mode
+
+### Spells
+
+**Heal spell**:
+A player spell that heals the caster, which AutoPotion casts before the healthstone and the
+potions. Every one is on until the player unticks it.
+_Avoid_: Self heal, healing cooldown
+
 ### Potion priority
 
 **Potion priority**:
@@ -75,6 +98,23 @@ An item a mage conjures that restores mana at once, like Mana Ruby or Retail's M
 gems share one cooldown, apart from the mana potions' one, so AutoManaPotion uses the best one
 first and the mana potion on the next press.
 _Avoid_: Mana stone, gem (also means socket gems)
+
+**Demonic rune**:
+Demonic Rune or Dark Rune: an item that restores mana at a cost of health. Both share one
+cooldown, apart from the mana potions' and the mana gems' ones, so AutoManaPotion can use one
+after the mana potion, as the last resort. It is off unless the player turns it on, and not
+offered on Retail, where its flat amount is worthless.
+_Avoid_: Rune (also means death knight runes), Dark Rune (only one of the two)
+
+**Mana spell**:
+A player spell with a cooldown that brings the caster's own mana back within seconds of a press,
+as an amount or a short regen buff, which AutoManaPotion casts on the player before the mana gem.
+Evocation is the model. One that restores the party's mana too still counts; one that only
+restores others' does not. Spells without a cooldown (Life Tap, Mana Tea), stances and buffs kept
+up (Aspect of the Viper, Water Shield) and restores too small to matter are not. A channel or a
+downside (health, healing done, a knockback) doesn't rule one out: each is off until the player
+ticks it.
+_Avoid_: Mana cooldown, regen spell, heal spell
 
 ### Bandages
 
