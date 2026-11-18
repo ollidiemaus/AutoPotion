@@ -19,8 +19,8 @@ L["Use mana gems"] = "Use mana gems"
 L["Use your best mana gem first. The next press drinks the mana potion, since they don't share a cooldown. The macro goes back to the mana gem when combat starts or ends, and when you haven't pressed it for as long as the mana gem's cooldown."] =
 "Use your best mana gem first. The next press drinks the mana potion, since they don't share a cooldown. The macro goes back to the mana gem when combat starts or ends, and when you haven't pressed it for as long as the mana gem's cooldown."
 L["Show mana potion when mana gem is on cooldown"] = "Show mana potion when mana gem is on cooldown"
-L["When your mana gem is on cooldown and a mana potion is ready (or comes off cooldown sooner), show and use the mana potion first until the mana gem is ready again."] =
-"When your mana gem is on cooldown and a mana potion is ready (or comes off cooldown sooner), show and use the mana potion first until the mana gem is ready again."
+L["When your mana gem is on cooldown and a mana potion is ready (or comes off cooldown sooner), show and use the mana potion first until the mana gem is ready again. Because macros cannot be edited in combat, if the mana gem comes off cooldown mid-fight, the macro stays potion-only until combat ends."] =
+"When your mana gem is on cooldown and a mana potion is ready (or comes off cooldown sooner), show and use the mana potion first until the mana gem is ready again. Because macros cannot be edited in combat, if the mana gem comes off cooldown mid-fight, the macro stays potion-only until combat ends."
 L["Separate Mana Gem macro (AutoManaGem)"] = "Separate Mana Gem macro (AutoManaGem)"
 L["Create a separate AutoManaGem macro for your best mana gem and keep AutoManaPotion for mana potions only."] =
 "Create a separate AutoManaGem macro for your best mana gem and keep AutoManaPotion for mana potions only."

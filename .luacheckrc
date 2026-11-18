@@ -25,7 +25,7 @@ read_globals = {
     "InterfaceOptionsFrame_OpenToCategory", "InterfaceOptions_AddCategory", "CopyTable",
     "FONT_COLOR_CODE_CLOSE", "GRAY_FONT_COLOR", "GREEN_FONT_COLOR_CODE", "HIGHLIGHT_FONT_COLOR",
     -- Macros
-    "CreateMacro", "EditMacro", "GetMacroInfo", "GetNumMacros", "MAX_ACCOUNT_MACROS",
+    "CreateMacro", "DeleteMacro", "EditMacro", "GetMacroInfo", "GetNumMacros", "MAX_ACCOUNT_MACROS",
     "MegaMacro", "MegaMacroGlobalData",
     -- Items, spells, units
     "GetInstanceInfo", "GetInventoryItemID", "GetInventoryItemTexture", "GetItemCooldown", "GetItemSpell",

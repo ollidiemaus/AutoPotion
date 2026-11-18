@@ -174,8 +174,7 @@ local function usable(value)
   return not (issecretvalue and issecretvalue(value))
 end
 
--- Wand shots in WoW Forever place a short (~1.5-2.5s, <= 5s) cooldown on every item,
--- overwriting its own multi-minute cooldown in GetItemCooldown until that wand shot ends.
+-- Ignore short (<= 5s) GCD/transient cooldowns when tracking multi-minute item cooldowns.
 local SHORT_CD = 5
 local longUntil = {}
 
@@ -202,8 +201,8 @@ local function rawItemCooldown(itemId)
   return 0, 0, 0
 end
 
--- Remaining cooldown in seconds for itemId, ignoring <= 5s GCD/wand cooldowns and secret values,
--- and retaining observed multi-minute cooldowns when a wand shot briefly replaces GetItemCooldown.
+-- Remaining cooldown in seconds for itemId, ignoring <= 5s GCD/transient cooldowns and secret
+-- values, and retaining observed multi-minute cooldowns across transient GetItemCooldown resets.
 function ham.getItemCooldownRemaining(itemId)
   if not itemId then return 0 end
   local now = GetTime and GetTime() or 0
@@ -235,9 +234,11 @@ local function trackItemCooldown(itemId)
     or (curr ~= nil and prev ~= nil and math.abs(curr - prev) > 0.2)
 end
 
--- Captures mana item cooldowns immediately on cooldown events (including during CombatLockdown)
--- before a wand shot overwrites the client's GetItemCooldown table.
+-- Captures mana item cooldowns immediately on cooldown events (including during CombatLockdown).
 function ham.snapshotManaCooldowns()
+  if not ham.isWatchingManaCooldowns() or not ham.getManaGem() then
+    return false
+  end
   local changed = false
   for _, gem in ipairs(getManaGems()) do
     if trackItemCooldown(gem.getId()) then
@@ -266,6 +267,9 @@ end
 
 -- Records cooldowns when a mana gem's on-use spell succeeds in case item cooldown APIs lag.
 function ham.recordManaSpellCast(spellId)
+  if not ham.isWatchingManaCooldowns() or not ham.getManaGem() then
+    return false
+  end
   local changed = ham.snapshotManaCooldowns()
   if not spellId or not usable(spellId) then
     return changed
@@ -282,7 +286,7 @@ function ham.recordManaSpellCast(spellId)
           changed = true
         end
       end
-      return true
+      return changed
     end
   end
   return changed
@@ -291,7 +295,7 @@ end
 -- Returns (skipGem, refreshDelay): whether the macro should show/use the mana potion
 -- ahead of the mana gem because the gem is on cooldown and the potion is ready sooner.
 function ham.shouldPutManaPotionBeforeGem(gem, pot)
-  if not (ham.options and ham.options.useManaGems and ham.options.skipManaGemOnCooldown) then
+  if not ham.isWatchingManaCooldowns() then
     return false, nil
   end
   if not gem or not pot then

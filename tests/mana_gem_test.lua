@@ -201,6 +201,11 @@ for _, flavor in ipairs({ "classic", "forever", "retail" }) do
     assertEqual(previewOf(client), { Api.itemIcon(items.potion), Api.itemIcon(items.second) })
     assertEqual(client:isEnabled(LABEL), false)
     assertEqual(client:isEnabled(SKIP_CD_LABEL), false)
+
+    client:clickCheckbox(SEPARATE_GEM_LABEL)
+    client:nextFrame()
+    assertEqual(client:macroText("AutoManaGem"), nil)
+    assertEqual(client:macroText("AutoManaPotion"), sequence(items.reset, items.gem, items.potion))
     assertEqual(client.errors, {})
   end)
 end

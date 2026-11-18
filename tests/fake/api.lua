@@ -313,6 +313,16 @@ local function installMacros(client, env)
     if body then macro.body = body:sub(1, MAX_MACRO_LENGTH) end
     return indexOf(list, position)
   end
+
+  env.DeleteMacro = function(nameOrIndex)
+    table.insert(client.macroCalls, { func = "DeleteMacro", macro = nameOrIndex })
+    if client:blockProtected("DeleteMacro") then return end
+    if client.macroApiError then error(client.macroApiError, 2) end
+    local list, position = find(nameOrIndex)
+    if list and position then
+      table.remove(list, position)
+    end
+  end
 end
 
 -- The settings registration API. Opening a category shows the settings panel, then swaps the

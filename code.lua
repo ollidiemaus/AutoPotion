@@ -334,6 +334,15 @@ local function writeMacro(name, text)
   if ham.debug then log(name .. " macro updated.") end
 end
 
+local function deleteMacro(name)
+  if megaMacro.installed and megaMacro.loaded then return end
+  if GetMacroInfo(name) ~= nil then
+    DeleteMacro(name)
+    writtenText[name] = nil
+    if ham.debug then log(name .. " macro deleted.") end
+  end
+end
+
 local function checkMegaMacroAddon()
   -- MegaMacro is only available for retail
   if not ham.isRetail then
@@ -635,7 +644,10 @@ function ham.updateManaPotionMacro()
 end
 
 function ham.updateManaGemMacro()
-  if not (ham.options and ham.options.separateManaGemMacro) then return end
+  if not (ham.options and ham.options.separateManaGemMacro) then
+    deleteMacro(manaGemMacroName)
+    return
+  end
   writeMacro(manaGemMacroName, buildManaGemMacroString())
 end
 
@@ -721,8 +733,8 @@ local eventHandlers = {
   -- fires once a burst of BAG_UPDATEs has settled
   BAG_UPDATE_DELAYED = requestOn("event: BAG_UPDATE_DELAYED"),
   BAG_UPDATE_COOLDOWN = function()
-    if ham.snapshotManaCooldowns then ham.snapshotManaCooldowns() end
-    onManaCooldownEvent("BAG_UPDATE_COOLDOWN", true)
+    local changed = ham.snapshotManaCooldowns and ham.snapshotManaCooldowns()
+    onManaCooldownEvent("BAG_UPDATE_COOLDOWN", changed)
   end,
   SPELL_UPDATE_COOLDOWN = function()
     local changed = ham.snapshotManaCooldowns and ham.snapshotManaCooldowns()
