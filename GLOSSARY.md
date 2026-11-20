@@ -37,6 +37,13 @@ The aura that buff food leaves on the player, whatever its strength or source. A
 one still counts. Forever's Nutritious drinks leave it too.
 _Avoid_: Well Fed (only one of its names)
 
+**Buff kind**:
+The stat a buff food's buff raises, like Attack Power, Stamina, Haste or Fishing, or Other when
+the buff names none (feasts' "highest secondary stat", random buffs). Food raising several stats
+has several kinds. The player ticks which kinds they want: buff food with no ticked kind is never
+eaten, and stays in the bags. All kinds start ticked, and the choice covers buff drinks too.
+_Avoid_: Buff type, stat category, buff food priority
+
 **Relaxed**:
 The buff that Retail's buff drinks leave. It is separate from the food buff: having one says
 nothing about the other.
@@ -134,3 +141,10 @@ _Avoid_: Bandage, heal spell
 A consumable the game only lets the player use in one place, like Windstone on Zephras Isle or a
 battleground's draughts. A macro only uses it there, and there it goes first.
 _Avoid_: Zone item, area item
+
+**Unusable item**:
+A consumable the game refuses this character until the character changes: below its required
+level, or short of the profession skill it needs (First Aid for a bandage). Every macro and the
+preview treat it as if it weren't in the bags. Being in combat, on cooldown or mounted doesn't
+make an item unusable.
+_Avoid_: Locked item, restricted item, level-locked
