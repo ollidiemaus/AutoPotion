@@ -11,7 +11,7 @@ local ARGENTLEAF_TEA = 242298 -- Retail: a Relaxed drink, Other (Finesse and Spe
 local MANA_LILY_TEA = 242297  -- Retail: a plain drink after it
 
 local WELL_FED = 19705       -- the spell the addon reads the food buff's translated name from
-local FOOD_BUFF = 1249521    -- Forever: the Catfish's Well Fed
+local FOOD_BUFF = 1249521    -- Forever: the Catfish's food buff
 local SPELLS = { [WELL_FED] = { name = "Well Fed" }, [FOOD_BUFF] = { name = "Well Fed" } }
 
 -- every buff kind's box label (GLOSSARY.md)

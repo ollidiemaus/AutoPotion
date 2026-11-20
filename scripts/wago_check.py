@@ -19,7 +19,7 @@ build of each listed interface version (cached between runs) and reports:
   BUFF     a buff food item doesn't record in its buff tag the buff kinds (GLOSSARY.md) of the
            buff it leaves in that flavor's client: the stats its Well Fed auras raise (Retail:
            the stats its description names), Other when none
-  NOTE    the item is only partly in wago's data for that flavor (encrypted or hotfix item);
+  NOTE     the item is only partly in wago's data for that flavor (encrypted or hotfix item);
            confirm it on Wowhead
   MISSING  with --missing only: an item in that flavor's client restores health or mana on use,
            but is on none of the flavor's lists and not in scripts/missing_skip.json
@@ -115,6 +115,12 @@ DESCRIPTION_KINDS = (("critical strike", "crit"), ("haste", "haste"), ("mastery"
 # the spells that eating triggers, besides those of TRIGGER_SPELL effects: PERIODIC_TRIGGER_SPELL
 # and its _WITH_VALUE variant, which give the buff after 10 seconds of eating
 TRIGGER_AURAS = {"23", "227"}
+
+
+def triggers(effect):
+    """Whether a SpellEffect row casts its EffectTriggerSpell: TRIGGER_SPELL (64), 140 (a forced
+    cast) or one of TRIGGER_AURAS."""
+    return effect["Effect"] in ("64", "140") or (effect["Effect"] == "6" and effect["EffectAura"] in TRIGGER_AURAS)
 
 # TraitDefinition holds the talent trees of Retail, Classic Era, TBC, Mists and Forever; Wrath and
 # Cata keep theirs in Talent (one spell per rank)
@@ -411,8 +417,7 @@ class Client:
                     self.effects[sid].append(r)
             loaded |= todo
             wanted |= {int(num(r["EffectTriggerSpell"])) for s in todo for r in self.effects[s]
-                       if (r["Effect"] in ("64", "140") or (r["Effect"] == "6" and r["EffectAura"] in TRIGGER_AURAS))
-                       and num(r["EffectTriggerSpell"]) > 0}
+                       if triggers(r) and num(r["EffectTriggerSpell"]) > 0}
         # A new build's layout can come without column names yet (12.1.7 PTR:
         # Field_12_1_7_70493_000..); its first field is still Duration.
         durations = {r["ID"]: num(r.get("Duration", next((v for k, v in r.items() if k.startswith("Field_")), "0")))
@@ -464,7 +469,7 @@ class Client:
                 for e in self.effects.get(spell, []):
                     eff, aura = e["Effect"], e["EffectAura"]
                     trigger = int(num(e["EffectTriggerSpell"]))
-                    if trigger and (eff in ("64", "140") or (eff == "6" and aura in TRIGGER_AURAS)):
+                    if trigger and triggers(e):
                         todo.append(trigger)
                     if eff == "6" and is_buff:
                         kinds |= self._aura_kinds(aura, int(num(e.get("EffectMiscValue_0"))))
