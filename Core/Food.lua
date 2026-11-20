@@ -495,8 +495,8 @@ ham.wormDelight = ham.Item.new(34750, "Worm Delight", { buffFood = true, hp = 22
 
 -- Wrath - dual restore (health AND mana, no stats)
 ham.blackJelly = ham.Item.new(45932, "Black Jelly", { hp = 45000, mp = 38400 })
-ham.conjuredManaPie = ham.Item.new(43518, "Conjured Mana Pie", { conjured = true, hp = 18480, mp = 12840 })
-ham.conjuredManaStrudel = ham.Item.new(43523, "Conjured Mana Strudel", { conjured = true, hp = 67500, mp = 45000, wrath = { hp = 22500, mp = 19200 } })
+ham.conjuredManaPie = ham.Item.new(43518, "Conjured Mana Pie", { conjured = true, hp = 18480, mp = 12840, retail = { hpPct = 100, mpPct = 100 } })
+ham.conjuredManaStrudel = ham.Item.new(43523, "Conjured Mana Strudel", { conjured = true, hp = 67500, mp = 45000, wrath = { hp = 22500, mp = 19200 }, retail = { hpPct = 100, mpPct = 100 } })
 ham.giganticFeast = ham.Item.new(43478, "Gigantic Feast")
 ham.grilledBonescale = ham.Item.new(34760, "Grilled Bonescale", { hp = 22500, mp = 19200 })
 ham.sauteedGoby = ham.Item.new(34761, "Sauteed Goby", { hp = 22500, mp = 19200 })
@@ -590,11 +590,11 @@ ham.venisonSteak = ham.Item.new(46392, "Venison Steak", { buffFood = true, hp = 
 ham.whitecrestGumbo = ham.Item.new(62656, "Whitecrest Gumbo", { buffFood = true, hp = 67500, mp = 45000 })
 
 -- Cata - dual restore (health AND mana, no stats)
-ham.conjuredManaBrownie = ham.Item.new(65515, "Conjured Mana Brownie", { conjured = true, hp = 1392, mp = 1992 })
-ham.conjuredManaCake = ham.Item.new(65499, "Conjured Mana Cake", { conjured = true, hp = 96000, mp = 96000 })
-ham.conjuredManaCookie = ham.Item.new(65500, "Conjured Mana Cookie", { conjured = true, hp = 972, mp = 1494 })
-ham.conjuredManaCupcake = ham.Item.new(65516, "Conjured Mana Cupcake", { conjured = true, hp = 2148, mp = 2934 })
-ham.conjuredManaLollipop = ham.Item.new(65517, "Conjured Mana Lollipop", { conjured = true, hp = 4320, mp = 4200 })
+ham.conjuredManaBrownie = ham.Item.new(65515, "Conjured Mana Brownie", { conjured = true, hp = 1392, mp = 1992, retail = { hpPct = 100, mpPct = 100 } })
+ham.conjuredManaCake = ham.Item.new(65499, "Conjured Mana Cake", { conjured = true, hp = 96000, mp = 96000, retail = { hpPct = 100, mpPct = 100 } })
+ham.conjuredManaCookie = ham.Item.new(65500, "Conjured Mana Cookie", { conjured = true, hp = 972, mp = 1494, retail = { hpPct = 100, mpPct = 100 } })
+ham.conjuredManaCupcake = ham.Item.new(65516, "Conjured Mana Cupcake", { conjured = true, hp = 2148, mp = 2934, retail = { hpPct = 100, mpPct = 100 } })
+ham.conjuredManaLollipop = ham.Item.new(65517, "Conjured Mana Lollipop", { conjured = true, hp = 4320, mp = 4200, retail = { hpPct = 100, mpPct = 100 } })
 ham.scaldingMurglesnout = ham.Item.new(68687, "Scalding Murglesnout", { hp = 67500, mp = 45000 })
 
 -- Cata - plain food (no stats), reskins of the same restore-only mechanic
@@ -795,8 +795,8 @@ ham.wildfowlRoast = ham.Item.new(74654, "Wildfowl Roast", { buffFood = true, hp 
 ham.yakCheeseCurds = ham.Item.new(81401, "Yak Cheese Curds", { buffFood = true, hp = 200000 })
 
 -- Mists - dual restore (health AND mana, no stats)
-ham.conjuredManaBuns = ham.Item.new(80618, "Conjured Mana Buns", { conjured = true, hp = 300000, mp = 300000 })
-ham.conjuredManaPudding = ham.Item.new(80610, "Conjured Mana Pudding", { conjured = true, hp = 300000, mp = 300000 })
+ham.conjuredManaBuns = ham.Item.new(80618, "Conjured Mana Buns", { conjured = true, hp = 300000, mp = 300000, retail = { hpPct = 100, mpPct = 100 } }) -- Conjured Mana Fritter on Retail
+ham.conjuredManaPudding = ham.Item.new(80610, "Conjured Mana Pudding", { conjured = true, hp = 300000, mp = 300000, retail = { hpPct = 100, mpPct = 100 } })
 ham.freezeDriedHyenaJerky = ham.Item.new(98116, "Freeze-Dried Hyena Jerky", { hp = 200000, mp = 200000 })
 ham.ginsengTea = ham.Item.new(75026, "Ginseng Tea", { hp = 200000, mp = 200000 })
 ham.kRE = ham.Item.new(98111, "K.R.E.", { hp = 200000, mp = 200000 })
