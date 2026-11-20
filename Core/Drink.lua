@@ -40,9 +40,9 @@ ham.brightClaw = ham.Item.new(265667, "Bright Claw", { mpPct = 80 })
 
 -- Retail - "Relaxed" drink: mana restore plus a secondary-stat buff, situational,
 -- opt-in via the includeBuffFood option (the same toggle used for Well Fed food).
-ham.argentleafTea = ham.Item.new(242298, "Argentleaf Tea", { buffFood = true, mpPct = 160 })
-ham.sanguithornTea = ham.Item.new(242299, "Sanguithorn Tea", { buffFood = true, mpPct = 160 })
-ham.azerootTea = ham.Item.new(242301, "Azeroot Tea", { buffFood = true, mpPct = 160 })
+ham.argentleafTea = ham.Item.new(242298, "Argentleaf Tea", { buffFood = true, buff = { other = true }, mpPct = 160 })
+ham.sanguithornTea = ham.Item.new(242299, "Sanguithorn Tea", { buffFood = true, buff = { other = true }, mpPct = 160 })
+ham.azerootTea = ham.Item.new(242301, "Azeroot Tea", { buffFood = true, buff = { other = true }, mpPct = 160 })
 
 -- Classic - vendor water (mana restore, no stats)
 ham.refreshingSpringWater = ham.Item.new(159, "Refreshing Spring Water", { mp = 151.2 })
@@ -147,22 +147,23 @@ ham.gustberryJuice = ham.Item.new(252027, "Gustberry Juice", { mp = 436.8 }) -- 
 ham.crispSpringWater = ham.Item.new(252031, "Crisp Spring Water", { mp = 151.2 }) -- Forever only
 
 -- Forever - Nutritious drinks, buff food: they leave the food buff
-ham.sagesTea = ham.Item.new(249870, "Sage's Tea", { buffFood = true, mp = 2934 }) -- Forever only
-ham.wickedSmoothie = ham.Item.new(249876, "Wicked Smoothie", { buffFood = true, mp = 2934 }) -- Forever only
-ham.sunnyTea = ham.Item.new(249869, "Sunny Tea", { buffFood = true, mp = 1992 }) -- Forever only
-ham.spicySmoothie = ham.Item.new(249875, "Spicy Smoothie", { buffFood = true, mp = 1992 }) -- Forever only
-ham.triageTea = ham.Item.new(249868, "Triage Tea", { buffFood = true, mp = 1344.6 }) -- Forever only
-ham.calcifiedSmoothie = ham.Item.new(249874, "Calcified Smoothie", { buffFood = true, mp = 1344.6 }) -- Forever only
-ham.rootTea = ham.Item.new(249867, "Root Tea", { buffFood = true, mp = 835.2 }) -- Forever only
-ham.mrrgglSmrrthle = ham.Item.new(249873, "Mrrggl Smrrthle", { buffFood = true, mp = 835.2 }) -- Forever only
-ham.royalTea = ham.Item.new(249866, "Royal Tea", { buffFood = true, mp = 436.8 }) -- Forever only
-ham.slimySmoothie = ham.Item.new(249872, "Slimy Smoothie", { buffFood = true, mp = 436.8 }) -- Forever only
-ham.peaceTea = ham.Item.new(249865, "Peace Tea", { buffFood = true, mp = 151.2 }) -- Forever only
-ham.venomousSmoothie = ham.Item.new(249871, "Venomous Smoothie", { buffFood = true, mp = 151.2 }) -- Forever only
+ham.sagesTea = ham.Item.new(249870, "Sage's Tea", { buffFood = true, buff = { healing = true }, mp = 2934 }) -- Forever only
+ham.wickedSmoothie = ham.Item.new(249876, "Wicked Smoothie", { buffFood = true, buff = { spi = true }, mp = 2934 }) -- Forever only
+ham.sunnyTea = ham.Item.new(249869, "Sunny Tea", { buffFood = true, buff = { healing = true }, mp = 1992 }) -- Forever only
+ham.spicySmoothie = ham.Item.new(249875, "Spicy Smoothie", { buffFood = true, buff = { spi = true }, mp = 1992 }) -- Forever only
+ham.triageTea = ham.Item.new(249868, "Triage Tea", { buffFood = true, buff = { healing = true }, mp = 1344.6 }) -- Forever only
+ham.calcifiedSmoothie = ham.Item.new(249874, "Calcified Smoothie", { buffFood = true, buff = { spi = true }, mp = 1344.6 }) -- Forever only
+ham.rootTea = ham.Item.new(249867, "Root Tea", { buffFood = true, buff = { healing = true }, mp = 835.2 }) -- Forever only
+ham.mrrgglSmrrthle = ham.Item.new(249873, "Mrrggl Smrrthle", { buffFood = true, buff = { spi = true }, mp = 835.2 }) -- Forever only
+ham.royalTea = ham.Item.new(249866, "Royal Tea", { buffFood = true, buff = { healing = true }, mp = 436.8 }) -- Forever only
+ham.slimySmoothie = ham.Item.new(249872, "Slimy Smoothie", { buffFood = true, buff = { spi = true }, mp = 436.8 }) -- Forever only
+ham.peaceTea = ham.Item.new(249865, "Peace Tea", { buffFood = true, buff = { healing = true }, mp = 151.2 }) -- Forever only
+ham.venomousSmoothie = ham.Item.new(249871, "Venomous Smoothie", { buffFood = true, buff = { spi = true }, mp = 151.2 }) -- Forever only
 -- Plain on the other flavors, Nutritious on Forever
-ham.goldthornTeaForever = ham.Item.new(10841, "Goldthorn Tea", { buffFood = true, mp = 1344.6 })
+ham.goldthornTeaForever = ham.Item.new(10841, "Goldthorn Tea", { buffFood = true, buff = { other = true }, mp = 1344.6 })
 
-local function getRawDrink()
+-- The flavor's whole drink list, best first, before any option.
+function ham.allDrink()
   if ham.isRetail and ham.getDrinkForRetail then return ham.getDrinkForRetail() end
   if ham.isClassic and ham.getDrinkForClassic then return ham.getDrinkForClassic() end
   if ham.isTBC and ham.getDrinkForTBC then return ham.getDrinkForTBC() end
@@ -177,7 +178,7 @@ end
 -- Drink First", weakest first (ham.weakestFirst), buff drinks placed by Relaxed on Retail and by
 -- the food buff on Forever, whose Nutritious drinks leave that.
 function ham.getDrink()
-  local list = getRawDrink()
+  local list = ham.allDrink()
   if ham.options.weakestDrinkFirst then list = ham.weakestFirst(list, "mp") end
   return ham.orderBuffFood(list, ham.isForever and ham.hasFoodBuff or ham.isRelaxed)
 end

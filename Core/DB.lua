@@ -19,6 +19,10 @@ ham.defaults = {
     includeBuffFood = false,
     -- with includeBuffFood: buff food first while the food buff is missing, last while it's there
     buffFoodOnlyWhenMissing = false,
+    -- with includeBuffFood: the unticked buff kinds, { [kind] = true }. Buff food none of whose
+    -- kinds is ticked isn't eaten. Kept as the unticked ones so every kind, a new one too, starts
+    -- ticked.
+    unwantedBuffKinds = {},
     -- the food / drink restoring the least health / mana first, conjured items still first
     weakestFoodFirst = false,
     weakestDrinkFirst = false,
@@ -73,6 +77,19 @@ function ham.refreshOptions()
         options[key] = value
     end
     ham.options = options
+end
+
+-- Whether buff food of this buff kind is wanted (ticked).
+function ham.isBuffKindWanted(kind)
+    return not ham.options.unwantedBuffKinds[kind]
+end
+
+-- Ticks or unticks a buff kind: the saved settings get a new set of unticked kinds, then ham.options.
+function ham.setBuffKindWanted(kind, wanted)
+    local unwanted = CopyTable(ham.options.unwantedBuffKinds)
+    unwanted[kind] = (not wanted) or nil
+    HAMDB.unwantedBuffKinds = unwanted
+    ham.refreshOptions()
 end
 
 -- The saved lists of ticked spells: "activatedSpells" (heal spells, the default) and
