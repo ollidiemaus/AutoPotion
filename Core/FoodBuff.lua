@@ -7,10 +7,7 @@ local addonName, ham = ...
 -- found by their translated names. The older flavors' stat food buffs are found by spell ID:
 -- their names ("Increased Stamina", ...) also belong to buffs no food leaves.
 
-local function spellName(spellId)
-  if C_Spell and C_Spell.GetSpellName then return C_Spell.GetSpellName(spellId) end
-  return (GetSpellInfo(spellId))
-end
+local spellName = ham.getSpellName
 
 -- one spell of each name (there are hundreds of Well Fed), for the name in the client's language
 local NAMED_BY = { 19705 } -- Well Fed

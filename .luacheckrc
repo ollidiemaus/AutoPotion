@@ -19,7 +19,7 @@ read_globals = {
     "format", "issecretvalue",
     -- Namespaces
     "AuraUtil", "C_AddOns", "C_EventUtils", "C_Item", "C_Map", "C_PvP", "C_Secrets", "C_Spell",
-    "C_SpellBook", "C_Timer", "C_UnitAuras", "Constants", "Enum", "Settings",
+    "C_SkillInfo", "C_SpellBook", "C_Timer", "C_UnitAuras", "Constants", "Enum", "Settings",
     -- Frames and UI
     "CreateFrame", "GameTooltip", "GameFontHighlightSmall", "InterfaceOptionsFramePanelContainer",
     "InterfaceOptionsFrame_OpenToCategory", "InterfaceOptions_AddCategory", "CopyTable",
@@ -30,7 +30,9 @@ read_globals = {
     -- Items, spells, units
     "GetInstanceInfo", "GetInventoryItemID", "GetInventoryItemTexture", "GetItemSpell", "GetSpellBaseCooldown", "GetSpellInfo",
     "GetSpellTexture", "IsSpellKnown", "UnitClass", "UnitFactionGroup", "LOCALIZED_CLASS_NAMES_MALE",
-    "InCombatLockdown", "IsInInstance",
+    "InCombatLockdown", "IsInInstance", "UnitLevel",
+    -- Skills: First Aid for bandages
+    "GetNumSkillLines", "GetSkillLineInfo", "GetProfessions", "GetProfessionInfo",
     -- Client and flavor
     "GetAddOnMetadata", "GetBuildInfo", "IsAddOnLoaded", "IsMacClient",
     "WOW_PROJECT_ID", "WOW_PROJECT_MAINLINE", "WOW_PROJECT_CLASSIC", "WOW_PROJECT_WRATH_CLASSIC",

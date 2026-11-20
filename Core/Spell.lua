@@ -33,19 +33,23 @@ function ham.getSpellIcon(spellId)
     return GetSpellTexture(spellId)
 end
 
+-- The spell's name in the client's language. Feature-detect the modern C_Spell API rather than
+-- branching on ham.isRetail: Forever runs the Mainline client engine, so GetSpellInfo is nil there
+-- (confirmed via an in-game error) even though its content is Classic-based and ham.isRetail is
+-- false for it.
+function ham.getSpellName(spellId)
+    if C_Spell and C_Spell.GetSpellName then
+        return C_Spell.GetSpellName(spellId)
+    end
+    return (GetSpellInfo(spellId))
+end
+
 ham.Spell.new = function(id, class)
     local self = {}
 
     self.id = id
     self.class = class -- Blizzard class token (e.g. "ROGUE"), or nil if not tied to one class
-    -- Feature-detect the modern C_Spell API rather than branching on ham.isRetail: Forever runs
-    -- the Mainline client engine, so GetSpellInfo is nil there (confirmed via an in-game error)
-    -- even though its content is Classic-based and ham.isRetail is false for it.
-    if C_Spell and C_Spell.GetSpellName then
-        self.name = C_Spell.GetSpellName(id)
-    else
-        self.name = GetSpellInfo(id)
-    end
+    self.name = ham.getSpellName(id)
 
     function self.getId()
         return self.id

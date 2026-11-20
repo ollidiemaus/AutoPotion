@@ -41,6 +41,18 @@ Client.FLAVORS = {
 }
 Client.FLAVOR_NAMES = { "retail", "classic", "forever" }
 
+-- The skill lines the fake knows: their SkillLine ID per flavor (Forever has a First Aid of its
+-- own, 2942, which its bandages require) and the spell that teaches the first rank, whose name is
+-- the skill line's name in every locale.
+Client.SKILL_LINES = {
+  ["First Aid"] = { ids = { classic = 129, forever = 2942 }, spell = 3273 },
+}
+
+-- Spells every client knows the name of, as if passed in the `spells` option.
+local CLIENT_SPELLS = {
+  [3273] = { name = "First Aid", names = { deDE = "Erste Hilfe" } },
+}
+
 -- The Lua 5.1 globals the game offers addons (no io, os, require, dofile or loadfile).
 local LUA_GLOBALS = {
   "assert", "error", "getmetatable", "setmetatable", "ipairs", "pairs", "next", "pcall", "xpcall",
@@ -79,7 +91,11 @@ end
 --   mapId            the player's map, 1429 (Elwynn Forest) by default
 --   instanceMapId    the instance map GetInstanceInfo reports, 0 (Eastern Kingdoms) by default
 --   bags             { [itemId] = count }
---   items            { [itemId] = { name =, icon =, spell = { name =, id = } } }, all optional
+--   level            the player's level, 60 by default
+--   skills           { [skill name] = rank } the player's skill lines, { ["First Aid"] = 300 } by
+--                    default; see Client.SKILL_LINES for the ones the fake knows
+--   items            { [itemId] = { name =, icon =, spell = { name =, id = }, requiredLevel = } },
+--                    all optional; requiredLevel is the level C_Item.GetItemInfo reports (0)
 --   equipped         { [inventorySlot] = itemId }
 --   emptyItemCache   true to start with no item in the item cache, as after clearing the Cache
 --                    folder: C_Item.GetItemInfo reports an item only once it has loaded
@@ -107,6 +123,8 @@ function Client.new(options)
     addonLoaded = false,
     class = options.class or "WARRIOR",
     faction = options.faction or "Alliance",
+    level = options.level or 60,
+    skills = copy(options.skills or { ["First Aid"] = 300 }),
     instanceType = options.instanceType or "none",
     mapId = options.mapId or 1429,
     instanceMapId = options.instanceMapId or 0,
@@ -143,6 +161,9 @@ function Client.new(options)
     lockdown = false,
   }, Client)
 
+  for spellId, spell in pairs(CLIENT_SPELLS) do
+    if not self.spells[spellId] then self.spells[spellId] = copy(spell) end
+  end
   for _, spellId in ipairs(options.auras or {}) do self:addAura("player", spellId) end
   for _, name in ipairs(options.accountMacros or {}) do
     table.insert(self.macros.account, { name = name, icon = "INV_Misc_QuestionMark", body = "" })
@@ -290,6 +311,7 @@ function Client:reload()
   for i, aura in ipairs(self.auras.player or {}) do auras[i] = aura.spellId end
   local client = Client.new({
     flavor = self.flavorName, locale = self.locale, class = self.class, faction = self.faction,
+    level = self.level, skills = self.skills,
     instanceType = self.instanceType, mapId = self.mapId, bags = self.bags, items = self.items,
     equipped = self.equipped, spells = self.spells, knownSpells = knownSpells, petSpells = petSpells,
     auras = auras,
@@ -476,6 +498,30 @@ function Client:learnSpell(spellId)
   self.knownSpells[spellId] = true
   if self.events.LEARNED_SPELL_IN_SKILL_LINE then self:fireEvent("LEARNED_SPELL_IN_SKILL_LINE", spellId, 1, false) end
   self:fireEvent("SPELLS_CHANGED")
+end
+
+-- The player reaches the next level: PLAYER_LEVEL_UP (newLevel, ...) fires. UnitLevel can still
+-- report the old level while handlers run, so the fake reports the new one only afterwards.
+function Client:levelUp()
+  local level = self.level + 1
+  self:fireEvent("PLAYER_LEVEL_UP", level, 0, 0, 0, 0, 0, 0, 0, 0)
+  self.level = level
+end
+
+-- The player's effective level changes without a level-up (Party Sync, Chromie Time):
+-- PLAYER_LEVEL_CHANGED (oldLevel, newLevel, real) fires, real = false.
+function Client:changeEffectiveLevel(level)
+  local old = self.level
+  self.level = level
+  self:fireEvent("PLAYER_LEVEL_CHANGED", old, level, false)
+end
+
+-- The player's skill in this skill line ("First Aid") reaches `rank`, from crafting or a trainer
+-- (who also teaches it at rank 1): the client fires SKILL_LINES_CHANGED.
+function Client:raiseSkill(name, rank)
+  if not Client.SKILL_LINES[name] then error("the fake knows no skill line " .. tostring(name), 2) end
+  self.skills[name] = rank
+  self:fireEvent("SKILL_LINES_CHANGED")
 end
 
 -- The player picks or drops a talent in the talent window: its spell becomes known or unknown,
