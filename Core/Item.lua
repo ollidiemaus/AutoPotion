@@ -5,16 +5,38 @@ ham.Item = {}
 -- What a food or drink item restores over the whole eat, from its tags: hp / mp flat totals,
 -- hpPct / mpPct shares of maximum health / mana, scaled = true when the amount follows the player's
 -- level. A flavor whose client differs has a table of its own under its name ({ hp = 552,
--- forever = { hp = 243.6 } }), which replaces the item's amounts there. scripts/wago_check.py
+-- forever = { hp = 243.6 } }), whose amounts replace the item's there. scripts/wago_check.py
 -- checks them against client data.
 local RESTORE_KEYS = { "hp", "mp", "hpPct", "mpPct", "scaled" }
 
+-- The item's table for the current flavor, nil without one.
+local function flavorTags(tags)
+  local own = ham.flavor and tags[ham.flavor]
+  if type(own) == "table" then return own end
+end
+
 local function restoresOf(tags)
   local own = tags
-  if ham.flavor and type(tags[ham.flavor]) == "table" then own = tags[ham.flavor] end
+  local flavorOwn = flavorTags(tags)
+  if flavorOwn then
+    for _, key in ipairs(RESTORE_KEYS) do
+      if flavorOwn[key] ~= nil then own = flavorOwn break end
+    end
+  end
   local restores = {}
   for _, key in ipairs(RESTORE_KEYS) do restores[key] = own[key] end
   return restores
+end
+
+-- Buff food's buff kinds (GLOSSARY.md), { [kind] = true }: its buff tag ({ buff = { ap = true } }),
+-- or the one in the flavor's table where the buff differs there. Buff food without one counts as
+-- Other. scripts/wago_check.py checks them against client data (ADR 0002).
+local OTHER_ONLY = { other = true }
+
+local function buffKindsOf(tags)
+  if not tags.buffFood then return nil end
+  local flavorOwn = flavorTags(tags)
+  return (flavorOwn and flavorOwn.buff) or tags.buff or OTHER_ONLY
 end
 
 -- Unusable items (GLOSSARY.md) -----------------------------------------------------------------
@@ -109,6 +131,7 @@ ham.Item.new = function(id, name, tags)
   self.name = name
   self.tags = tags or {}
   self.restores = restoresOf(self.tags)
+  self.buffKinds = buffKindsOf(self.tags)
 
   local function setName()
     local itemInfoName = C_Item.GetItemInfo(self.id)

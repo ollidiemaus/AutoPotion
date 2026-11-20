@@ -93,17 +93,40 @@ local SPELL_BOXES = { ["Use Rapid Regeneration (Troll racial) before bandages"] 
 -- The character for the check box with this label: a spell's box (a healing spell's is named
 -- "Spell <id>", the name the fake client gives spells) only changes the macro for a character
 -- who knows it.
+-- For each buff kind's box, buff food of that kind alone, the only item in the character's bags.
+local KIND_FOOD = {
+  retail = {
+    ["Primary Stat"] = 242747, ["Critical Strike"] = 242287, ["Haste"] = 242277,
+    ["Mastery"] = 242281, ["Versatility"] = 242276, ["Other"] = 222728,
+  },
+  classic = {
+    ["Stamina"] = 21023, ["Strength"] = 20452, ["Agility"] = 13928, ["Intellect"] = 18254,
+    ["Spirit"] = 13929, ["Mana Regen"] = 13931, ["Other"] = 21254,
+  },
+  forever = {
+    ["Attack Power"] = 13932, ["Spell Power"] = 13935, ["Healing"] = 249870, ["Stamina"] = 250068,
+    ["Strength"] = 250070, ["Agility"] = 250069, ["Intellect"] = 250066, ["Spirit"] = 249876,
+    ["Critical Strike"] = 13928, ["Armor"] = 286152, ["Fishing"] = 8957, ["Other"] = 267341,
+  },
+}
+
 local function characterFor(flavor, label)
   local options = copy(CHARACTERS[flavor])
   options.flavor = flavor
   options.knownSpells = options.knownSpells or {}
   local spellId = SPELL_BOXES[label] or label:match("^Spell (%d+)$")
   if spellId then table.insert(options.knownSpells, tonumber(spellId)) end
+  local kindFood = KIND_FOOD[flavor][label]
+  if kindFood then options.bags = { [kindFood] = 5 } end
   return options
 end
 
--- The box each box that refines another needs ticked before it can be clicked.
+-- The box each box that refines another needs ticked before it can be clicked; the buff kinds'
+-- boxes refine Include Buff Food.
 local REFINES = { ["Only when the buff is missing"] = "Include Buff Food" }
+local function refinedBy(flavor, label)
+  return REFINES[label] or (KIND_FOOD[flavor][label] and "Include Buff Food")
+end
 
 -- The saved settings a session that starts with `stored` leaves behind.
 local function settingsAfterSession(flavor, stored)
@@ -191,7 +214,7 @@ for _, flavor in ipairs(Client.FLAVOR_NAMES) do
         client:login()
         client:openSettings(unpack(page))
         if not client:isEnabled(label) then
-          client:clickCheckbox(REFINES[label])
+          client:clickCheckbox(refinedBy(flavor, label))
           client:nextFrame()
         end
         local before = macros(client)
