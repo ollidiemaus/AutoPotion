@@ -693,9 +693,22 @@ local eventHandlers = {
     ham.Item.setPlayerLevel(level)
     ham.requestMacroUpdate()
   end,
+  -- the effective level changed (Party Sync and the like), so did which items are usable
+  PLAYER_LEVEL_CHANGED = function(_, _, level)
+    log("event: PLAYER_LEVEL_CHANGED")
+    ham.Item.setPlayerLevel(level)
+    ham.requestMacroUpdate()
+  end,
+  -- an item in the bags loaded, whose required level wasn't known yet
+  GET_ITEM_INFO_RECEIVED = function(_, itemId)
+    if ham.Item.infoReceived(itemId) then
+      log("event: GET_ITEM_INFO_RECEIVED")
+      ham.requestMacroUpdate()
+    end
+  end,
   -- a bandage that needed more First Aid may be usable now
   SKILL_LINES_CHANGED = function()
-    if ham.Item.skillsChanged() then
+    if ham.Item.refreshFirstAidRank() then
       log("event: SKILL_LINES_CHANGED")
       ham.requestMacroUpdate()
     end
@@ -723,6 +736,11 @@ updateFrame:RegisterEvent("ADDON_LOADED")
 updateFrame:RegisterEvent("BAG_UPDATE_DELAYED")
 updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 updateFrame:RegisterEvent("PLAYER_LEVEL_UP")
+updateFrame:RegisterEvent("GET_ITEM_INFO_RECEIVED")
+-- Wrath and Cata have no UI source to confirm it in
+if C_EventUtils.IsEventValid("PLAYER_LEVEL_CHANGED") then
+  updateFrame:RegisterEvent("PLAYER_LEVEL_CHANGED")
+end
 -- bandages need First Aid, which Retail doesn't have
 if not ham.isRetail then
   updateFrame:RegisterEvent("SKILL_LINES_CHANGED")

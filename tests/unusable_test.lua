@@ -8,6 +8,7 @@ local Api = require("fake.api")
 local MAJOR_HEALING_POTION, SUPERIOR_HEALING_POTION = 13446, 3928
 local ALTERAC_SWISS, DWARVEN_MILD = 8932, 422
 local MOONBERRY_JUICE, SWEET_NECTAR = 1645, 1708
+local MAJOR_MANA_POTION, SUPERIOR_MANA_POTION = 13444, 13443
 local HEAVY_RUNECLOTH_BANDAGE, RUNECLOTH_BANDAGE, LINEN_BANDAGE = 14530, 14529, 1251
 -- Retail
 local ALGARI_HEALING_POTION_R1, SPIRITUAL_HEALING_POTION = 211878, 171267
@@ -83,6 +84,38 @@ test("classic: an item the cache hasn't loaded yet counts as usable", function()
     items = { [MAJOR_HEALING_POTION] = { requiredLevel = 45 } },
   })
   assertEqual(client:macroText("AutoPotion"), drinksPotion(MAJOR_HEALING_POTION))
+end)
+
+test("classic: once an uncached item loads, it is skipped if it is above the player's level", function()
+  local client = character({
+    flavor = "classic", level = 40, emptyItemCache = true,
+    bags = { [MAJOR_HEALING_POTION] = 5, [SUPERIOR_HEALING_POTION] = 5 },
+    items = { [MAJOR_HEALING_POTION] = { requiredLevel = 45 }, [SUPERIOR_HEALING_POTION] = { requiredLevel = 35 } },
+  })
+  client:nextFrame()
+  client:nextFrame()
+  assertEqual(client:macroText("AutoPotion"), drinksPotion(SUPERIOR_HEALING_POTION))
+end)
+
+test("classic: a mana potion above the player's level is skipped for the next one", function()
+  local client = character({
+    flavor = "classic", level = 45,
+    bags = { [MAJOR_MANA_POTION] = 5, [SUPERIOR_MANA_POTION] = 5 },
+    items = { [MAJOR_MANA_POTION] = { requiredLevel = 49 }, [SUPERIOR_MANA_POTION] = { requiredLevel = 41 } },
+  })
+  assertEqual(client:macroText("AutoManaPotion"), "#showtooltip\n/use item:" .. SUPERIOR_MANA_POTION)
+end)
+
+test("retail: dropping to a lower effective level (Party Sync) skips the potions above it", function()
+  local client = character({
+    flavor = "retail", level = 80,
+    bags = { [ALGARI_HEALING_POTION_R1] = 5, [SPIRITUAL_HEALING_POTION] = 5 },
+    items = { [ALGARI_HEALING_POTION_R1] = { requiredLevel = 71 }, [SPIRITUAL_HEALING_POTION] = { requiredLevel = 51 } },
+  })
+  assertEqual(client:macroText("AutoPotion"), drinksPotion(ALGARI_HEALING_POTION_R1), "at 80")
+  client:changeEffectiveLevel(60)
+  client:nextFrame()
+  assertEqual(client:macroText("AutoPotion"), drinksPotion(SPIRITUAL_HEALING_POTION), "synced to 60")
 end)
 
 local function bandages(itemId)

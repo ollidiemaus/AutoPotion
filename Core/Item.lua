@@ -19,9 +19,20 @@ end
 
 -- Unusable items (GLOSSARY.md) -----------------------------------------------------------------
 
--- The player's level, read on first use and kept current by PLAYER_LEVEL_UP, which passes the new
--- level (UnitLevel can still report the old one while that event runs).
+-- The player's level, read on first use and kept current by PLAYER_LEVEL_UP and
+-- PLAYER_LEVEL_CHANGED (Party Sync and the like), which pass the new level (UnitLevel can still
+-- report the old one while PLAYER_LEVEL_UP runs).
 local playerLevel
+
+-- { [itemId] = true } for the items whose required level the item cache didn't have yet
+local waitingForInfo = {}
+
+-- After GET_ITEM_INFO_RECEIVED: true when an item whose usability wasn't known yet loaded.
+function ham.Item.infoReceived(itemId)
+  if not waitingForInfo[itemId] then return false end
+  waitingForInfo[itemId] = nil
+  return true
+end
 
 function ham.Item.setPlayerLevel(level)
   playerLevel = level
@@ -37,11 +48,6 @@ end
 -- by name only.
 local FIRST_AID_SKILL = ham.isForever and 2942 or 129
 local FIRST_AID_SPELL = 3273
-
-local function spellName(spellId)
-  if C_Spell and C_Spell.GetSpellName then return C_Spell.GetSpellName(spellId) end
-  return (GetSpellInfo(spellId))
-end
 
 -- The player's First Aid rank: 0 without the skill, nil while it can't be told (Retail, which has
 -- no First Aid, or a client that hasn't listed the skills yet), which leaves every bandage usable.
@@ -64,7 +70,7 @@ local function readFirstAidRank()
   if GetSkillLineInfo then
     local count = GetNumSkillLines()
     if count == 0 then return nil end
-    local name, hidden = spellName(FIRST_AID_SPELL), false
+    local name, hidden = ham.getSpellName(FIRST_AID_SPELL), false
     for i = 1, count do
       local skillName, isHeader, isExpanded, rank = GetSkillLineInfo(i)
       if isHeader then
@@ -90,7 +96,7 @@ end
 
 -- Rereads the skills after SKILL_LINES_CHANGED. Returns true when the First Aid rank changed, so
 -- a bandage may have become usable; other skills (weapon skills in Classic Era) change often.
-function ham.Item.skillsChanged()
+function ham.Item.refreshFirstAidRank()
   local before = firstAidRank
   firstAidRead = false
   return currentFirstAidRank() ~= before
@@ -122,6 +128,7 @@ ham.Item.new = function(id, name, tags)
     if requiredLevel == nil then
       local _, _, _, _, minLevel = C_Item.GetItemInfo(self.id)
       requiredLevel = minLevel
+      if minLevel == nil then waitingForInfo[self.id] = true end
     end
     if requiredLevel and requiredLevel > currentPlayerLevel() then return false end
     local firstAid = self.tags.firstAid

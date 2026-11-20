@@ -508,6 +508,14 @@ function Client:levelUp()
   self.level = level
 end
 
+-- The player's effective level changes without a level-up (Party Sync, Chromie Time):
+-- PLAYER_LEVEL_CHANGED (oldLevel, newLevel, real) fires, real = false.
+function Client:changeEffectiveLevel(level)
+  local old = self.level
+  self.level = level
+  self:fireEvent("PLAYER_LEVEL_CHANGED", old, level, false)
+end
+
 -- The player's skill in this skill line ("First Aid") reaches `rank`, from crafting or a trainer
 -- (who also teaches it at rank 1): the client fires SKILL_LINES_CHANGED.
 function Client:raiseSkill(name, rank)
