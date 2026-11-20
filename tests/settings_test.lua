@@ -94,10 +94,9 @@ local SPELL_BOXES = { ["Use Rapid Regeneration (Troll racial) before bandages"] 
 -- "Spell <id>", the name the fake client gives spells) only changes the macro for a character
 -- who knows it.
 -- For each buff kind's box, buff food of that kind alone, the only item in the character's bags.
--- Retail's Stamina food (feasts) raises Other too, so Other gets unticked first (KIND_PARTNER).
 local KIND_FOOD = {
   retail = {
-    ["Stamina"] = 242273, ["Primary Stat"] = 242747, ["Critical Strike"] = 242287, ["Haste"] = 242277,
+    ["Primary Stat"] = 242747, ["Critical Strike"] = 242287, ["Haste"] = 242277,
     ["Mastery"] = 242281, ["Versatility"] = 242276, ["Other"] = 222728,
   },
   classic = {
@@ -110,7 +109,6 @@ local KIND_FOOD = {
     ["Critical Strike"] = 13928, ["Armor"] = 286152, ["Fishing"] = 8957, ["Other"] = 267341,
   },
 }
-local KIND_PARTNER = { retail = { ["Stamina"] = "Other" } }
 
 local function characterFor(flavor, label)
   local options = copy(CHARACTERS[flavor])
@@ -217,11 +215,6 @@ for _, flavor in ipairs(Client.FLAVOR_NAMES) do
         client:openSettings(unpack(page))
         if not client:isEnabled(label) then
           client:clickCheckbox(refinedBy(flavor, label))
-          client:nextFrame()
-        end
-        local partner = KIND_PARTNER[flavor] and KIND_PARTNER[flavor][label]
-        if partner then
-          client:clickCheckbox(partner)
           client:nextFrame()
         end
         local before = macros(client)

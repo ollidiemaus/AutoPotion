@@ -7,6 +7,8 @@ A flavor whose buff differs for an item (Forever reworked old fish into Nutritio
 table of its own under that flavor, as restore amounts do. Retail's Well Fed is scripted (its
 auras are dummies), so there the kinds come from the eating spell's description, which names the
 stats ("... gaining 30 Haste and 30 Mastery"); still client data, read once by `wago_check.py`.
+Feasts are Other on every flavor, even where they name Stamina or a primary stat, so that
+unticking Other alone keeps them in the bags.
 
 Reading the buff from the item's tooltip at runtime would need no data, but tooltip text depends
 on the game's language (21 locales) and isn't always loaded when the macro is built, so the same

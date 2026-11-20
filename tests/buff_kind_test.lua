@@ -8,6 +8,8 @@ local CATFISH = 4593        -- Forever: Bristle Whisker Catfish, Nutritious food
 local ROASTED_QUAIL = 8952  -- plain food, after the buff food on Classic Era and Forever
 local BLOOD_SAUSAGE = 3220  -- Classic Era: buff food raising Stamina and Spirit
 local ARGENTLEAF_TEA = 242298 -- Retail: a Relaxed drink, Other (Finesse and Speed)
+local BLOOMING_FEAST = 242273 -- Retail: a feast, Other whatever stats it names (Stamina too)
+local BLOOD_KNIGHT_BURGER = 264992 -- Retail: plain food after it
 local MANA_LILY_TEA = 242297  -- Retail: a plain drink after it
 
 local WELL_FED = 19705       -- the spell the addon reads the food buff's translated name from
@@ -106,6 +108,13 @@ test("forever: an unticked kind stays unticked after a reload", function()
   assertEqual(client:isChecked("Fishing"), false, "Fishing")
   assertEqual(client:isChecked("Attack Power"), true, "Attack Power")
   assertEqual(client:macroText("AutoFood"), uses(MUD_SNAPPER))
+end)
+
+test("retail: unticking Other keeps feasts in the bags", function()
+  local client = character("retail", { BLOOMING_FEAST, BLOOD_KNIGHT_BURGER })
+  assertEqual(client:macroText("AutoFood"), uses(BLOOMING_FEAST), "Other ticked")
+  untick(client, "Other")
+  assertEqual(client:macroText("AutoFood"), uses(BLOOD_KNIGHT_BURGER), "Other unticked")
 end)
 
 test("retail: the same boxes decide which Relaxed drinks AutoDrink drinks", function()

@@ -447,11 +447,14 @@ class Client:
     def buff_kinds(self, item_id):
         """The buff kinds of the buff that eating the item leaves: from the description where its
         spell has one in the Spell table (Retail), else from the aura types of the long auras
-        among the spells eating triggers. Other when nothing names a stat (feasts, which place
-        an object, or buffs like run speed)."""
+        among the spells eating triggers. Other for feasts, which place an object (Retail's
+        descriptions say "Place a ... for all players to enjoy!", whatever stats they name), and
+        when nothing names a stat (buffs like run speed)."""
         kinds = set()
         spells = self.item_spells.get(item_id, [])
         descriptions = [self.description[s] for s in spells if s in self.description]
+        if any(re.match(r"\s*Place an? ", d) for d in descriptions):
+            return {"other"}
         if descriptions:
             # the stats follow the last "gain" ("... become Well Fed, gaining 30 Haste ...")
             m = re.search(r".*\bgain(?:ing)?\s(.*)", " ".join(descriptions), re.I | re.S)
