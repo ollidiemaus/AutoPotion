@@ -99,6 +99,8 @@ DEF_RE = re.compile(r'^ham\.(\w+)\s*=\s*ham\.Item\.new\((\d+),\s*"((?:[^"\\]|\\.
 # what a food or drink item records it restores (Core/Item.lua): flat totals, shares of the
 # maximum, or scaled = true when the amount follows the player's level
 RESTORE_KEYS = ("hp", "mp", "hpPct", "mpPct", "scaled")
+# SkillLine IDs of First Aid (Forever has its own, 2942)
+FIRST_AID_SKILLS = (129, 2942)
 FLAVORS = [fl for fl, _ in TOC_FLAVORS.values()]
 ENTRY_RE = re.compile(r'ham\.(\w+),?\s*(--.*)?')
 INSERT_RE = re.compile(r'table\.insert\(\w+,\s*(?:\d+,\s*)?ham\.(\w+)\)')
@@ -715,6 +717,16 @@ def main():
                     if tier and rank and rank != tier:
                         out.append(f"ERROR    [{fl}] {where} {var} ({d['id']}) has crafting quality {tier}, "
                                    f"not {rank}")
+                    # firstAid: the First Aid rank a bandage needs (an unusable item below it);
+                    # Retail has no First Aid and ignores the tag
+                    if fl != "retail":
+                        needs = int(num(sparse.get("RequiredSkillRank"))) \
+                            if int(num(sparse.get("RequiredSkill"))) in FIRST_AID_SKILLS else 0
+                        tagged = int(d["tags"].get("firstAid", 0))
+                        if needs != tagged:
+                            out.append(f"ERROR    [{fl}] {d['where']} {var} ({d['id']}) needs skill "
+                                       f"{sparse.get('RequiredSkill')} at {needs}, but its firstAid tag "
+                                       f"says {tagged or 'nothing'}")
         if not args.no_order:
             for cat, sections in cats.items():
                 check_order(fl, cat, files[fl], sections, defs, cs[-1], args.dump, out)

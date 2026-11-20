@@ -687,6 +687,19 @@ local eventHandlers = {
       ham.requestMacroUpdate()
     end
   end,
+  -- an item that needed the new level is usable now
+  PLAYER_LEVEL_UP = function(_, level)
+    log("event: PLAYER_LEVEL_UP")
+    ham.Item.setPlayerLevel(level)
+    ham.requestMacroUpdate()
+  end,
+  -- a bandage that needed more First Aid may be usable now
+  SKILL_LINES_CHANGED = function()
+    if ham.Item.skillsChanged() then
+      log("event: SKILL_LINES_CHANGED")
+      ham.requestMacroUpdate()
+    end
+  end,
   TRAIT_CONFIG_UPDATED = requestOn("event: TRAIT_CONFIG_UPDATED"),
   -- a trainer, a talent or a level teaches a spell a ticked heal or mana spell may be waiting for
   LEARNED_SPELL_IN_SKILL_LINE = requestOn("event: LEARNED_SPELL_IN_SKILL_LINE"),
@@ -709,6 +722,11 @@ local updateFrame = CreateFrame("Frame")
 updateFrame:RegisterEvent("ADDON_LOADED")
 updateFrame:RegisterEvent("BAG_UPDATE_DELAYED")
 updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+updateFrame:RegisterEvent("PLAYER_LEVEL_UP")
+-- bandages need First Aid, which Retail doesn't have
+if not ham.isRetail then
+  updateFrame:RegisterEvent("SKILL_LINES_CHANGED")
+end
 -- tinkers are Retail content
 if ham.isRetail then
   updateFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
