@@ -11,58 +11,68 @@ L["Configure the behavior of the addon. IE: if you want to include class spells"
 "您可以在此设置技能。例如：是否包含职业/种族回血技能"
 L["Current Priority"] = "当前优先级"
 L["Bandage Priority"] = "绷带优先级"
-L["Use Rapid Regeneration (Troll racial) before bandages"] = "使用绷带前使用极速再生（巨魔种族技能-无限）"
+L["Use Rapid Regeneration (Troll racial) before bandages"] = "绷带前先使用极速再生（巨魔种族技能-无限）"
 L["Food Priority"] = "食物优先级"
 L["Drink Priority"] = "饮料优先级"
 L["Mana Potion Priority"] = "法力药水优先级"
+L["Mana Spells"] = "法力技能"
 L["Include Rejuvenation Potions"] = "包含复原药水"
 L["Use mana gems"] = "使用法力宝石"
 L["Use your best mana gem first. The next press drinks the mana potion, since they don't share a cooldown. The macro goes back to the mana gem when combat starts or ends, and when you haven't pressed it for as long as the mana gem's cooldown."] =
-"优先使用你最好的法力宝石。二者不共享冷却，所以下一次按键会改喝法力药水。战斗开始或结束时，以及你未按键的时长达到法力宝石冷却后，宏会重新使用法力宝石。"
+"优先使用最好的法力宝石。两者不共享冷却，下次按键会改喝法力药水。战斗开始或结束、或停按达到法力宝石冷却后，宏会回到法力宝石。"
 L["Also use potions that restore health and mana (Rejuvenation potions, Cavedweller's Delight, Refreshing Serum, ...). They are sorted by the amount of mana they restore."] =
-"同时使用可恢复生命值和法力值的药水（复原药水、洞穴住民的挚爱、复苏血清等），并按恢复的法力值多少排序。"
+"也会使用同时恢复生命和法力的药水（复原药水、洞穴住民的挚爱、复苏血清等），按恢复法力排序。"
 L["Shows the mana potion that will currently be used, based on what is in your bags."] =
-"根据背包内的物品，显示当前将被使用的法力药水。"
+"根据背包显示当前会使用的法力药水。"
 L["Include Buff Food"] = "包含增益食物"
 L["Include \"Well Fed\"/\"Relaxed\" buff food and drink items (with situational secondary-stat bonuses) in the food and drink priority lists."] =
-"将\"进食充分\"/\"悠闲\"增益食物和饮料（含情境性副属性加成）纳入食物和饮料优先级列表。"
+"将带情境性副属性加成的“进食充分”/“悠闲”食物和饮料纳入优先级列表。"
 L["Only when the buff is missing"] = "仅在缺少增益时"
 L["Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"Relaxed\" for drinks), even before conjured food. While you have it, buff food comes last and is only eaten when nothing else is left."] =
-"缺少增益时（食物对应\"进食充分\"，饮料对应\"悠闲\"）优先食用增益食物，甚至优先于法师造食；已有该增益时，增益食物排在最后，只有在没有其他选择时才食用。"
-L["Go back to your first heal once its cooldown is over"] = "首个治疗技能冷却结束后重新从它开始使用"
+"缺少对应增益时优先吃增益食物（食物为“进食充分”，饮料为“悠闲”），甚至先于法师造食；已有增益时排最后，仅在没有其他选择时食用。"
+L["Weakest Food First"] = "最弱食物优先"
+L["Eat the food that restores the least health first and keep the better food for later. Meant for leveling. Any food in your bags counts, whatever its level. Conjured food still goes first, its weakest one first."] =
+"优先使用恢复生命最少的食物，更好的留到后面。适用于升级。任意等级的食物都计入。法师造食仍优先，也先吃最弱的。"
+L["Weakest Drink First"] = "最弱饮料优先"
+L["Drink what restores the least mana first and keep the better drinks for later. Meant for leveling. Any drink in your bags counts, whatever its level. Conjured drinks still go first, the weakest one first."] =
+"优先使用恢复法力最少的饮料，更好的留到后面。适用于升级。任意等级的饮料都计入。法师造水仍优先，也先喝最弱的。"
+L["Go back to your first heal once its cooldown is over"] = "首个治疗技能冷却结束后，重新从它开始使用"
 L["If you don't press the macro for as long as your first heal's cooldown (talents included), the macro starts over with it. Works when the first heal is a spell or a Healthstone. A later heal with a longer cooldown can still make the macro wait."] =
-"若在首个治疗技能的冷却时间（含天赋加成）内没有按宏，宏会重新从该技能开始。首个治疗为法术或治疗石时均有效。后续冷却更长的治疗技能仍可能让宏继续等待。"
+"停按达到首个治疗技能冷却（含天赋）后，宏会重新从它开始。首个治疗为法术或治疗石均有效。后续冷却更长的治疗仍可能让宏等待。"
 L["Heartseeking Health Injector (tinker)"] = "觅心生命注射器（匠械）"
-L["Include /stopcasting in the macro"] = "添加停止施法（/stopcasting）到宏内（需重载界面）"
+L["Include /stopcasting in the macro"] = "在宏中加入 /stopcasting（停止施法）（需重载界面）"
 L["Invalid option: "] = "无效选项："
 L["Items"] = "物品"
 L["Soulburn Healthstone"] = "灵魂燃烧治疗石"
 L["Casts Soulburn right before the macro in combat to empower your Healthstone. Costs a Soul Shard every time Soulburn is off cooldown, also on presses that use a potion or spell."] =
-"战斗中在宏生效前施放灵魂燃烧以强化治疗石。每次灵魂燃烧冷却结束时都会消耗一枚灵魂碎片，使用药水或技能的按键也不例外。"
+"战斗中在宏前施放灵魂燃烧强化治疗石。灵魂燃烧每次冷却好都会消耗一枚灵魂碎片，即使当次按键用药水或法术。"
 L["Low Priority Healthstones"] = "降低治疗石使用优先级"
 L["Other / Racial"] = "其他 / 种族"
 L["Potion of Withering Dreams"] = "凋零梦境药水"
 L["Potion of Withering Vitality"] = "枯萎活力药水"
-L["Prioritize health potions over a healthstone."] = "治疗药水优先于治疗石使用。"
+L["Prioritize health potions over a healthstone."] = "优先使用治疗药水而非治疗石。"
 L["Weakest Potion First"] = "最弱治疗药水优先"
 L["Use your weakest health potion first and keep the stronger ones for later. Meant for leveling. Any health potion in your bags counts, whatever its level. Healthstones still come in their usual order."] =
-"升级期间优先使用最弱的治疗药水，把更强的留到后面。背包中任意等级的治疗药水都计入。治疗石仍按原有顺序使用。"
+"优先使用最弱的治疗药水，更强的留到后面。适用于升级。任意等级的治疗药水都计入。治疗石仍按通常顺序。"
 L["Weakest Mana Potion First"] = "最弱法力药水优先"
 L["Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."] =
-"升级期间优先使用最弱的法力药水，把更强的留到后面。背包中任意等级的法力药水都计入。法力宝石仍然是你最好的那一颗。"
+"优先使用最弱的法力药水，更强的留到后面。适用于升级。任意等级的法力药水都计入。法力宝石仍是你最好的选择。"
+L["Include Demonic Runes"] = "包含恶魔符文"
+L["Use a Demonic Rune or Dark Rune after the mana potion. It costs you health. It has a cooldown of its own, so the next press uses it."] =
+"法力药水之后使用恶魔符文或黑暗符文，会消耗生命值。它有独立冷却，下次按键会使用。"
 L["Reset successful!"] = "重置成功！"
 L["Reset to Default"] = "重置为默认"
 L["Shows the bandage that will currently be used, based on what is in your bags."] =
-"显示当前将使用的绷带（依据背包物品）。"
+"根据背包显示当前会使用的绷带。"
 L["Shows the food that will currently be used, based on what is in your bags."] =
-"显示当前将使用的食物（依据背包物品）。"
+"根据背包显示当前会使用的食物。"
 L["Shows the drink that will currently be used, based on what is in your bags."] =
-"显示当前将使用的饮料（依据背包物品）。"
-L["Useful for casters."] = "对施法职业有用。"
+"根据背包显示当前会使用的饮料。"
+L["Useful for casters."] = "对法系职业有用。"
 
 -- InfoOptionsFrame
 L["AutoPotion keeps your macros up to date, so one key always uses the best you have right now: healing spells, potions, food, drink and bandages."] =
-"AutoPotion 会持续更新您的宏，一个按键即可使用当前最优选择：治疗法术、药水、食物、饮料和绷带。"
+"AutoPotion 会持续更新你的宏，只需一个按键，即可使用你当前拥有的最优选择：治疗法术、药水、食物、饮料和绷带。"
 L["Version %s"] = "版本 %s"
 L["How it works"] = "使用说明"
 L["AutoPotion creates the macros listed below. You find them under General Macros (/macro)."] =

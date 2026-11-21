@@ -3,8 +3,19 @@ local addonName, ham = ...
 
 function ham.getFoodForRetail()
   return {
-    -- Conjured first: free and doesn't consume bag space or gold
+    -- Conjured first: free and doesn't consume bag space or gold. Conjure Refreshment makes one
+    -- of these by the mage's level, Mana Cookie to Mana Bun; all restore the same (full health
+    -- and mana) and are dual restore, shared with Core/Drink/Retail.lua's list
     ham.conjuredManaBun,
+    ham.conjuredManaBuns,
+    ham.conjuredManaPudding,
+    ham.conjuredManaCake,
+    ham.conjuredManaStrudel,
+    ham.conjuredManaPie,
+    ham.conjuredManaLollipop,
+    ham.conjuredManaCupcake,
+    ham.conjuredManaBrownie,
+    ham.conjuredManaCookie,
     ham.conjuredSouffle,
     ham.conjuredCinnamonRoll2,
     ham.conjuredCroissant2,

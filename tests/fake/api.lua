@@ -50,6 +50,10 @@ local function installUnitAndWorld(client, env)
     local class = CLASSES[client.class]
     return class.name, client.class, class.id
   end
+  env.UnitLevel = function(unit)
+    if unit == "player" then return client.level end
+    return 0
+  end
   env.LOCALIZED_CLASS_NAMES_MALE = {}
   for token, class in pairs(CLASSES) do env.LOCALIZED_CLASS_NAMES_MALE[token] = class.name end
   env.UnitFactionGroup = function(unit)
@@ -106,7 +110,7 @@ local function installItems(client, env)
       end
       local name = data.name or ("Item " .. id)
       local link = "|cffffffff|Hitem:" .. id .. "::::::::::::::|h[" .. name .. "]|h|r"
-      return name, link, 1, 1, 1, "Consumable", "Consumable", 20, "", data.icon or Api.itemIcon(id), 0, 0, 0, 0, 0, nil, false
+      return name, link, 1, 1, data.requiredLevel or 0, "Consumable", "Consumable", 20, "", data.icon or Api.itemIcon(id), 0, 0, 0, 0, 0, nil, false
     end,
     -- reads the client's item data, not the cache
     GetItemIconByID = function(itemId)
@@ -162,6 +166,58 @@ local function installSpells(client, env)
   }
   env.GetSpellBaseCooldown = function(spellId)
     return spell(spellId).baseCooldown or 0, 0
+  end
+end
+
+-- The player's skill lines, one "Secondary Skills" header and the skills of client.skills that
+-- this flavor has, by name. Forever lists C_SkillInfo (GetNumSkillLines, GetSkillLineInfo,
+-- GetSkillLineInfoByID). Classic Era's docs list no skill functions, but its SkillFrame
+-- (Blizzard_UIPanels_Game/Classic) calls the globals GetNumSkillLines and GetSkillLineInfo, which
+-- return the fields as values. Retail has no First Aid and the fake offers it no skill API.
+local function installSkills(client, env)
+  local function lines()
+    local found = { { name = "Secondary Skills", isHeader = true, rank = 0 } }
+    local names = {}
+    for name in pairs(client.skills) do
+      if client.SKILL_LINES[name].ids[client.flavorName] then table.insert(names, name) end
+    end
+    table.sort(names)
+    for _, name in ipairs(names) do
+      table.insert(found, {
+        skillID = client.SKILL_LINES[name].ids[client.flavorName], name = client:spellName(client.SKILL_LINES[name].spell),
+        isHeader = false, rank = client.skills[name],
+      })
+    end
+    return found
+  end
+  local function attributes(line)
+    return {
+      skillID = line.skillID or 0, name = line.name, isHeader = line.isHeader, isCollapsed = false,
+      rank = line.rank, tempPoints = 0, modifier = 0, maxRank = 300, isAbandonable = false,
+      stepCost = 0, rankCost = 0, minLevel = 0, costType = 0, parentSkillLineID = 0,
+      skillLineCategoryID = 0, description = "",
+    }
+  end
+  if client.flavorName == "forever" then
+    env.C_SkillInfo = {
+      GetNumSkillLines = function() return #lines() end,
+      GetSkillLineInfo = function(index)
+        local line = lines()[index]
+        return line and attributes(line)
+      end,
+      GetSkillLineInfoByID = function(id)
+        for _, line in ipairs(lines()) do
+          if line.skillID == id then return attributes(line) end
+        end
+      end,
+    }
+  elseif client.flavorName == "classic" then
+    env.GetNumSkillLines = function() return #lines() end
+    -- skillName, header, isExpanded, skillRank, numTempPoints, skillModifier, skillMaxRank, ...
+    env.GetSkillLineInfo = function(index)
+      local line = lines()[index]
+      if line then return line.name, line.isHeader, true, line.rank, 0, 0, 300, false, 0, 0, 0, 0, "" end
+    end
   end
 end
 
@@ -386,6 +442,7 @@ function Api.install(client, env)
   installUnitAndWorld(client, env)
   installItems(client, env)
   installSpells(client, env)
+  installSkills(client, env)
   installAuras(client, env)
   installAddOns(client, env)
   installMacros(client, env)

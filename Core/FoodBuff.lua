@@ -7,10 +7,7 @@ local addonName, ham = ...
 -- found by their translated names. The older flavors' stat food buffs are found by spell ID:
 -- their names ("Increased Stamina", ...) also belong to buffs no food leaves.
 
-local function spellName(spellId)
-  if C_Spell and C_Spell.GetSpellName then return C_Spell.GetSpellName(spellId) end
-  return (GetSpellInfo(spellId))
-end
+local spellName = ham.getSpellName
 
 -- one spell of each name (there are hundreds of Well Fed), for the name in the client's language
 local NAMED_BY = { 19705 } -- Well Fed
@@ -192,25 +189,57 @@ function ham.isRelaxed()
   return relaxed.has()
 end
 
--- Buff food (items tagged buffFood) of a food or drink list for the options: left out unless
--- "Include Buff Food" is on. With "only when the buff is missing" it goes first, ahead of
--- conjured food, while buffActive() says the player lacks its buff (the food buff or Relaxed),
--- and last while they have it. Either way it keeps its relative order.
-function ham.orderBuffFood(list, buffActive)
-  local options = ham.options
-  if options.includeBuffFood and not options.buffFoodOnlyWhenMissing then
-    return list
+-- Buff kinds (GLOSSARY.md) in the order the Food page lists them; scripts/wago_check.py has the
+-- same list. An item records its kinds in its buff tag (Core/Item.lua).
+ham.BUFF_KINDS = {
+  "ap", "sp", "healing", "sta", "str", "agi", "int", "spi", "primary", "hpRegen", "mpRegen",
+  "hit", "crit", "haste", "mastery", "vers", "expertise", "armorPen", "dodge", "parry", "armor",
+  "resist", "fishing", "other",
+}
+
+-- Whether the player wants this buff food eaten: one of its buff kinds is ticked.
+local function isWanted(item)
+  for kind in pairs(item.buffKinds) do
+    if ham.isBuffKindWanted(kind) then return true end
   end
-  local buffFood, otherFood = {}, {}
-  for _, item in ipairs(list) do
-    if item.hasTag("buffFood") then
-      table.insert(buffFood, item)
-    else
-      table.insert(otherFood, item)
+  return false
+end
+
+-- The buff kinds of the flavor's buff food and drinks, in ham.BUFF_KINDS order: the boxes the
+-- Food page shows.
+function ham.buffKindsOfFlavor()
+  local present = {}
+  for _, list in ipairs({ ham.allFood(), ham.allDrink() }) do
+    for _, item in ipairs(list) do
+      for kind in pairs(item.buffKinds or {}) do present[kind] = true end
     end
   end
-  if not options.includeBuffFood then
-    return otherFood
+  local kinds = {}
+  for _, kind in ipairs(ham.BUFF_KINDS) do
+    if present[kind] then table.insert(kinds, kind) end
+  end
+  return kinds
+end
+
+-- Buff food (items tagged buffFood) of a food or drink list for the options: left out unless
+-- "Include Buff Food" is on, and then too when none of its buff kinds is ticked. With "only when
+-- the buff is missing" it goes first, ahead of conjured food, while buffActive() says the player
+-- lacks its buff (the food buff or Relaxed), and last while they have it. Either way it keeps its
+-- relative order.
+function ham.orderBuffFood(list, buffActive)
+  local options = ham.options
+  local kept, buffFood, otherFood = {}, {}, {}
+  for _, item in ipairs(list) do
+    if not item.hasTag("buffFood") then
+      table.insert(kept, item)
+      table.insert(otherFood, item)
+    elseif options.includeBuffFood and isWanted(item) then
+      table.insert(kept, item)
+      table.insert(buffFood, item)
+    end
+  end
+  if not (options.includeBuffFood and options.buffFoodOnlyWhenMissing) then
+    return kept
   end
   local first, last = buffFood, otherFood
   if buffActive() then first, last = otherFood, buffFood end

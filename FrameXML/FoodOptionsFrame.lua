@@ -23,6 +23,56 @@ function ham.foodSettingsFrame:updateFoodPrio()
 	self:recalculateContentHeight()
 end
 
+-- The boxes' labels per buff kind (ham.BUFF_KINDS)
+local BUFF_KIND_LABELS = {
+	ap = L["Attack Power"], sp = L["Spell Power"], healing = L["Healing"], sta = L["Stamina"],
+	str = L["Strength"], agi = L["Agility"], int = L["Intellect"], spi = L["Spirit"],
+	primary = L["Primary Stat"], hpRegen = L["Health Regen"], mpRegen = L["Mana Regen"], hit = L["Hit"],
+	crit = L["Critical Strike"], haste = L["Haste"], mastery = L["Mastery"], vers = L["Versatility"],
+	expertise = L["Expertise"], armorPen = L["Armor Penetration"], dodge = L["Dodge"], parry = L["Parry"],
+	armor = L["Armor"], resist = L["Resistance"], fishing = L["Fishing"], other = L["Other"],
+}
+local BUFF_KIND_COLUMNS = 3
+local BUFF_KIND_COLUMN_WIDTH = 170
+
+-- A box per buff kind of the flavor's buff food and drinks, in columns below `relativeTo`,
+-- indented like the other refinements of "Include Buff Food" and greyed out while it's unticked.
+-- Buff food with no ticked kind isn't eaten. Returns the first box of the last row (`relativeTo`
+-- without kinds).
+function ham.foodSettingsFrame:createBuffKindBoxes(relativeTo)
+	local rowStart = relativeTo
+	for i, kind in ipairs(ham.buffKindsOfFlavor()) do
+		local button = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
+		local column = (i - 1) % BUFF_KIND_COLUMNS
+		if column == 0 then
+			button:SetPoint("TOPLEFT", rowStart, "BOTTOMLEFT", 0, 0)
+			rowStart = button
+		else
+			button:SetPoint("TOPLEFT", rowStart, "TOPLEFT", column * BUFF_KIND_COLUMN_WIDTH, 0)
+		end
+		button.Text:SetText(BUFF_KIND_LABELS[kind])
+		button:HookScript("OnClick", function(_, btn, down)
+			ham.setBuffKindWanted(kind, button:GetChecked())
+			ham.refreshPreviews()
+			ham.requestMacroUpdate()
+		end)
+		button:HookScript("OnEnter", function(_, btn, down)
+			GameTooltip:SetOwner(button, "ANCHOR_TOPRIGHT")
+			GameTooltip:SetText(kind == "other"
+				and L["Eat buff food whose buff raises no single stat: feasts, random buffs and the like. Untick it to keep that buff food in your bags."]
+				or L["Eat buff food raising this stat. Untick it to keep that buff food in your bags; food raising another ticked stat too is still eaten."],
+				nil, nil, nil, nil, true)
+			GameTooltip:Show()
+		end)
+		button:HookScript("OnLeave", function(_, btn, down)
+			GameTooltip:Hide()
+		end)
+		ham.settingsFrame:trackCheckbox(button, function() return ham.isBuffKindWanted(kind) end)
+		ham.settingsFrame:trackEnabled(button, function() return ham.options.includeBuffFood end)
+	end
+	return rowStart
+end
+
 function ham.foodSettingsFrame:InitializeOptions()
 	-- Create the sub-panel inside the Interface Options container
 	self.panel = CreateFrame("Frame", addonName .. "Food", InterfaceOptionsFramePanelContainer)
@@ -103,9 +153,11 @@ function ham.foodSettingsFrame:InitializeOptions()
 	ham.settingsFrame:trackOptionCheckbox(onlyWhenMissingButton, "buffFoodOnlyWhenMissing")
 	ham.settingsFrame:trackEnabled(onlyWhenMissingButton, function() return ham.options.includeBuffFood end)
 
+	local lastBuffRow = self:createBuffKindBoxes(onlyWhenMissingButton)
+
 	-- weakest food first toggle (the food restoring the least health first, for leveling)
 	local weakestFoodButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-	weakestFoodButton:SetPoint("TOPLEFT", onlyWhenMissingButton, "BOTTOMLEFT", -SUB_OPTION_INDENT, -8)
+	weakestFoodButton:SetPoint("TOPLEFT", lastBuffRow, "BOTTOMLEFT", -SUB_OPTION_INDENT, -8)
 	weakestFoodButton.Text:SetText(L["Weakest Food First"])
 	weakestFoodButton:HookScript("OnClick", function(_, btn, down)
 		ham.settingsFrame:updateConfig("weakestFoodFirst", weakestFoodButton:GetChecked())

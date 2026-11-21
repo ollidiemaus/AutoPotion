@@ -16,6 +16,9 @@ build of each listed interface version (cached between runs) and reports:
            that flavor's talent tree, or doesn't take off the seconds the addon says
   RESTORE  a food or drink item doesn't record in its tags (see Core/Item.lua) what it restores in
            that flavor's client: the line shows the record it should have
+  BUFF     a buff food item doesn't record in its buff tag the buff kinds (GLOSSARY.md) of the
+           buff it leaves in that flavor's client: the stats its Well Fed auras raise (Retail:
+           the stats its description names), Other when none
   NOTE     the item is only partly in wago's data for that flavor (encrypted or hotfix item);
            confirm it on Wowhead
   MISSING  with --missing only: an item in that flavor's client restores health or mana on use,
@@ -39,7 +42,7 @@ usage: wago_check.py [--flavor NAME ...] [--no-order] [--dump] [--missing] [--ve
   --cache    download directory (default: $AUTOPOTION_WAGO_CACHE, else the wow-data skill's
              cache $WOW_DATA_CACHE/db2 or ~/.cache/wow-data/db2, which has the same layout)
 
-Exits 1 when it prints an ERROR, ORDER, RESTORE or MISSING line.
+Exits 1 when it prints an ERROR, ORDER, RESTORE, BUFF or MISSING line.
 """
 import argparse
 import csv
@@ -86,6 +89,39 @@ UNORDERED = r"order (?:\w+ )*doesn't matter"  # also "order among them doesn't m
 # ones are buffs like "restores 6 health every 5 sec for 10 min", not the restore itself.
 MAX_RESTORE_MS = 120000
 
+# Buff kinds (GLOSSARY.md), in the order ham.BUFF_KINDS (Core/FoodBuff.lua) lists them. Buff food
+# records them in its tags as buff = { sta = true, spi = true }; a flavor whose buff differs has
+# a buff table in its own table ({ forever = { buff = { ap = true } } }).
+BUFF_KINDS = ("ap", "sp", "healing", "sta", "str", "agi", "int", "spi", "primary", "hpRegen", "mpRegen",
+              "hit", "crit", "haste", "mastery", "vers", "expertise", "armorPen", "dodge", "parry", "armor",
+              "resist", "fishing", "other")
+# The buff's aura types: MOD_STAT (misc value = stat, -1 all), attack power, spell damage, healing,
+# regen, MOD_RESISTANCE (misc bit 0 armor, the others magic schools), MOD_SKILL, MOD_RATING
+# (misc value = a mask of combat ratings), crit chance and bonus armor.
+STAT_KINDS = {0: "str", 1: "agi", 2: "sta", 3: "int", 4: "spi"}
+AURA_KINDS = {"99": "ap", "124": "ap", "13": "sp", "135": "healing", "84": "hpRegen", "161": "hpRegen",
+              "8": "hpRegen", "290": "crit", "465": "armor"}
+MANA_REGEN_AURAS = {"85", "24"}
+FISHING_SKILL = 356
+RATING_KINDS = {2: "dodge", 3: "parry", 5: "hit", 6: "hit", 7: "hit", 8: "crit", 9: "crit", 10: "crit",
+                17: "haste", 18: "haste", 19: "haste", 23: "expertise", 24: "armorPen", 25: "mastery",
+                29: "vers"}
+# Retail's buff food leaves a scripted Well Fed whose auras are dummies: the eating spell's
+# description names the stats it gives ("... gaining 30 Haste and 30 Mastery for 1 hour.")
+DESCRIPTION_KINDS = (("critical strike", "crit"), ("haste", "haste"), ("mastery", "mastery"),
+                     ("versatility", "vers"), ("primary stat", "primary"), ("stamina", "sta"),
+                     ("strength", "str"), ("agility", "agi"), ("intellect", "int"),
+                     ("highest secondary", "other"))
+# the spells that eating triggers, besides those of TRIGGER_SPELL effects: PERIODIC_TRIGGER_SPELL
+# and its _WITH_VALUE variant, which give the buff after 10 seconds of eating
+TRIGGER_AURAS = {"23", "227"}
+
+
+def triggers(effect):
+    """Whether a SpellEffect row casts its EffectTriggerSpell: TRIGGER_SPELL (64), 140 (a forced
+    cast) or one of TRIGGER_AURAS."""
+    return effect["Effect"] in ("64", "140") or (effect["Effect"] == "6" and effect["EffectAura"] in TRIGGER_AURAS)
+
 # TraitDefinition holds the talent trees of Retail, Classic Era, TBC, Mists and Forever; Wrath and
 # Cata keep theirs in Talent (one spell per rank)
 TALENT_TABLES = ["TraitDefinition", "Talent", "SpellEffect"]
@@ -99,6 +135,8 @@ DEF_RE = re.compile(r'^ham\.(\w+)\s*=\s*ham\.Item\.new\((\d+),\s*"((?:[^"\\]|\\.
 # what a food or drink item records it restores (Core/Item.lua): flat totals, shares of the
 # maximum, or scaled = true when the amount follows the player's level
 RESTORE_KEYS = ("hp", "mp", "hpPct", "mpPct", "scaled")
+# SkillLine IDs of First Aid (Forever has its own, 2942)
+FIRST_AID_SKILLS = (129, 2942)
 FLAVORS = [fl for fl, _ in TOC_FLAVORS.values()]
 ENTRY_RE = re.compile(r'ham\.(\w+),?\s*(--.*)?')
 INSERT_RE = re.compile(r'table\.insert\(\w+,\s*(?:\d+,\s*)?ham\.(\w+)\)')
@@ -159,9 +197,24 @@ def parse_tags(text):
 
 
 def recorded_restores(tags, flavor):
-    """What an item records it restores on this flavor: its flavor's table or its own amounts."""
-    own = tags.get(flavor) if isinstance(tags.get(flavor), dict) else tags
+    """What an item records it restores on this flavor: its flavor's table, when that records
+    amounts, or its own amounts."""
+    own = tags.get(flavor)
+    if not (isinstance(own, dict) and any(k in own for k in RESTORE_KEYS)):
+        own = tags
     return {k: own[k] for k in RESTORE_KEYS if k in own}
+
+
+def recorded_buff_kinds(tags, flavor):
+    """The buff kinds an item records on this flavor: its flavor's buff table or its own."""
+    own = tags.get(flavor)
+    kinds = own.get("buff") if isinstance(own, dict) and "buff" in own else tags.get("buff")
+    return set(kinds or ())
+
+
+def lua_buff_kinds(kinds):
+    """A set of buff kinds as it reads in the item tags."""
+    return "{ " + ", ".join(f"{k} = true" for k in BUFF_KINDS if k in kinds) + " }"
 
 
 def restores_from_client(amounts):
@@ -330,8 +383,9 @@ class Everything:
 class Client:
     """The data of one client build, limited to the items in item_ids."""
 
-    def __init__(self, cache, build, item_ids, with_spells):
+    def __init__(self, cache, build, item_ids, with_spells, flavor=None):
         self.build = build
+        self.flavor = flavor
         self.sparse = {int(r["ID"]): r for r in rows(cache, build, "ItemSparse") if int(r["ID"]) in item_ids}
         self.item = {int(r["ID"]): r for r in rows(cache, build, "Item") if int(r["ID"]) in item_ids}
         self.quality_tier = {r["ID"]: int(r["QualityTier"]) for r in rows(cache, build, "CraftingQuality")}
@@ -363,7 +417,7 @@ class Client:
                     self.effects[sid].append(r)
             loaded |= todo
             wanted |= {int(num(r["EffectTriggerSpell"])) for s in todo for r in self.effects[s]
-                       if r["Effect"] in ("64", "140") and num(r["EffectTriggerSpell"]) > 0}
+                       if triggers(r) and num(r["EffectTriggerSpell"]) > 0}
         # A new build's layout can come without column names yet (12.1.7 PTR:
         # Field_12_1_7_70493_000..); its first field is still Duration.
         durations = {r["ID"]: num(r.get("Duration", next((v for k, v in r.items() if k.startswith("Field_")), "0")))
@@ -371,6 +425,12 @@ class Client:
         self.duration = {int(r["SpellID"]): durations.get(r["DurationIndex"], 0)
                          for r in rows(cache, self.build, "SpellMisc")
                          if int(r["SpellID"]) in loaded and r.get("DifficultyID", "0") == "0"}
+        # Retail: the descriptions of the items' own spells, where its buff food names its stats
+        self.description = {}
+        if self.flavor == "retail":
+            on_use = {s for spells in self.item_spells.values() for s in spells}
+            self.description = {int(r["ID"]): r["Description_lang"] for r in rows(cache, self.build, "Spell")
+                                if int(r["ID"]) in on_use}
 
     def name(self, item_id):
         r = self.sparse.get(item_id)
@@ -383,6 +443,56 @@ class Client:
         for spell in self.item_spells.get(item_id, []):
             self._spell_amounts(spell, total, 0)
         return total
+
+    def buff_kinds(self, item_id):
+        """The buff kinds of the buff that eating the item leaves: from the description where its
+        spell has one in the Spell table (Retail), else from the aura types of the long auras
+        among the spells eating triggers. Other for feasts, which place an object (Retail's
+        descriptions say "Place a ... for all players to enjoy!", whatever stats they name), and
+        when nothing names a stat (buffs like run speed)."""
+        kinds = set()
+        spells = self.item_spells.get(item_id, [])
+        descriptions = [self.description[s] for s in spells if s in self.description]
+        if any(re.match(r"\s*Place an? ", d) for d in descriptions):
+            return {"other"}
+        if descriptions:
+            # the stats follow the last "gain" ("... become Well Fed, gaining 30 Haste ...")
+            m = re.search(r".*\bgain(?:ing)?\s(.*)", " ".join(descriptions), re.I | re.S)
+            text = m.group(1).lower() if m else ""
+            kinds = {kind for words, kind in DESCRIPTION_KINDS if words in text}
+        else:
+            seen, todo = set(), list(spells)
+            while todo:
+                spell = todo.pop()
+                if spell in seen:
+                    continue
+                seen.add(spell)
+                dur = self.duration.get(spell, 0)
+                is_buff = dur > MAX_RESTORE_MS or dur < 0
+                for e in self.effects.get(spell, []):
+                    eff, aura = e["Effect"], e["EffectAura"]
+                    trigger = int(num(e["EffectTriggerSpell"]))
+                    if trigger and triggers(e):
+                        todo.append(trigger)
+                    if eff == "6" and is_buff:
+                        kinds |= self._aura_kinds(aura, int(num(e.get("EffectMiscValue_0"))))
+        return kinds or {"other"}
+
+    @staticmethod
+    def _aura_kinds(aura, misc):
+        if aura == "29":
+            return set(STAT_KINDS.values()) if misc == -1 else {STAT_KINDS[misc]} if misc in STAT_KINDS else set()
+        if aura in AURA_KINDS:
+            return {AURA_KINDS[aura]}
+        if aura in MANA_REGEN_AURAS:
+            return {"mpRegen"} if misc == 0 else set()
+        if aura == "22":
+            return ({"armor"} if misc & 1 else set()) | ({"resist"} if misc & 126 else set())
+        if aura == "30":
+            return {"fishing"} if misc == FISHING_SKILL else set()
+        if aura == "189":
+            return {kind for bit, kind in RATING_KINDS.items() if misc & (1 << bit)}
+        return set()
 
     def _spell_amounts(self, spell, total, depth):
         effects = self.effects.get(spell, [])
@@ -489,6 +599,8 @@ def unit(cat, kind):
 
 # (var, flavor) pairs whose recorded restore amounts were reported: Food and Drink share items
 checked_restores = set()
+# the same for the buff kinds of buff food
+checked_buffs = set()
 
 
 def check_order(flavor, cat, fname, sections, defs, client, dump, out):
@@ -516,6 +628,13 @@ def check_order(flavor, cat, fname, sections, defs, client, dump, out):
                     checked_restores.add((d["var"], flavor))
                     out.append(f"RESTORE  [{flavor}] {d['where']} {e['var']} ({e['id']}) records "
                                f"{lua_restores(have)} but restores {lua_restores(want)} in this client")
+                if d["tags"].get("buffFood") and (d["var"], flavor) not in checked_buffs:
+                    checked_buffs.add((d["var"], flavor))
+                    want, have = client.buff_kinds(e["id"]), recorded_buff_kinds(d["tags"], flavor)
+                    if want != have:
+                        out.append(f"BUFF     [{flavor}] {d['where']} {e['var']} ({e['id']}) records buff = "
+                                   f"{lua_buff_kinds(have)} but its buff raises {lua_buff_kinds(want)} "
+                                   f"in this client")
         if re.search(UNORDERED, heading, re.I):
             continue
         for kind in ("flat", "pct"):
@@ -654,7 +773,9 @@ def main():
         sys.exit(1 if out else 0)
     download_tables(args.cache, builds, ITEM_TABLES + ([] if args.no_order else SPELL_TABLES))
     download_tables(args.cache, {fl: bs[-1:] for fl, bs in builds.items() if fl in talents}, TALENT_TABLES)
-    clients = {fl: [Client(args.cache, b, item_ids, with_spells=not args.no_order and b == bs[-1]) for b in bs]
+    if not args.no_order and builds.get("retail"):
+        download_tables(args.cache, {"retail": builds["retail"][-1:]}, ["Spell"])  # buff food descriptions
+    clients = {fl: [Client(args.cache, b, item_ids, with_spells=not args.no_order and b == bs[-1], flavor=fl) for b in bs]
                for fl, bs in builds.items()}
     for fl, cs in clients.items():
         print(f"{fl:<8} {', '.join(c.build for c in cs) or '-'}", file=sys.stderr)
@@ -715,6 +836,16 @@ def main():
                     if tier and rank and rank != tier:
                         out.append(f"ERROR    [{fl}] {where} {var} ({d['id']}) has crafting quality {tier}, "
                                    f"not {rank}")
+                    # firstAid: the First Aid rank a bandage needs (an unusable item below it);
+                    # Retail has no First Aid and ignores the tag
+                    if fl != "retail":
+                        needs = int(num(sparse.get("RequiredSkillRank"))) \
+                            if int(num(sparse.get("RequiredSkill"))) in FIRST_AID_SKILLS else 0
+                        tagged = int(d["tags"].get("firstAid", 0))
+                        if needs != tagged:
+                            out.append(f"ERROR    [{fl}] {d['where']} {var} ({d['id']}) needs skill "
+                                       f"{sparse.get('RequiredSkill')} at {needs}, but its firstAid tag "
+                                       f"says {tagged or 'nothing'}")
         if not args.no_order:
             for cat, sections in cats.items():
                 check_order(fl, cat, files[fl], sections, defs, cs[-1], args.dump, out)
@@ -725,7 +856,7 @@ def main():
 
     for line in out:
         print(line)
-    failed = sum(1 for line in out if line.startswith(("ERROR", "ORDER", "RESTORE")))
+    failed = sum(1 for line in out if line.startswith(("ERROR", "ORDER", "RESTORE", "BUFF")))
     print(f"{failed} problem(s) found" if failed else "ok", file=sys.stderr)
     sys.exit(1 if failed else 0)
 
