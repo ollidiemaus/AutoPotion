@@ -153,10 +153,17 @@ for _, flavor in ipairs({ "classic", "forever", "retail" }) do
     local client = mage(flavor, { [items.gem] = 1, [items.potion] = 5 }, {
       itemCooldowns = { [items.gem] = { start = 1, duration = 60 } },
     })
-    assertEqual(client:macroText("AutoManaPotion"), uses(items.potion))
+    assertEqual(client:macroText("AutoManaPotion"), sequence(items.reset, items.gem, items.potion))
 
     client:openSettings("AutoPotion", "AutoManaPotion")
-    assertEqual(client:isChecked(SKIP_CD_LABEL), true)
+    assertEqual(client:isChecked(SKIP_CD_LABEL), false)
+    assertEqual(previewOf(client), { Api.itemIcon(items.gem), Api.itemIcon(items.potion) })
+
+    client:clickCheckbox(SKIP_CD_LABEL)
+    client:nextFrame()
+    assertEqual(client:macroText("AutoManaPotion"), uses(items.potion))
+    assertEqual(previewOf(client), { Api.itemIcon(items.potion) })
+
     client:clickCheckbox(SKIP_CD_LABEL)
     client:nextFrame()
     assertEqual(client:macroText("AutoManaPotion"), sequence(items.reset, items.gem, items.potion))
@@ -170,21 +177,30 @@ for _, flavor in ipairs({ "classic", "forever", "retail" }) do
     assertEqual(client.errors, {})
   end)
 
-  test(flavor .. ": remembers mana gem CD in combat after wand CD overwrites GetItemCooldown", function()
-    local client = mage(flavor, { [items.gem] = 1, [items.potion] = 5 }, { time = 100 })
-    assertEqual(client:macroText("AutoManaPotion"), sequence(items.reset, items.gem, items.potion))
-
-    client:enterCombat()
-    client:setItemCooldown(items.gem, 60)
-
-    -- Wand shot replaces GetItemCooldown with a short <= 5s CD, then expires to 0 before combat ends
-    client:advance(2)
-    client:setItemCooldown(items.gem, 1.8)
-    client:advance(2)
-    client:setItemCooldown(items.gem, 0)
-
-    client:leaveCombat()
+  test(flavor .. ": restores mana gem at once when its cooldown resets early", function()
+    local client = mage(flavor, { [items.gem] = 1, [items.potion] = 5 }, {
+      itemCooldowns = { [items.gem] = { start = 1, duration = 60 } },
+    })
+    client:openSettings("AutoPotion", "AutoManaPotion")
+    client:clickCheckbox(SKIP_CD_LABEL)
+    client:nextFrame()
     assertEqual(client:macroText("AutoManaPotion"), uses(items.potion))
+
+    client:setItemCooldown(items.gem, 0)
+    client:nextFrame()
+    assertEqual(client:macroText("AutoManaPotion"), sequence(items.reset, items.gem, items.potion))
+    assertEqual(client.errors, {})
+  end)
+
+  test(flavor .. ": existing AutoManaGem macro survives login when separate macro is off", function()
+    local client = Client.new({
+      flavor = flavor,
+      class = "WARRIOR",
+      accountMacros = { "AutoManaGem" },
+    })
+    client.env.EditMacro("AutoManaGem", "AutoManaGem", nil, "#showtooltip\n/say my macro")
+    client:login()
+    assertEqual(client:macroText("AutoManaGem"), "#showtooltip\n/say my macro")
     assertEqual(client.errors, {})
   end)
 
@@ -206,6 +222,22 @@ for _, flavor in ipairs({ "classic", "forever", "retail" }) do
     client:nextFrame()
     assertEqual(client:macroText("AutoManaGem"), nil)
     assertEqual(client:macroText("AutoManaPotion"), sequence(items.reset, items.gem, items.potion))
+    assertEqual(client.errors, {})
+  end)
+end
+
+for _, flavor in ipairs({ "classic", "forever" }) do
+  test(flavor .. ": skips a mana gem on cooldown for a demonic rune even without a mana potion", function()
+    local DEMONIC_RUNE = 12662
+    local client = mage(flavor, { [MANA_RUBY] = 1, [DEMONIC_RUNE] = 2 }, {
+      itemCooldowns = { [MANA_RUBY] = { start = 1, duration = 60 } },
+    })
+    client:openSettings("AutoPotion", "AutoManaPotion")
+    client:clickCheckbox(SKIP_CD_LABEL)
+    client:clickCheckbox("Include Demonic Runes")
+    client:nextFrame()
+    assertEqual(client:macroText("AutoManaPotion"), uses(DEMONIC_RUNE))
+    assertEqual(previewOf(client), { Api.itemIcon(DEMONIC_RUNE) })
     assertEqual(client.errors, {})
   end)
 end

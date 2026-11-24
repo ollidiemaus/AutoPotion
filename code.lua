@@ -499,13 +499,13 @@ local function buildManaPotionMacroString()
       break
     end
   end
-  local skipGem, expiry = ham.shouldPutManaPotionBeforeGem(gem, pot)
+  local demonicRune = ham.getDemonicRune()
+  local skipGem, expiry = ham.shouldPutManaPotionBeforeGem(gem, pot or demonicRune)
   if expiry then
     scheduleManaCooldownRefresh(expiry)
   end
   if gem and not skipGem then table.insert(items, gem) end
   if pot then table.insert(items, pot) end
-  local demonicRune = ham.getDemonicRune()
   if demonicRune then table.insert(items, demonicRune) end
 
   local sequence = {}
@@ -659,12 +659,22 @@ function ham.updateManaPotionMacro()
   writeMacro(manaPotionMacroName, buildManaPotionMacroString())
 end
 
+local deleteManaGemMacroPending = false
+
+function ham.scheduleManaGemMacroDelete()
+  deleteManaGemMacroPending = true
+end
+
 function ham.updateManaGemMacro()
-  if not (ham.options and ham.options.separateManaGemMacro) then
-    deleteMacro(manaGemMacroName)
+  if ham.options and ham.options.separateManaGemMacro then
+    deleteManaGemMacroPending = false
+    writeMacro(manaGemMacroName, buildManaGemMacroString())
     return
   end
-  writeMacro(manaGemMacroName, buildManaGemMacroString())
+  if deleteManaGemMacroPending then
+    deleteManaGemMacroPending = false
+    deleteMacro(manaGemMacroName)
+  end
 end
 
 -- A hidden page's preview is left alone: its OnShow refreshes it when the player opens it.
@@ -732,13 +742,6 @@ local function requestOn(message)
   end
 end
 
-local function onManaCooldownEvent(eventName, active)
-  if not active or not (ham.isWatchingManaCooldowns and ham.isWatchingManaCooldowns()) then return end
-  log("event: " .. eventName)
-  ham.refreshPreviews()
-  ham.requestMacroUpdate()
-end
-
 local eventHandlers = {
   ADDON_LOADED = function(self, name)
     if name ~= addonName then return end
@@ -749,17 +752,11 @@ local eventHandlers = {
   -- fires once a burst of BAG_UPDATEs has settled
   BAG_UPDATE_DELAYED = requestOn("event: BAG_UPDATE_DELAYED"),
   BAG_UPDATE_COOLDOWN = function()
-    local changed = ham.snapshotManaCooldowns and ham.snapshotManaCooldowns()
-    onManaCooldownEvent("BAG_UPDATE_COOLDOWN", changed)
-  end,
-  SPELL_UPDATE_COOLDOWN = function()
-    local changed = ham.snapshotManaCooldowns and ham.snapshotManaCooldowns()
-    onManaCooldownEvent("SPELL_UPDATE_COOLDOWN", changed)
-  end,
-  UNIT_SPELLCAST_SUCCEEDED = function(_, unitTarget, _, spellId)
-    if unitTarget ~= "player" then return end
-    local matched = ham.recordManaSpellCast and ham.recordManaSpellCast(spellId)
-    onManaCooldownEvent("UNIT_SPELLCAST_SUCCEEDED", matched)
+    if not (ham.isWatchingManaCooldowns and ham.isWatchingManaCooldowns()) then return end
+    if not (ham.getManaGem and ham.getManaGem()) then return end
+    log("event: BAG_UPDATE_COOLDOWN")
+    ham.refreshPreviews()
+    ham.requestMacroUpdate()
   end,
   UNIT_PET = requestOn("event: UNIT_PET"),
   -- also on zoning: the instanced-PvP rules depend on the zone
@@ -851,11 +848,9 @@ if C_EventUtils.IsEventValid("ADDON_RESTRICTION_STATE_CHANGED") then
   updateFrame:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")
 end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-updateFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 -- only the player's own pet, not every group member's
 updateFrame:RegisterUnitEvent("UNIT_PET", "player")
 updateFrame:RegisterUnitEvent("UNIT_AURA", "player")
-updateFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
 updateFrame:SetScript("OnEvent", function(self, event, ...)
   eventHandlers[event](self, ...)
 end)

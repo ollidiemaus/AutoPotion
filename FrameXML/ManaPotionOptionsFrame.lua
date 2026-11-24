@@ -26,30 +26,19 @@ function ham.manaPotionSettingsFrame:updateManaPotionPrio()
 	end
 	local items = ham.getManaPotions()
 	local gem = ham.getManaGem()
+	local demonicRune = ham.getDemonicRune()
 	if gem then
-		local firstPot, firstPotIndex = nil, nil
-		for i, item in ipairs(items) do
+		local firstPot = nil
+		for _, item in ipairs(items) do
 			if item.getCount() > 0 then
 				firstPot = item
-				firstPotIndex = i
 				break
 			end
 		end
-		local ordered = {}
-		local skipGem = ham.shouldPutManaPotionBeforeGem(gem, firstPot)
-		if skipGem and firstPotIndex then
-			for i, item in ipairs(items) do
-				table.insert(ordered, item)
-				if i == firstPotIndex then
-					table.insert(ordered, gem)
-				end
-			end
-		else
-			ordered = { gem, unpack(items) }
+		if not ham.shouldPutManaPotionBeforeGem(gem, firstPot or demonicRune) then
+			items = { gem, unpack(items) }
 		end
-		items = ordered
 	end
-	local demonicRune = ham.getDemonicRune()
 	if demonicRune then
 		items = { unpack(items) }
 		table.insert(items, demonicRune)
@@ -179,7 +168,11 @@ function ham.manaPotionSettingsFrame:InitializeOptions()
 	separateManaGemMacroButton:SetPoint("TOPLEFT", skipManaGemOnCooldownButton, "BOTTOMLEFT", -SUB_OPTION_INDENT, -8)
 	separateManaGemMacroButton.Text:SetText(L["Separate Mana Gem macro (AutoManaGem)"])
 	separateManaGemMacroButton:HookScript("OnClick", function(_, btn, down)
-		ham.settingsFrame:updateConfig("separateManaGemMacro", separateManaGemMacroButton:GetChecked())
+		local checked = separateManaGemMacroButton:GetChecked()
+		if not checked and ham.scheduleManaGemMacroDelete then
+			ham.scheduleManaGemMacroDelete()
+		end
+		ham.settingsFrame:updateConfig("separateManaGemMacro", checked)
 	end)
 	separateManaGemMacroButton:HookScript("OnEnter", function(_, btn, down)
 		GameTooltip:SetOwner(separateManaGemMacroButton, "ANCHOR_TOPRIGHT")

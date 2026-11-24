@@ -30,7 +30,7 @@ ham.defaults = {
     -- AutoManaPotion uses the best mana gem before the mana potion
     useManaGems = true,
     -- With useManaGems: show and use the mana potion while the mana gem is on cooldown
-    skipManaGemOnCooldown = true,
+    skipManaGemOnCooldown = false,
     -- Create a separate AutoManaGem macro and keep AutoManaPotion for mana potions only
     separateManaGemMacro = false,
     -- AutoManaPotion uses a demonic rune after the mana potion (costs health; not on Retail)
