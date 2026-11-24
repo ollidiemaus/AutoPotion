@@ -101,6 +101,7 @@ function ham.getDrinkForCata()
     ham.sengginRoot,
     ham.greenTeaLeaf,
     -- Classic Era: plain water (no stats), highest tier first
+    ham.bottledAlteracSpringWater,
     ham.hyjalNectar,
     ham.morningGloryDew,
     ham.moonberryJuice,

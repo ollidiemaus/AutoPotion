@@ -21,6 +21,7 @@ function ham.getDrinkForClassic()
     ham.sengginRoot,
     ham.greenTeaLeaf,
     -- Plain vendor water (no stats), highest tier first
+    ham.bottledAlteracSpringWater,
     ham.hyjalNectar,
     ham.morningGloryDew,
     ham.moonberryJuice,
