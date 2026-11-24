@@ -500,7 +500,7 @@ local function buildManaPotionMacroString()
     end
   end
   local demonicRune = ham.getDemonicRune()
-  local skipGem, expiry = ham.shouldPutManaPotionBeforeGem(gem, pot, demonicRune)
+  local skipGem, expiry = ham.shouldPutManaPotionBeforeGem(gem, pot or demonicRune)
   if expiry then
     scheduleManaCooldownRefresh(expiry)
   end

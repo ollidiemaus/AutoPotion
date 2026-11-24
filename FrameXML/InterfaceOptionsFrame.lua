@@ -470,9 +470,10 @@ function ham.settingsFrame:InitializeOptions()
 
 	-------------  RESET BUTTON  -------------
 	btn:SetScript("OnClick", function()
-		local hadSeparateManaGemMacro = ham.options and ham.options.separateManaGemMacro
+		local deleteManaGemPending = (ham.options and ham.options.separateManaGemMacro)
+			or (HAMDB and HAMDB.deleteManaGemMacroPending)
 		HAMDB = CopyTable(ham.defaults)
-		if hadSeparateManaGemMacro and ham.scheduleManaGemMacroDelete then
+		if deleteManaGemPending and ham.scheduleManaGemMacroDelete then
 			ham.scheduleManaGemMacroDelete()
 		end
 		ham.refreshOptions()

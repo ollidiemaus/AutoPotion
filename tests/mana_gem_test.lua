@@ -245,6 +245,20 @@ for _, flavor in ipairs({ "classic", "forever", "retail" }) do
     client:clickButton("Reset to Default")
     client:nextFrame()
     assertEqual(client:macroText("AutoManaGem"), nil)
+
+    -- Unticking in combat and then resetting in the same combat still deletes AutoManaGem once combat ends
+    client:openSettings("AutoPotion", "AutoManaPotion")
+    client:clickCheckbox(SEPARATE_GEM_LABEL)
+    client:nextFrame()
+    assertEqual(client:macroText("AutoManaGem"), uses(items.gem))
+    client:enterCombat()
+    client:clickCheckbox(SEPARATE_GEM_LABEL)
+    client:openSettings("AutoPotion", "AutoPotion")
+    client:clickButton("Reset to Default")
+    client:nextFrame()
+    assertEqual(client:macroText("AutoManaGem"), uses(items.gem))
+    client:leaveCombat()
+    assertEqual(client:macroText("AutoManaGem"), nil)
     assertEqual(client.errors, {})
   end)
 end
@@ -264,7 +278,7 @@ for _, flavor in ipairs({ "classic", "forever" }) do
     assertEqual(client.errors, {})
   end)
 
-  test(flavor .. ": skips a mana gem on cooldown when potion has longer CD and demonic rune is ready", function()
+  test(flavor .. ": keeps mana gem first when potion has longer CD even if demonic rune is ready", function()
     local DEMONIC_RUNE = 12662
     local client = mage(flavor, { [MANA_RUBY] = 1, [MAJOR_MANA_POTION] = 5, [DEMONIC_RUNE] = 2 }, {
       itemCooldowns = {
@@ -276,8 +290,11 @@ for _, flavor in ipairs({ "classic", "forever" }) do
     client:clickCheckbox(SKIP_CD_LABEL)
     client:clickCheckbox("Include Demonic Runes")
     client:nextFrame()
-    assertEqual(client:macroText("AutoManaPotion"), sequence("combat", MAJOR_MANA_POTION, DEMONIC_RUNE))
-    assertEqual(previewOf(client), { Api.itemIcon(MAJOR_MANA_POTION), Api.itemIcon(DEMONIC_RUNE) })
+    assertEqual(client:macroText("AutoManaPotion"),
+      "#showtooltip\n/castsequence reset=combat/60 item:" .. MANA_RUBY
+        .. ", item:" .. MAJOR_MANA_POTION .. ", item:" .. DEMONIC_RUNE)
+    assertEqual(previewOf(client),
+      { Api.itemIcon(MANA_RUBY), Api.itemIcon(MAJOR_MANA_POTION), Api.itemIcon(DEMONIC_RUNE) })
     assertEqual(client.errors, {})
   end)
 end
