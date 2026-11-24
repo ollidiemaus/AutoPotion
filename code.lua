@@ -500,7 +500,7 @@ local function buildManaPotionMacroString()
     end
   end
   local demonicRune = ham.getDemonicRune()
-  local skipGem, expiry = ham.shouldPutManaPotionBeforeGem(gem, pot or demonicRune)
+  local skipGem, expiry = ham.shouldPutManaPotionBeforeGem(gem, pot, demonicRune)
   if expiry then
     scheduleManaCooldownRefresh(expiry)
   end
@@ -659,20 +659,20 @@ function ham.updateManaPotionMacro()
   writeMacro(manaPotionMacroName, buildManaPotionMacroString())
 end
 
-local deleteManaGemMacroPending = false
-
 function ham.scheduleManaGemMacroDelete()
-  deleteManaGemMacroPending = true
+  if HAMDB then
+    HAMDB.deleteManaGemMacroPending = true
+  end
 end
 
 function ham.updateManaGemMacro()
   if ham.options and ham.options.separateManaGemMacro then
-    deleteManaGemMacroPending = false
+    if HAMDB then HAMDB.deleteManaGemMacroPending = nil end
     writeMacro(manaGemMacroName, buildManaGemMacroString())
     return
   end
-  if deleteManaGemMacroPending then
-    deleteManaGemMacroPending = false
+  if HAMDB and HAMDB.deleteManaGemMacroPending then
+    HAMDB.deleteManaGemMacroPending = nil
     deleteMacro(manaGemMacroName)
   end
 end

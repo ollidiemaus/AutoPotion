@@ -222,6 +222,29 @@ for _, flavor in ipairs({ "classic", "forever", "retail" }) do
     client:nextFrame()
     assertEqual(client:macroText("AutoManaGem"), nil)
     assertEqual(client:macroText("AutoManaPotion"), sequence(items.reset, items.gem, items.potion))
+
+    -- Unticking in combat and reloading before combat ends still deletes AutoManaGem once combat ends
+    client:clickCheckbox(SEPARATE_GEM_LABEL)
+    client:nextFrame()
+    assertEqual(client:macroText("AutoManaGem"), uses(items.gem))
+    client:enterCombat()
+    client:clickCheckbox(SEPARATE_GEM_LABEL)
+    client:nextFrame()
+    assertEqual(client:macroText("AutoManaGem"), uses(items.gem))
+    client = client:reload()
+    assertEqual(client:macroText("AutoManaGem"), uses(items.gem))
+    client:leaveCombat()
+    assertEqual(client:macroText("AutoManaGem"), nil)
+
+    -- Reset to Default deletes AutoManaGem when separate macro was enabled
+    client:openSettings("AutoPotion", "AutoManaPotion")
+    client:clickCheckbox(SEPARATE_GEM_LABEL)
+    client:nextFrame()
+    assertEqual(client:macroText("AutoManaGem"), uses(items.gem))
+    client:openSettings("AutoPotion", "AutoPotion")
+    client:clickButton("Reset to Default")
+    client:nextFrame()
+    assertEqual(client:macroText("AutoManaGem"), nil)
     assertEqual(client.errors, {})
   end)
 end
@@ -238,6 +261,23 @@ for _, flavor in ipairs({ "classic", "forever" }) do
     client:nextFrame()
     assertEqual(client:macroText("AutoManaPotion"), uses(DEMONIC_RUNE))
     assertEqual(previewOf(client), { Api.itemIcon(DEMONIC_RUNE) })
+    assertEqual(client.errors, {})
+  end)
+
+  test(flavor .. ": skips a mana gem on cooldown when potion has longer CD and demonic rune is ready", function()
+    local DEMONIC_RUNE = 12662
+    local client = mage(flavor, { [MANA_RUBY] = 1, [MAJOR_MANA_POTION] = 5, [DEMONIC_RUNE] = 2 }, {
+      itemCooldowns = {
+        [MANA_RUBY] = { start = 1, duration = 60 },
+        [MAJOR_MANA_POTION] = { start = 1, duration = 120 },
+      },
+    })
+    client:openSettings("AutoPotion", "AutoManaPotion")
+    client:clickCheckbox(SKIP_CD_LABEL)
+    client:clickCheckbox("Include Demonic Runes")
+    client:nextFrame()
+    assertEqual(client:macroText("AutoManaPotion"), sequence("combat", MAJOR_MANA_POTION, DEMONIC_RUNE))
+    assertEqual(previewOf(client), { Api.itemIcon(MAJOR_MANA_POTION), Api.itemIcon(DEMONIC_RUNE) })
     assertEqual(client.errors, {})
   end)
 end

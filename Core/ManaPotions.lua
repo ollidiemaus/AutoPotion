@@ -244,23 +244,32 @@ function ham.isWatchingManaCooldowns()
     and ham.options.skipManaGemOnCooldown
 end
 
--- Returns (skipGem, refreshDelay): whether the macro should show/use the mana potion
--- (or demonic rune) ahead of the mana gem because the gem is on cooldown and the next
--- item is ready sooner.
-function ham.shouldPutManaPotionBeforeGem(gem, nextItem)
+-- Returns (skipGem, refreshDelay): whether the macro should show/use a later item (mana potion
+-- or demonic rune) ahead of the mana gem because the gem is on cooldown and at least one of
+-- them is ready sooner.
+function ham.shouldPutManaPotionBeforeGem(gem, pot, rune)
   if not ham.isWatchingManaCooldowns() then
     return false, nil
   end
-  if not gem or not nextItem then
+  if not gem or (not pot and not rune) then
     return false, nil
   end
   local gemRem = ham.getItemCooldownRemaining(gem.getId())
   if gemRem <= 0 then
     return false, nil
   end
-  local nextRem = ham.getItemCooldownRemaining(nextItem.getId())
-  if nextRem < gemRem then
-    return true, (nextRem > 0 and math.min(nextRem, gemRem) or gemRem)
+  local soonest = nil
+  if pot then
+    soonest = ham.getItemCooldownRemaining(pot.getId())
+  end
+  if rune then
+    local runeRem = ham.getItemCooldownRemaining(rune.getId())
+    if not soonest or runeRem < soonest then
+      soonest = runeRem
+    end
+  end
+  if soonest < gemRem then
+    return true, (soonest > 0 and math.min(soonest, gemRem) or gemRem)
   end
   return false, gemRem
 end

@@ -470,7 +470,11 @@ function ham.settingsFrame:InitializeOptions()
 
 	-------------  RESET BUTTON  -------------
 	btn:SetScript("OnClick", function()
+		local hadSeparateManaGemMacro = ham.options and ham.options.separateManaGemMacro
 		HAMDB = CopyTable(ham.defaults)
+		if hadSeparateManaGemMacro and ham.scheduleManaGemMacroDelete then
+			ham.scheduleManaGemMacroDelete()
+		end
 		ham.refreshOptions()
 		self:refreshCheckboxes()
 		-- show the defaults now, rebuild the macros once combat allows

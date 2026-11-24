@@ -35,7 +35,7 @@ function ham.manaPotionSettingsFrame:updateManaPotionPrio()
 				break
 			end
 		end
-		if not ham.shouldPutManaPotionBeforeGem(gem, firstPot or demonicRune) then
+		if not ham.shouldPutManaPotionBeforeGem(gem, firstPot, demonicRune) then
 			items = { gem, unpack(items) }
 		end
 	end
