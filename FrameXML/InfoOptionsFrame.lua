@@ -31,6 +31,11 @@ local MACROS = {
 		description = L["The mana potion that restores the most mana."],
 	},
 	{
+		name = L["AutoManaGem"],
+		icon = "Interface\\Icons\\INV_Misc_Gem_Ruby_01",
+		description = L["Your best conjured mana gem."],
+	},
+	{
 		name = L["AutoFood"],
 		icon = "Interface\\Icons\\INV_Misc_Fork&Knife",
 		description = L["The best food in your bags."],
@@ -126,6 +131,22 @@ function ham.infoSettingsFrame:updateInstalledLabels()
 	end
 end
 
+-- Show AutoManaGem on the Info page only when "Separate Mana Gem macro" is enabled,
+-- and re-anchor the following macro entry so no blank gap is left when hidden.
+function ham.infoSettingsFrame:updateManaGemVisibility()
+	local entry = self.manaGemMacroEntry
+	if not entry then return end
+	local show = (ham.options and ham.options.separateManaGemMacro) and true or false
+	entry.icon:SetShown(show)
+	entry.name:SetShown(show)
+	entry.description:SetShown(show)
+	if entry.nextIcon then
+		entry.nextIcon:ClearAllPoints()
+		local anchor = show and entry.description or entry.prevAnchor
+		entry.nextIcon:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", -entry.indent, -ENTRY_GAP)
+	end
+end
+
 -- Resize the scrollable content to fit the page. The text wraps, so its height depends on
 -- the width of the settings window.
 function ham.infoSettingsFrame:recalculateContentHeight()
@@ -154,6 +175,7 @@ function ham.infoSettingsFrame:InitializeOptions()
 
 	self.panel:SetScript("OnShow", function()
 		ham.infoSettingsFrame:updateInstalledLabels()
+		ham.infoSettingsFrame:updateManaGemVisibility()
 		ham.infoSettingsFrame:recalculateContentHeight()
 		-- wrapped text may only get its final height once the page has been laid out
 		C_Timer.After(0, function() ham.infoSettingsFrame:recalculateContentHeight() end)
@@ -244,7 +266,7 @@ function ham.infoSettingsFrame:InitializeOptions()
 
 		last = createText("GameFontHighlight", description, nameString, 0, -3)
 		lastIndent = iconSize + ICON_GAP
-		return nameString
+		return nameString, icon, last
 	end
 
 	-- The game can't open web pages, so links are shown in a read-only edit box: clicking it
@@ -307,8 +329,22 @@ function ham.infoSettingsFrame:InitializeOptions()
 	-------------  MACROS  -------------
 	addSectionTitle(L["Macros"])
 	for _, macro in ipairs(MACROS) do
-		addIconEntry(macro.icon, MACRO_ICON_SIZE, macro.name, "GameFontNormal", nil, macro.description)
+		local prevAnchor = last
+		local nameString, icon, descString =
+			addIconEntry(macro.icon, MACRO_ICON_SIZE, macro.name, "GameFontNormal", nil, macro.description)
+		if macro.name == L["AutoManaGem"] then
+			self.manaGemMacroEntry = {
+				icon = icon,
+				name = nameString,
+				description = descString,
+				prevAnchor = prevAnchor,
+				indent = MACRO_ICON_SIZE + ICON_GAP,
+			}
+		elseif self.manaGemMacroEntry and not self.manaGemMacroEntry.nextIcon then
+			self.manaGemMacroEntry.nextIcon = icon
+		end
 	end
+	self:updateManaGemVisibility()
 
 	-------------  COMMANDS  -------------
 	addSectionTitle(L["Commands"])

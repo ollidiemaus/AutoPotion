@@ -14,4 +14,7 @@
   <Binding name="AutoManaPotion Macro" category="Auto Potion">
     -- AutoManaPotion
   </Binding>
+  <Binding name="AutoManaGem Macro" category="Auto Potion">
+    -- AutoManaGem
+  </Binding>
 </Bindings>

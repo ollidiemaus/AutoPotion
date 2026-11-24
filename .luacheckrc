@@ -18,19 +18,19 @@ read_globals = {
     -- Lua extensions in the WoW client
     "format", "issecretvalue",
     -- Namespaces
-    "AuraUtil", "C_AddOns", "C_EventUtils", "C_Item", "C_Map", "C_PvP", "C_Secrets", "C_Spell",
+    "AuraUtil", "C_AddOns", "C_Container", "C_EventUtils", "C_Item", "C_Map", "C_PvP", "C_Secrets", "C_Spell",
     "C_SkillInfo", "C_SpellBook", "C_Timer", "C_UnitAuras", "Constants", "Enum", "Settings",
     -- Frames and UI
     "CreateFrame", "GameTooltip", "GameFontHighlightSmall", "InterfaceOptionsFramePanelContainer",
     "InterfaceOptionsFrame_OpenToCategory", "InterfaceOptions_AddCategory", "CopyTable",
     "FONT_COLOR_CODE_CLOSE", "GRAY_FONT_COLOR", "GREEN_FONT_COLOR_CODE", "HIGHLIGHT_FONT_COLOR",
     -- Macros
-    "CreateMacro", "EditMacro", "GetMacroInfo", "GetNumMacros", "MAX_ACCOUNT_MACROS",
+    "CreateMacro", "DeleteMacro", "EditMacro", "GetMacroInfo", "GetNumMacros", "MAX_ACCOUNT_MACROS",
     "MegaMacro", "MegaMacroGlobalData",
     -- Items, spells, units
-    "GetInstanceInfo", "GetInventoryItemID", "GetInventoryItemTexture", "GetItemSpell", "GetSpellBaseCooldown", "GetSpellInfo",
-    "GetSpellTexture", "IsSpellKnown", "UnitClass", "UnitFactionGroup", "LOCALIZED_CLASS_NAMES_MALE",
-    "InCombatLockdown", "IsInInstance", "UnitLevel",
+    "GetInstanceInfo", "GetInventoryItemID", "GetInventoryItemTexture", "GetItemCooldown", "GetItemSpell",
+    "GetSpellBaseCooldown", "GetSpellInfo", "GetSpellTexture", "GetTime", "IsSpellKnown", "UnitClass",
+    "UnitFactionGroup", "LOCALIZED_CLASS_NAMES_MALE", "InCombatLockdown", "IsInInstance", "UnitLevel",
     -- Skills: First Aid for bandages
     "GetNumSkillLines", "GetSkillLineInfo", "GetProfessions", "GetProfessionInfo",
     -- Client and flavor

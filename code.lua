@@ -5,6 +5,7 @@ local bandageMacroName = L["AutoBandage"] or "AutoBandage"
 local foodMacroName = L["AutoFood"] or "AutoFood"
 local drinkMacroName = L["AutoDrink"] or "AutoDrink"
 local manaPotionMacroName = L["AutoManaPotion"] or "AutoManaPotion"
+local manaGemMacroName = L["AutoManaGem"] or "AutoManaGem"
 
 local function isInInstancedPvP()
   if not ham.isRetail then return false end
@@ -338,6 +339,15 @@ local function writeMacro(name, text)
   if ham.debug then log(name .. " macro updated.") end
 end
 
+local function deleteMacro(name)
+  if megaMacro.installed and megaMacro.loaded then return end
+  if GetMacroInfo(name) ~= nil then
+    DeleteMacro(name)
+    writtenText[name] = nil
+    if ham.debug then log(name .. " macro deleted.") end
+  end
+end
+
 local function checkMegaMacroAddon()
   -- MegaMacro is only available for retail
   if not ham.isRetail then
@@ -439,24 +449,63 @@ local function buildDrinkMacroString()
   return "#showtooltip\n/use [@player] " .. sequence[1]
 end
 
+local manaCooldownTimer = nil
+local manaCooldownTimerTarget = 0
+
+local function scheduleManaCooldownRefresh(delay)
+  if not delay or delay <= 0 then return end
+  local now = GetTime and GetTime() or 0
+  local target = now + delay + 0.1
+  if manaCooldownTimer and math.abs(target - manaCooldownTimerTarget) < 0.2 then
+    return
+  end
+  if manaCooldownTimer and manaCooldownTimer.Cancel then
+    manaCooldownTimer:Cancel()
+  end
+  manaCooldownTimerTarget = target
+  local handle
+  local function onExpire()
+    if manaCooldownTimer ~= handle then return end
+    manaCooldownTimer = nil
+    manaCooldownTimerTarget = 0
+    ham.refreshPreviews()
+    ham.requestMacroUpdate()
+  end
+  if C_Timer.NewTimer then
+    handle = C_Timer.NewTimer(delay + 0.1, onExpire)
+  else
+    handle = {}
+    C_Timer.After(delay + 0.1, onExpire)
+  end
+  manaCooldownTimer = handle
+end
+
 -- Build mana potion macro string: the ticked mana spells the character knows (best restore
 -- first), then the best mana gem, then the best mana potion, then (with "Include Demonic Runes")
 -- a demonic rune, the last resort as it costs health. None of them share a cooldown, so with two
 -- or more a castsequence uses one per press and starts over with the first when combat starts or
 -- ends. The first entry's cooldown (a spell's with its cooldown talents) is the reset timer. With
--- a mana spell the line is cast on the player, so a friendly target never gets Innervate.
+-- a mana spell the line is cast on the player, so a friendly target never gets Innervate. When
+-- skipManaGemOnCooldown is enabled and the gem is on cooldown with the potion ready sooner,
+-- skip the gem until it comes back off cooldown.
 local function buildManaPotionMacroString()
   local spells = ham.myPlayer.getManaSpells()
   local items = {}
   local gem = ham.getManaGem()
-  if gem then table.insert(items, gem) end
+  local pot = nil
   for _, item in ipairs(ham.getManaPotions()) do
     if item.getCount() > 0 then
-      table.insert(items, item)
+      pot = item
       break
     end
   end
   local demonicRune = ham.getDemonicRune()
+  local skipGem, expiry = ham.shouldPutManaPotionBeforeGem(gem, pot or demonicRune)
+  if expiry then
+    scheduleManaCooldownRefresh(expiry)
+  end
+  if gem and not skipGem then table.insert(items, gem) end
+  if pot then table.insert(items, pot) end
   if demonicRune then table.insert(items, demonicRune) end
 
   local sequence = {}
@@ -478,6 +527,14 @@ local function buildManaPotionMacroString()
   end
   return "#showtooltip\n/castsequence " .. target .. "reset=" .. resetArgument(firstCooldown) .. " "
     .. table.concat(sequence, ", ")
+end
+
+local function buildManaGemMacroString()
+  local gem = ham.getBestManaGem and ham.getBestManaGem() or nil
+  if not gem then
+    return "#showtooltip"
+  end
+  return "#showtooltip\n/use item:" .. tostring(gem.getId())
 end
 
 -- Soulburn (Warlock talent) empowers the next Healthstone. It's off the GCD, so a leading
@@ -602,6 +659,24 @@ function ham.updateManaPotionMacro()
   writeMacro(manaPotionMacroName, buildManaPotionMacroString())
 end
 
+function ham.scheduleManaGemMacroDelete()
+  if HAMDB then
+    HAMDB.deleteManaGemMacroPending = true
+  end
+end
+
+function ham.updateManaGemMacro()
+  if ham.options and ham.options.separateManaGemMacro then
+    if HAMDB then HAMDB.deleteManaGemMacroPending = nil end
+    writeMacro(manaGemMacroName, buildManaGemMacroString())
+    return
+  end
+  if HAMDB and HAMDB.deleteManaGemMacroPending then
+    HAMDB.deleteManaGemMacroPending = nil
+    deleteMacro(manaGemMacroName)
+  end
+end
+
 -- A hidden page's preview is left alone: its OnShow refreshes it when the player opens it.
 local function isShown(page)
   return page.panel ~= nil and page.panel:IsVisible()
@@ -626,6 +701,7 @@ local function rebuildMacros()
   ham.updateFoodMacro()
   ham.updateDrinkMacro()
   ham.updateManaPotionMacro()
+  ham.updateManaGemMacro()
 end
 
 local updatePending = false -- an update was requested and hasn't run yet
@@ -675,6 +751,13 @@ local eventHandlers = {
   end,
   -- fires once a burst of BAG_UPDATEs has settled
   BAG_UPDATE_DELAYED = requestOn("event: BAG_UPDATE_DELAYED"),
+  BAG_UPDATE_COOLDOWN = function()
+    if not (ham.isWatchingManaCooldowns and ham.isWatchingManaCooldowns()) then return end
+    if not (ham.getManaGem and ham.getManaGem()) then return end
+    log("event: BAG_UPDATE_COOLDOWN")
+    ham.refreshPreviews()
+    ham.requestMacroUpdate()
+  end,
   UNIT_PET = requestOn("event: UNIT_PET"),
   -- also on zoning: the instanced-PvP rules depend on the zone
   PLAYER_ENTERING_WORLD = requestOn("event: PLAYER_ENTERING_WORLD"),
@@ -734,6 +817,7 @@ local eventHandlers = {
 local updateFrame = CreateFrame("Frame")
 updateFrame:RegisterEvent("ADDON_LOADED")
 updateFrame:RegisterEvent("BAG_UPDATE_DELAYED")
+updateFrame:RegisterEvent("BAG_UPDATE_COOLDOWN")
 updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 updateFrame:RegisterEvent("PLAYER_LEVEL_UP")
 updateFrame:RegisterEvent("GET_ITEM_INFO_RECEIVED")

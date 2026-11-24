@@ -116,6 +116,13 @@ local function characterFor(flavor, label)
   options.knownSpells = options.knownSpells or {}
   local spellId = SPELL_BOXES[label] or label:match("^Spell (%d+)$")
   if spellId then table.insert(options.knownSpells, tonumber(spellId)) end
+  if label == "Show mana potion when mana gem is on cooldown" then
+    if flavor == "retail" then
+      options.itemCooldowns = { [36799] = { start = 1, duration = 90 } }
+    else
+      options.itemCooldowns = { [8008] = { start = 1, duration = 60 } }
+    end
+  end
   local kindFood = KIND_FOOD[flavor][label]
   if kindFood then options.bags = { [kindFood] = 5 } end
   return options

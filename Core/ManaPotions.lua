@@ -122,14 +122,19 @@ local function getManaGems()
   return {}
 end
 
--- The mana gem AutoManaPotion uses: the best one in the bags, nil without one or with
--- "Use mana gems" off. All mana gems share one cooldown, so the macro only ever needs the best.
-function ham.getManaGem()
-  if not ham.options.useManaGems then return nil end
+-- The best mana gem currently in the player's bags, regardless of AutoManaPotion settings.
+function ham.getBestManaGem()
   for _, gem in ipairs(getManaGems()) do
     if gem.getCount() > 0 then return gem end
   end
   return nil
+end
+
+-- The mana gem AutoManaPotion uses: the best one in the bags, nil without one, with
+-- "Use mana gems" off, or when mana gems are split into their own AutoManaGem macro.
+function ham.getManaGem()
+  if not ham.options.useManaGems or ham.options.separateManaGemMacro then return nil end
+  return ham.getBestManaGem()
 end
 
 -- Demonic runes: restore mana at a cost of health, on a cooldown of their own apart from the mana
@@ -190,4 +195,72 @@ function ham.getManaPotions()
     end
   end
   return filtered
+end
+
+local function usable(value)
+  return not (issecretvalue and issecretvalue(value))
+end
+
+local function tryCooldown(fn, itemId)
+  if not fn then return nil end
+  local start, duration, enable = fn(itemId)
+  if usable(start) and usable(duration) and usable(enable)
+      and enable ~= 0 and enable ~= false
+      and start and start > 0 and duration and duration > 0 then
+    return start, duration, enable
+  end
+end
+
+local function rawItemCooldown(itemId)
+  local getters = {
+    C_Container and C_Container.GetItemCooldown or nil,
+    C_Item and C_Item.GetItemCooldown or nil,
+    GetItemCooldown,
+  }
+  for i = 1, 3 do
+    local start, duration, enable = tryCooldown(getters[i], itemId)
+    if start then return start, duration, enable end
+  end
+  return 0, 0, 0
+end
+
+-- Remaining cooldown in seconds for itemId, ignoring the 1.5s GCD and secret values.
+function ham.getItemCooldownRemaining(itemId)
+  if not itemId then return 0 end
+  local now = GetTime and GetTime() or 0
+  local start, duration = rawItemCooldown(itemId)
+  if start <= 0 or duration <= 1.5 then
+    return 0
+  end
+  local remaining = (start + duration) - now
+  if remaining > 0.05 then
+    return remaining
+  end
+  return 0
+end
+
+function ham.isWatchingManaCooldowns()
+  return ham.options and ham.options.useManaGems and not ham.options.separateManaGemMacro
+    and ham.options.skipManaGemOnCooldown
+end
+
+-- Returns (skipGem, refreshDelay): whether the macro should show/use the mana potion
+-- (or demonic rune when no potion is in the bags) ahead of the mana gem because the gem
+-- is on cooldown and the next item is ready sooner.
+function ham.shouldPutManaPotionBeforeGem(gem, nextItem)
+  if not ham.isWatchingManaCooldowns() then
+    return false, nil
+  end
+  if not gem or not nextItem then
+    return false, nil
+  end
+  local gemRem = ham.getItemCooldownRemaining(gem.getId())
+  if gemRem <= 0 then
+    return false, nil
+  end
+  local nextRem = ham.getItemCooldownRemaining(nextItem.getId())
+  if nextRem < gemRem then
+    return true, (nextRem > 0 and math.min(nextRem, gemRem) or gemRem)
+  end
+  return false, gemRem
 end

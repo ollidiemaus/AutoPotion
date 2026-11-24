@@ -96,6 +96,7 @@ end
 --                    default; see Client.SKILL_LINES for the ones the fake knows
 --   items            { [itemId] = { name =, icon =, spell = { name =, id = }, requiredLevel = } },
 --                    all optional; requiredLevel is the level C_Item.GetItemInfo reports (0)
+--   itemCooldowns    { [itemId] = { start =, duration =, enable = 1 } }, optional
 --   equipped         { [inventorySlot] = itemId }
 --   emptyItemCache   true to start with no item in the item cache, as after clearing the Cache
 --                    folder: C_Item.GetItemInfo reports an item only once it has loaded
@@ -131,6 +132,7 @@ function Client.new(options)
     locale = options.locale or "enUS",
     bags = copy(options.bags or {}),
     items = copy(options.items or {}),
+    itemCooldowns = copy(options.itemCooldowns or {}),
     equipped = copy(options.equipped or {}),
     -- { [itemId] = true } for the items loaded, nil when every item is
     itemCache = options.emptyItemCache and {} or nil,
@@ -156,7 +158,7 @@ function Client.new(options)
     frames = {},
     timers = {},
     settingsCategories = {},
-    time = 0,
+    time = options.time or 0,
     order = 0,
     lockdown = false,
   }, Client)
@@ -313,6 +315,7 @@ function Client:reload()
     flavor = self.flavorName, locale = self.locale, class = self.class, faction = self.faction,
     level = self.level, skills = self.skills,
     instanceType = self.instanceType, mapId = self.mapId, bags = self.bags, items = self.items,
+    itemCooldowns = self.itemCooldowns, time = self.time,
     equipped = self.equipped, spells = self.spells, knownSpells = knownSpells, petSpells = petSpells,
     auras = auras,
     savedVariables = saved, maxAccountMacros = self.maxAccountMacros, megaMacro = self.megaMacroNames,
@@ -429,6 +432,16 @@ function Client:equip(slots)
   for _, slot in ipairs(changed) do
     self:fireEvent("PLAYER_EQUIPMENT_CHANGED", slot, self.equipped[slot] ~= nil)
   end
+end
+
+-- Puts an item on cooldown starting at `start` (or current time > 0) and fires BAG_UPDATE_COOLDOWN.
+function Client:setItemCooldown(itemId, duration, start, enable)
+  self.itemCooldowns[itemId] = {
+    start = start or math.max(self.time, 0.01),
+    duration = duration or 0,
+    enable = enable == nil and 1 or enable,
+  }
+  self:fireEvent("BAG_UPDATE_COOLDOWN")
 end
 
 -- Auras ---------------------------------------------------------------------------------------
