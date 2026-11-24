@@ -41,6 +41,7 @@ function ham.getDrinkForForever()
     ham.greenTeaLeaf,
     -- Plain vendor water (no stats), highest tier first
     ham.mountainSpringWater,
+    ham.bottledAlteracSpringWater,
     ham.hyjalNectar,
     ham.morningGloryDew,
     ham.morningGloryDewForever,

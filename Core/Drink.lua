@@ -62,6 +62,7 @@ ham.enchantedWater = ham.Item.new(4791, "Enchanted Water", { mp = 1344.6 })
 ham.fizzyFaireDrink = ham.Item.new(19299, "Fizzy Faire Drink", { mp = 835.2 })
 ham.goldthornTea = ham.Item.new(10841, "Goldthorn Tea", { mp = 1344.6 })
 ham.hyjalNectar = ham.Item.new(18300, "Hyjal Nectar", { mp = 4200 })
+ham.bottledAlteracSpringWater = ham.Item.new(19318, "Bottled Alterac Spring Water", { mp = 4410 }) -- leaves a small Spirit buff too, not the food buff
 
 -- Classic - conjured (Mage), prioritized first: free and doesn't consume bag/gold
 ham.conjuredWater = ham.Item.new(5350, "Conjured Water", { conjured = true, mp = 151.2 })
